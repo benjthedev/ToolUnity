@@ -12,7 +12,7 @@ export default function CookiePolicyPage() {
               Cookies are small text files that are placed on your device when you visit a website. They are widely used to make websites work more efficiently and provide information to website owners.
             </p>
             <p className="text-gray-700">
-              ToolTree uses cookies and similar tracking technologies to enhance your experience, analyze usage, and deliver personalized content.
+              ToolUnity uses cookies and similar tracking technologies to enhance your experience, analyze usage, and deliver personalized content.
             </p>
           </section>
 
@@ -114,7 +114,7 @@ export default function CookiePolicyPage() {
               <li>Clear cookies when you close your browser</li>
             </ul>
             <p className="text-gray-700 mb-4">
-              <strong>Note:</strong> Blocking essential cookies may affect the functionality of ToolTree and prevent you from using certain features.
+              <strong>Note:</strong> Blocking essential cookies may affect the functionality of ToolUnity and prevent you from using certain features.
             </p>
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">4.2 Browser-Specific Instructions</h3>
@@ -147,7 +147,7 @@ export default function CookiePolicyPage() {
           <section>
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">5. Do Not Track Signals</h2>
             <p className="text-gray-700">
-              Some browsers include a "Do Not Track" (DNT) feature that signals to websites you visit that you do not want to be tracked. Currently, there is no industry standard for how to respond to DNT signals. ToolTree does not currently respond to DNT signals, but we provide you with choices about cookies as described in this policy.
+              Some browsers include a "Do Not Track" (DNT) feature that signals to websites you visit that you do not want to be tracked. Currently, there is no industry standard for how to respond to DNT signals. ToolUnity does not currently respond to DNT signals, but we provide you with choices about cookies as described in this policy.
             </p>
           </section>
 
@@ -180,7 +180,7 @@ export default function CookiePolicyPage() {
               If you have questions about our use of cookies, please contact us:
             </p>
             <ul className="text-gray-700 space-y-1">
-              <li>Email: support@tooltree.com</li>
+              <li>Email: support@toolunity.com</li>
               <li>Phone: +44 (0) 123 456 7890</li>
             </ul>
           </section>

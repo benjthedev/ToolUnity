@@ -43,8 +43,8 @@ export default function ContactPage() {
               {/* Email */}
               <div>
                 <h3 className="text-sm font-semibold text-gray-900 mb-2">Email</h3>
-                <a href="mailto:support@tooltree.com" className="text-blue-600 hover:text-blue-700">
-                  support@tooltree.com
+                <a href="mailto:support@toolunity.com" className="text-blue-600 hover:text-blue-700">
+                  support@toolunity.com
                 </a>
                 <p className="text-sm text-gray-600 mt-1">We'll respond within 24 hours</p>
               </div>
@@ -61,16 +61,16 @@ export default function ContactPage() {
               {/* General Inquiries */}
               <div>
                 <h3 className="text-sm font-semibold text-gray-900 mb-2">Business Inquiries</h3>
-                <a href="mailto:partnerships@tooltree.com" className="text-blue-600 hover:text-blue-700">
-                  partnerships@tooltree.com
+                <a href="mailto:partnerships@toolunity.com" className="text-blue-600 hover:text-blue-700">
+                  partnerships@toolunity.com
                 </a>
               </div>
 
               {/* Urgent Issues */}
               <div>
                 <h3 className="text-sm font-semibold text-gray-900 mb-2">Urgent Issues</h3>
-                <a href="mailto:urgent@tooltree.com" className="text-blue-600 hover:text-blue-700">
-                  urgent@tooltree.com
+                <a href="mailto:urgent@toolunity.com" className="text-blue-600 hover:text-blue-700">
+                  urgent@toolunity.com
                 </a>
                 <p className="text-sm text-gray-600 mt-1">For security or safety concerns</p>
               </div>
@@ -159,7 +159,7 @@ export default function ContactPage() {
             <div>
               <h3 className="font-medium text-gray-900 mb-2">How do I report a safety concern?</h3>
               <p className="text-gray-600 text-sm">
-                For urgent safety issues, please email <a href="mailto:urgent@tooltree.com" className="text-blue-600 hover:text-blue-700">urgent@tooltree.com</a> or call us immediately.
+                For urgent safety issues, please email <a href="mailto:urgent@toolunity.com" className="text-blue-600 hover:text-blue-700">urgent@toolunity.com</a> or call us immediately.
               </p>
             </div>
             <div>
@@ -171,7 +171,7 @@ export default function ContactPage() {
             <div>
               <h3 className="font-medium text-gray-900 mb-2">How can I become a partner?</h3>
               <p className="text-gray-600 text-sm">
-                We're excited about partnerships! Email <a href="mailto:partnerships@tooltree.com" className="text-blue-600 hover:text-blue-700">partnerships@tooltree.com</a> with details about your proposal.
+                We're excited about partnerships! Email <a href="mailto:partnerships@toolunity.com" className="text-blue-600 hover:text-blue-700">partnerships@toolunity.com</a> with details about your proposal.
               </p>
             </div>
           </div>

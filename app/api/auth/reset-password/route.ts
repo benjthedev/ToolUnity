@@ -94,9 +94,9 @@ export async function POST(request: NextRequest) {
             'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
           },
           body: JSON.stringify({
-            from: 'noreply@tooltree.com',
+            from: 'noreply@toolunity.com',
             to: email,
-            subject: 'ToolTree Password Reset',
+            subject: 'ToolUnity Password Reset',
             html: `
               <h2>Password Reset Request</h2>
               <p>Click the link below to reset your password (expires in 15 minutes):</p>

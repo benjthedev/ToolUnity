@@ -9,20 +9,20 @@ export default function TermsOfServicePage() {
           <section>
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">1. Acceptance of Terms</h2>
             <p className="text-gray-700 mb-4">
-              Welcome to ToolTree. By accessing or using our platform, you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use our services.
+              Welcome to ToolUnity. By accessing or using our platform, you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use our services.
             </p>
             <p className="text-gray-700">
-              We reserve the right to modify these Terms at any time. Continued use of ToolTree after changes constitutes acceptance of the modified Terms.
+              We reserve the right to modify these Terms at any time. Continued use of ToolUnity after changes constitutes acceptance of the modified Terms.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">2. Description of Service</h2>
             <p className="text-gray-700 mb-4">
-              ToolTree provides a platform that facilitates tool sharing between users. ToolTree does not own, rent, or lend tools. While we administer protection programmes and platform rules, we are not the owner or borrower of any tool.
+              ToolUnity provides a platform that facilitates tool sharing between users. ToolUnity does not own, rent, or lend tools. While we administer protection programmes and platform rules, we are not the owner or borrower of any tool.
             </p>
             <p className="text-gray-700">
-              ToolTree offers damage protection coverage for listed tools but does not guarantee the condition, safety, or legality of any tools or the truth or accuracy of any listings.
+              ToolUnity offers damage protection coverage for listed tools but does not guarantee the condition, safety, or legality of any tools or the truth or accuracy of any listings.
             </p>
           </section>
 
@@ -49,7 +49,7 @@ export default function TermsOfServicePage() {
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">4. Membership Tiers and Subscriptions</h2>
             
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">4.1 Tier Levels</h3>
-            <p className="text-gray-700 mb-2">ToolTree offers three membership tiers:</p>
+            <p className="text-gray-700 mb-2">ToolUnity offers three membership tiers:</p>
             <ul className="list-disc pl-6 text-gray-700 space-y-1 mb-4">
               <li><strong>Basic:</strong> £2/month or free when you list 1+ tools</li>
               <li><strong>Standard:</strong> £10/month or free when you list 3+ tools</li>
@@ -128,7 +128,7 @@ export default function TermsOfServicePage() {
             
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">7.1 Coverage Limits</h3>
             <p className="text-gray-700 mb-4">
-              ToolTree administers a discretionary damage protection programme, subject to these Terms, up to the applicable tier coverage limit. Borrowers are liable for damage or loss up to the tool's stated value, capped at the tier limit.
+              ToolUnity administers a discretionary damage protection programme, subject to these Terms, up to the applicable tier coverage limit. Borrowers are liable for damage or loss up to the tool's stated value, capped at the tier limit.
             </p>
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">7.2 Claims Process</h3>
@@ -155,7 +155,7 @@ export default function TermsOfServicePage() {
               <li>Infringe on intellectual property rights</li>
               <li>List dangerous, illegal, or counterfeit items</li>
               <li>Harass, abuse, or threaten other users</li>
-              <li>Attempt to defraud ToolTree or other users</li>
+              <li>Attempt to defraud ToolUnity or other users</li>
               <li>Interfere with or disrupt the platform's operation</li>
               <li>Use automated systems to access the platform without permission</li>
               <li>Collect user information without consent</li>
@@ -167,7 +167,7 @@ export default function TermsOfServicePage() {
             
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">9.1 Platform Role</h3>
             <p className="text-gray-700 mb-4">
-              ToolTree acts as an intermediary platform only. We do not own, control, or inspect tools. We are not responsible for the actions, conduct, or content of users.
+              ToolUnity acts as an intermediary platform only. We do not own, control, or inspect tools. We are not responsible for the actions, conduct, or content of users.
             </p>
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">9.2 No Warranties</h3>
@@ -177,27 +177,27 @@ export default function TermsOfServicePage() {
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">9.3 Limitation of Liability</h3>
             <p className="text-gray-700 mb-4">
-              TO THE MAXIMUM EXTENT PERMITTED BY LAW, TOOLTREE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOSS OF PROFITS, DATA, OR USE.
+              TO THE MAXIMUM EXTENT PERMITTED BY LAW, TOOLUNITY SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOSS OF PROFITS, DATA, OR USE.
             </p>
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">9.4 Assumption of Risk</h3>
             <p className="text-gray-700 mb-4">
-              You acknowledge that using tools involves inherent risks, including personal injury, property damage, and other hazards. You voluntarily assume all risks associated with borrowing, using, handling, and transporting tools obtained through the platform. ToolTree is not responsible for injuries or damages arising from tool use.
+              You acknowledge that using tools involves inherent risks, including personal injury, property damage, and other hazards. You voluntarily assume all risks associated with borrowing, using, handling, and transporting tools obtained through the platform. ToolUnity is not responsible for injuries or damages arising from tool use.
             </p>
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">9.5 Indemnification</h3>
             <p className="text-gray-700">
-              You agree to indemnify and hold ToolTree harmless from any claims, damages, or expenses arising from your use of the platform, your violation of these Terms, or your violation of any rights of another.
+              You agree to indemnify and hold ToolUnity harmless from any claims, damages, or expenses arising from your use of the platform, your violation of these Terms, or your violation of any rights of another.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">10. Dispute Resolution</h2>
             <p className="text-gray-700 mb-4">
-              If you have a dispute with another user, you agree to resolve it directly with that user. ToolTree may, at its sole discretion, assist in mediation but has no obligation to resolve disputes between users.
+              If you have a dispute with another user, you agree to resolve it directly with that user. ToolUnity may, at its sole discretion, assist in mediation but has no obligation to resolve disputes between users.
             </p>
             <p className="text-gray-700">
-              Any disputes with ToolTree shall be governed by the laws of England and Wales, and you agree to submit to the exclusive jurisdiction of the courts in that region.
+              Any disputes with ToolUnity shall be governed by the laws of England and Wales, and you agree to submit to the exclusive jurisdiction of the courts in that region.
             </p>
           </section>
 
@@ -214,7 +214,7 @@ export default function TermsOfServicePage() {
               If you have questions about these Terms, please contact us:
             </p>
             <ul className="text-gray-700 space-y-1">
-              <li>Email: support@tooltree.com</li>
+              <li>Email: support@toolunity.com</li>
               <li>Phone: +44 (0) 123 456 7890</li>
             </ul>
           </section>

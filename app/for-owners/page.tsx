@@ -40,7 +40,7 @@ export default function ForOwnersPage() {
 
         {/* Why List */}
         <section>
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">Why List Tools on ToolTree?</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">Why List Tools on ToolUnity?</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white border border-gray-200 rounded-lg p-6">
@@ -55,7 +55,7 @@ export default function ForOwnersPage() {
               <div className="text-4xl mb-3">🔒</div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">We Protect You</h3>
               <p className="text-gray-700">
-                If a tool is damaged, ToolTree guarantees reimbursement within 48 hours. You're covered.
+                If a tool is damaged, ToolUnity guarantees reimbursement within 48 hours. You're covered.
               </p>
             </div>
 
@@ -237,7 +237,7 @@ export default function ForOwnersPage() {
               <strong>If a tool is damaged while borrowed:</strong>
             </p>
             <ul className="space-y-2 ml-4 list-disc">
-              <li>ToolTree investigates the damage claim within 48 hours</li>
+              <li>ToolUnity investigates the damage claim within 48 hours</li>
               <li>If approved, you're paid in full within 48 hours</li>
               <li>You don't wait for borrower disputes or payment recovery</li>
               <li>We pursue the borrower for reimbursement separately</li>
@@ -254,7 +254,7 @@ export default function ForOwnersPage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-              <p className="font-semibold text-green-900 mb-3">Allowed on ToolTree</p>
+              <p className="font-semibold text-green-900 mb-3">Allowed on ToolUnity</p>
               <ul className="text-sm text-gray-700 space-y-2">
                 <li>✓ DIY and hand tools</li>
                 <li>✓ Garden and lawn tools</li>
@@ -279,7 +279,7 @@ export default function ForOwnersPage() {
           </div>
 
           <p className="text-sm text-gray-600 mt-6">
-            ToolTree reserves the right to remove listings that pose safety risks or violate community guidelines.
+            ToolUnity reserves the right to remove listings that pose safety risks or violate community guidelines.
           </p>
         </section>
 
@@ -339,7 +339,7 @@ export default function ForOwnersPage() {
         <section className="text-center py-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Ready to List Your Tools?</h2>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Join ToolTree owners and make a difference. It takes less than 5 minutes to sign up and verify.
+            Join ToolUnity owners and make a difference. It takes less than 5 minutes to sign up and verify.
           </p>
           <Link
             href="/signup"
@@ -364,7 +364,7 @@ export default function ForOwnersPage() {
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">What if a tool goes missing?</h3>
               <p className="text-gray-700">
-                If a tool isn't returned after the grace period, the borrower's account is flagged. ToolTree investigates and ensures the owner is reimbursed for the full tool value (up to the borrower's tier limit).
+                If a tool isn't returned after the grace period, the borrower's account is flagged. ToolUnity investigates and ensures the owner is reimbursed for the full tool value (up to the borrower's tier limit).
               </p>
             </div>
 
@@ -378,7 +378,7 @@ export default function ForOwnersPage() {
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">What if I disagree with a damage decision?</h3>
               <p className="text-gray-700">
-                You can appeal any damage decision. ToolTree reviews both sides fairly, and disputes are resolved within 48 hours. You can also provide photos or evidence of the tool's condition before/after.
+                You can appeal any damage decision. ToolUnity reviews both sides fairly, and disputes are resolved within 48 hours. You can also provide photos or evidence of the tool's condition before/after.
               </p>
             </div>
 

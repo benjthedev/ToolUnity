@@ -53,7 +53,7 @@ export default function VerifyEmailPage() {
               </div>
               <h2 className="mt-6 text-2xl font-bold text-gray-900">Email verified!</h2>
               <p className="mt-4 text-gray-600">
-                Your email has been successfully verified. You can now use all ToolTree features.
+                Your email has been successfully verified. You can now use all ToolUnity features.
               </p>
               <p className="mt-2 text-sm text-gray-500">Redirecting to login in a moment...</p>
             </>

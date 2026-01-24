@@ -12,7 +12,7 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="col-span-1 md:col-span-2">
             <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              ToolTree
+              ToolUnity
             </Link>
             <p className="mt-4 text-gray-400 max-w-md">
               Borrow tools from your neighbours. Save money, reduce waste, and build community connections.

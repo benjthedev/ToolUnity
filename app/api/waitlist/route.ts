@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         success: true, 
-        message: 'Successfully added to waitlist. We\'ll notify you when ToolTree launches in your area!',
+        message: 'Successfully added to waitlist. We\'ll notify you when ToolUnity launches in your area!',
         data 
       },
       { status: 200 }

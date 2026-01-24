@@ -89,11 +89,11 @@ export async function POST(request: NextRequest) {
             'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
           },
           body: JSON.stringify({
-            from: process.env.RESEND_FROM_EMAIL || 'noreply@tooltree.app',
+            from: process.env.RESEND_FROM_EMAIL || 'noreply@toolunity.app',
             to: email,
-            subject: 'Verify your ToolTree email address',
+            subject: 'Verify your ToolUnity email address',
             html: `
-              <h2>Welcome to ToolTree!</h2>
+              <h2>Welcome to ToolUnity!</h2>
               <p>Thank you for signing up. Please verify your email address to activate your account.</p>
               <p>
                 <a href="${verificationLink}" style="display: inline-block; padding: 10px 20px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 4px;">
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
               <p>Or copy and paste this link in your browser:</p>
               <p><code>${verificationLink}</code></p>
               <p>This link will expire in 24 hours.</p>
-              <p>If you didn't sign up for ToolTree, you can ignore this email.</p>
+              <p>If you didn't sign up for ToolUnity, you can ignore this email.</p>
             `,
           }),
         });

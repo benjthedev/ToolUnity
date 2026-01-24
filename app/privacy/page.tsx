@@ -9,10 +9,10 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">1. Introduction</h2>
             <p className="text-gray-700 mb-4">
-              ToolTree ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our tool-sharing platform.
+              ToolUnity ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our tool-sharing platform.
             </p>
             <p className="text-gray-700">
-              By using ToolTree, you agree to the collection and use of information in accordance with this policy. If you do not agree with our policies and practices, please do not use our services.
+              By using ToolUnity, you agree to the collection and use of information in accordance with this policy. If you do not agree with our policies and practices, please do not use our services.
             </p>
           </section>
 
@@ -29,7 +29,7 @@ export default function PrivacyPolicyPage() {
             </ul>
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">2.2 Automatically Collected Information</h3>
-            <p className="text-gray-700 mb-2">When you use ToolTree, we automatically collect:</p>
+            <p className="text-gray-700 mb-2">When you use ToolUnity, we automatically collect:</p>
             <ul className="list-disc pl-6 text-gray-700 space-y-1">
               <li>Session cookies (to keep you logged in)</li>
               <li>Basic usage data (pages visited, errors encountered)</li>
@@ -43,7 +43,7 @@ export default function PrivacyPolicyPage() {
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">3. How We Use Your Information</h2>
             <p className="text-gray-700 mb-2">We use the information we collect to:</p>
             <ul className="list-disc pl-6 text-gray-700 space-y-1">
-              <li>Provide and maintain the ToolTree platform</li>
+              <li>Provide and maintain the ToolUnity platform</li>
               <li>Process your subscription payments through Stripe</li>
               <li>Facilitate damage protection claims and verify claims for payment</li>
               <li>Show your tool listings to potential borrowers</li>
@@ -86,7 +86,7 @@ export default function PrivacyPolicyPage() {
               We take security seriously. Your data is protected using industry-standard encryption, and your payment information is handled entirely by Stripe—we never see or store your card details.
             </p>
             <p className="text-gray-700">
-              All connections to ToolTree use secure HTTPS encryption, and our database access is restricted and monitored.
+              All connections to ToolUnity use secure HTTPS encryption, and our database access is restricted and monitored.
             </p>
           </section>
 
@@ -100,7 +100,7 @@ export default function PrivacyPolicyPage() {
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">6.2 Delete Your Account</h3>
             <p className="text-gray-700 mb-4">
-              You can request deletion of your account by contacting us at support@tooltree.com. We'll delete your information within 30 days, except where required by law.
+              You can request deletion of your account by contacting us at support@toolunity.com. We'll delete your information within 30 days, except where required by law.
             </p>
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">6.3 Cookies</h3>
@@ -119,21 +119,21 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">8. Children's Privacy</h2>
             <p className="text-gray-700">
-              ToolTree is not intended for users under the age of 18. We do not knowingly collect personal information from children. If you believe we have collected information from a child, please contact us immediately.
+              ToolUnity is not intended for users under the age of 18. We do not knowingly collect personal information from children. If you believe we have collected information from a child, please contact us immediately.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">9. International Data Transfers</h2>
             <p className="text-gray-700">
-              Your information is stored on servers in the UK and EU. If you're accessing ToolTree from outside these regions, your data may be transferred internationally.
+              Your information is stored on servers in the UK and EU. If you're accessing ToolUnity from outside these regions, your data may be transferred internationally.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">10. Changes to This Privacy Policy</h2>
             <p className="text-gray-700">
-              We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new policy on this page and updating the "Last updated" date. Your continued use of ToolTree after changes constitutes acceptance of the updated policy.
+              We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new policy on this page and updating the "Last updated" date. Your continued use of ToolUnity after changes constitutes acceptance of the updated policy.
             </p>
           </section>
 
@@ -143,7 +143,7 @@ export default function PrivacyPolicyPage() {
               If you have questions about this Privacy Policy or our privacy practices, please contact us:
             </p>
             <ul className="text-gray-700 space-y-1">
-              <li>Email: support@tooltree.com</li>
+              <li>Email: support@toolunity.com</li>
               <li>Phone: +44 (0) 123 456 7890</li>
             </ul>
           </section>
