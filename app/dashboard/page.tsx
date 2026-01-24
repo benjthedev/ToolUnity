@@ -220,7 +220,10 @@ export default function DashboardPage() {
               start_date: req.start_date,
               end_date: req.end_date,
               status: req.status,
-              tools: { name: toolsMap.get(req.tool_id) || 'Unknown Tool' },
+              tools: { 
+                name: toolsMap.get(req.tool_id) || 'Unknown Tool',
+                owner: usersMap.get(req.user_id) || { email: 'Unknown', phone_number: null }
+              },
               users: { 
                 email: usersMap.get(req.user_id)?.email || 'Unknown User',
                 phone_number: usersMap.get(req.user_id)?.phone_number 
