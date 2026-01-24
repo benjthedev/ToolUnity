@@ -1,12 +1,21 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/auth';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+let supabase: any = null;
+
+function getSupabase() {
+  if (!supabase) {
+    supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+  }
+  return supabase;
+}
 
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -16,7 +25,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Reset the subscription tier to 'none' for the current user
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('users_ext')
     .update({ 
       subscription_tier: 'none'
