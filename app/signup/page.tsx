@@ -106,7 +106,6 @@ export default function SignupPage() {
         setLoading(false);
         return;
       }
-      }
 
       // Redirect to login
       router.push('/login?registered=true');
