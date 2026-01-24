@@ -96,12 +96,12 @@ export default function OwnerDashboard() {
       }
       console.log('Owner ID:', session?.user?.id);
       console.log('Owner tools fetched:', toolsData);
-      console.log('Tool IDs:', toolsData?.map(t => ({ id: t.id, name: t.name })));
+      console.log('Tool IDs:', toolsData?.map((t: any) => ({ id: t.id, name: t.name })));
       setTools(toolsData || []);
 
       // Fetch borrow requests for owner's tools
       if (toolsData && toolsData.length > 0) {
-        const toolIds = toolsData.map((t) => t.id);
+        const toolIds = toolsData.map((t: any) => t.id);
         console.log('Looking for requests with tool_id in:', toolIds);
         
         // First check: get ALL borrow requests to see what exists
