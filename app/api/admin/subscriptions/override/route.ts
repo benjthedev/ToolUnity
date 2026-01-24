@@ -1,6 +1,9 @@
 import { supabase } from '@/lib/supabase';
 import { NextRequest, NextResponse } from 'next/server';
 
+// Force dynamic rendering - this route uses runtime environment variables
+export const dynamic = 'force-dynamic';
+
 /**
  * Admin endpoint to override subscriptions
  * Allows admins to:
