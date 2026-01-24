@@ -6,14 +6,27 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/auth';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-12-15.clover',
-});
+let stripe: Stripe | null = null;
+let supabase: any = null;
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getStripe(): Stripe {
+  if (!stripe) {
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+      apiVersion: '2025-12-15.clover',
+    });
+  }
+  return stripe;
+}
+
+function getSupabase() {
+  if (!supabase) {
+    supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+  }
+  return supabase;
+}
 
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -48,7 +61,7 @@ export async function POST(request: NextRequest) {
     // Try using stored customer ID first
     if (userData.stripe_customer_id) {
       try {
-        const subscriptions = await stripe.subscriptions.list({
+        const subscriptions = await getStripe().subscriptions.list({
           customer: userData.stripe_customer_id,
           limit: 1,
           status: 'active',
@@ -58,7 +71,7 @@ export async function POST(request: NextRequest) {
       } catch (err) {
         console.error('Error checking subscription by customer ID:', err);
         // Fall back to email lookup
-        const emailSubscriptions = await stripe.subscriptions.list({
+        const emailSubscriptions = await getStripe().subscriptions.list({
           limit: 10,
         });
         hasActiveSubscription = emailSubscriptions.data.some(sub => {
@@ -71,7 +84,7 @@ export async function POST(request: NextRequest) {
       }
     } else {
       // No customer ID stored, try email lookup
-      const subscriptions = await stripe.subscriptions.list({
+      const subscriptions = await getStripe().subscriptions.list({
         limit: 10,
       });
       hasActiveSubscription = subscriptions.data.some(sub => {
