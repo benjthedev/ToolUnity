@@ -105,9 +105,7 @@ export default function SignupPage() {
         setError(data.error || 'Failed to create account');
         setLoading(false);
         return;
-      };
-          return;
-        }
+      }
       }
 
       // Redirect to login
