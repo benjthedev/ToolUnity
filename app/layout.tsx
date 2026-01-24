@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ToolTree - Tool Sharing Marketplace",
+  title: "ToolUnity - Tool Sharing Marketplace",
   description: "Share and rent tools in your community",
 };
 
