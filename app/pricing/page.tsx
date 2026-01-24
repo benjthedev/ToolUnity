@@ -198,7 +198,7 @@ export default function PricingPage() {
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">Access Through Contribution or Payment</h1>
             <p className="text-gray-700 text-lg mb-2">
-              ToolTree works on a fairness model: you can build free borrowing access by sharing your tools.
+              ToolUnity works on a fairness model: you can build free borrowing access by sharing your tools.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
@@ -469,8 +469,8 @@ export default function PricingPage() {
           <h2 className="text-3xl font-bold text-gray-900 mb-12">Frequently Asked Questions</h2>
           <div className="space-y-8">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">What is ToolTree?</h3>
-              <p className="text-gray-600">ToolTree is a peer-to-peer tool-sharing marketplace. Borrow tools from neighbours instead of buying expensive equipment you'll only use once or twice. Save money, reduce waste, build community.</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">What is ToolUnity?</h3>
+              <p className="text-gray-600">ToolUnity is a peer-to-peer tool-sharing marketplace. Borrow tools from neighbours instead of buying expensive equipment you'll only use once or twice. Save money, reduce waste, build community.</p>
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Is browsing really free?</h3>

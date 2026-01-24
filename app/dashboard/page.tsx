@@ -404,7 +404,7 @@ export default function DashboardPage() {
               {showUnlockCelebration === 'basic' ? (
                 <>Thank you for contributing your tool to the community. You've unlocked <strong className="text-blue-600">Basic tier access—free, forever</strong>, as long as your tool stays listed.</>
               ) : (
-                <>Amazing! By listing 3 tools, you've unlocked <strong className="text-purple-600">Standard tier access—free, forever</strong>, as long as your tools stay listed. Your contribution makes ToolTree work.</>
+                <>Amazing! By listing 3 tools, you've unlocked <strong className="text-purple-600">Standard tier access—free, forever</strong>, as long as your tools stay listed. Your contribution makes ToolUnity work.</>
               )}
             </p>
             
@@ -432,7 +432,7 @@ export default function DashboardPage() {
 
             <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
               <p className="text-sm text-green-800">
-                <strong>🛡️ Your Tools Are Protected:</strong> While others borrow your tools, ToolTree's damage coverage protects you up to each tool's listed value.
+                <strong>🛡️ Your Tools Are Protected:</strong> While others borrow your tools, ToolUnity's damage coverage protects you up to each tool's listed value.
               </p>
             </div>
             

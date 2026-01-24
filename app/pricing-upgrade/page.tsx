@@ -9,7 +9,7 @@ const plans = [
   {
     name: 'Free',
     price: '$0',
-    description: 'Get started with ToolTree',
+    description: 'Get started with ToolUnity',
     features: ['2 active borrows', 'Community access'],
     current: true,
   },

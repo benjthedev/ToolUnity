@@ -111,7 +111,7 @@ export default function Home() {
       <section className="bg-white py-16 px-4 border-b border-gray-200">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Is ToolTree Available Near You?</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">Is ToolUnity Available Near You?</h2>
             <p className="text-gray-600">We're rolling out to different areas at different times. Check if your postcode is eligible.</p>
           </div>
           
@@ -139,7 +139,7 @@ export default function Home() {
             <div className="bg-green-50 border-2 border-green-400 rounded-lg p-6 text-center">
               <p className="text-lg font-semibold text-green-900 mb-3">✨ Great News!</p>
               <p className="text-green-800 mb-4">
-                ToolTree is available in your area. Join now and start borrowing or listing tools.
+                ToolUnity is available in your area. Join now and start borrowing or listing tools.
               </p>
               {!session ? (
                 <div className="flex gap-3 justify-center">
@@ -171,7 +171,7 @@ export default function Home() {
             <div className="bg-amber-50 border-2 border-amber-400 rounded-lg p-6 text-center">
               <p className="text-lg font-semibold text-amber-900 mb-3">Coming Soon</p>
               <p className="text-amber-800 mb-4">
-                ToolTree isn't available in your area yet, but we're expanding soon! Enter your email to be notified when we launch in your postcode.
+                ToolUnity isn't available in your area yet, but we're expanding soon! Enter your email to be notified when we launch in your postcode.
               </p>
               {waitlistMessage && (
                 <div className="bg-green-50 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-4 text-sm">
@@ -358,7 +358,7 @@ export default function Home() {
       {/* Why Section */}
       <section className="bg-gray-50 py-16 px-4">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Why People Love ToolTree</h2>
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Why People Love ToolUnity</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div>
             <h4 className="text-2xl font-semibold text-green-600 mb-4">💰 Save Hundreds</h4>

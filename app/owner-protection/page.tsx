@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Owner Protection & Guarantee | ToolTree',
-  description: 'Learn how ToolTree protects tool owners with damage liability coverage and fair dispute resolution.',
+  title: 'Owner Protection & Guarantee | ToolUnity',
+  description: 'Learn how ToolUnity protects tool owners with damage liability coverage and fair dispute resolution.',
 };
 
 import Link from 'next/link';
@@ -101,7 +101,7 @@ export default function OwnerProtectionPage() {
 
             {/* Step 2 */}
             <div className="border-l-4 border-blue-600 pl-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">2. ToolTree Review</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">2. ToolUnity Review</h3>
               <p className="text-gray-700">
                 Our team reviews your claim within 24–48 hours. We compare the damage photos to baseline condition photos and verify the damage is legitimate.
               </p>

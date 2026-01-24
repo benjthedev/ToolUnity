@@ -738,7 +738,7 @@ export default function ToolDetailPage() {
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-lg p-5 mb-6">
                 <p className="font-semibold text-gray-900 mb-2">🛡️ You're Protected</p>
                 <p className="text-sm text-gray-700 leading-relaxed">
-                  ToolTree's damage protection covers you during this borrow. Normal wear and tear is expected—you'll only be charged if significant damage occurs, and even then, your liability is capped at the tool's value (£{borrowSuccess.toolValue}).
+                  ToolUnity's damage protection covers you during this borrow. Normal wear and tear is expected—you'll only be charged if significant damage occurs, and even then, your liability is capped at the tool's value (£{borrowSuccess.toolValue}).
                 </p>
               </div>
 

@@ -46,7 +46,7 @@ export default function SafetyPage() {
         {/* Trust Summary */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-8">
           <p className="text-lg text-gray-900 leading-relaxed">
-            Borrowers are responsible for damage beyond normal wear, capped by their membership tier. ToolTree guarantees owners are reimbursed quickly and fairly. Your subscription tier determines your borrowing limits and coverage. Clear limits, clear rules, no surprises.
+            Borrowers are responsible for damage beyond normal wear, capped by their membership tier. ToolUnity guarantees owners are reimbursed quickly and fairly. Your subscription tier determines your borrowing limits and coverage. Clear limits, clear rules, no surprises.
           </p>
         </div>
 
@@ -62,13 +62,13 @@ export default function SafetyPage() {
                   <strong>Borrower</strong> pays the damage cost, up to the value of the tool.
                 </p>
                 <p className="text-gray-700">
-                  <strong>ToolTree guarantees</strong> the owner is made whole even if the borrower refuses to pay or the charge fails.
+                  <strong>ToolUnity guarantees</strong> the owner is made whole even if the borrower refuses to pay or the charge fails.
                 </p>
                 <div className="bg-gray-50 p-4 rounded border-l-4 border-blue-600">
                   <p className="text-sm text-gray-600 font-semibold mb-2">Order of Responsibility:</p>
                   <ol className="text-sm text-gray-700 space-y-1 ml-4 list-decimal">
                     <li>Borrower (primary)</li>
-                    <li>ToolTree (backup guarantee)</li>
+                    <li>ToolUnity (backup guarantee)</li>
                     <li>Owner never bears the loss</li>
                   </ol>
                 </div>
@@ -177,9 +177,9 @@ export default function SafetyPage() {
                 <ol className="space-y-3 text-gray-700">
                   <li><strong>1. Damage reported</strong> — Tool owner reports damage via the return form</li>
                   <li><strong>2. 48-hour response window</strong> — Borrower has 48 hours to respond with their side</li>
-                  <li><strong>3. Review & decision</strong> — ToolTree reviews evidence and makes a fair decision</li>
+                  <li><strong>3. Review & decision</strong> — ToolUnity reviews evidence and makes a fair decision</li>
                   <li><strong>4. Resolution</strong> — Both parties work together to resolve the issue</li>
-                  <li><strong>5. Owner protected</strong> — ToolTree ensures fair outcomes for all parties</li>
+                  <li><strong>5. Owner protected</strong> — ToolUnity ensures fair outcomes for all parties</li>
                 </ol>
               </div>
             </div>
@@ -194,7 +194,7 @@ export default function SafetyPage() {
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">We Guarantee Reimbursement</h3>
               <p className="text-gray-700 mb-4">
-                As an owner, you're protected by ToolTree. If a tool is damaged:
+                As an owner, you're protected by ToolUnity. If a tool is damaged:
               </p>
               <ul className="space-y-3 text-gray-700">
                 <li>
@@ -204,7 +204,7 @@ export default function SafetyPage() {
                   <strong>✓ You don't wait</strong> for the borrower to dispute or for a payment failure
                 </li>
                 <li>
-                  <strong>✓ ToolTree recovers</strong> the funds from the borrower separately
+                  <strong>✓ ToolUnity recovers</strong> the funds from the borrower separately
                 </li>
                 <li>
                   <strong>✓ You're never out-of-pocket</strong> — We guarantee it
@@ -228,7 +228,7 @@ export default function SafetyPage() {
             We're here to help. If you have questions about damage coverage, card policies, or how we protect you, reach out:
           </p>
           <p className="text-gray-700">
-            <strong>Email:</strong> support@tooltree.local
+            <strong>Email:</strong> support@toolunity.com
           </p>
         </section>
 
