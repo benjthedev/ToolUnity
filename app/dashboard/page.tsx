@@ -195,7 +195,7 @@ export default function DashboardPage() {
 
         // Fetch borrow requests for owner's tools
         if (toolsData && toolsData.length > 0) {
-          const toolIds = toolsData.map((t) => t.id);
+          const toolIds = toolsData.map((t: any) => t.id);
           
           const { data: ownerRequestsData, error: ownerRequestsError } = await supabase
             .from('borrow_requests')
@@ -205,7 +205,7 @@ export default function DashboardPage() {
 
           if (!ownerRequestsError && ownerRequestsData) {
             // Get unique user IDs from requests
-            const userIds = [...new Set(ownerRequestsData.map(r => r.user_id))];
+            const userIds = [...new Set(ownerRequestsData.map((r: any) => r.user_id))];
             
             // Fetch user emails and phone numbers
             const { data: usersData } = await supabase
