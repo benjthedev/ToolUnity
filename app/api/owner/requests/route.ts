@@ -79,7 +79,8 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Request not found' }, { status: 404 });
     }
 
-    if (borrowRequest.tools?.owner_id !== session.user.id) {
+    const tool = Array.isArray(borrowRequest.tools) ? borrowRequest.tools[0] : borrowRequest.tools;
+    if (!tool || tool.owner_id !== session.user.id) {
       return NextResponse.json({ error: 'Unauthorized: You do not own this tool' }, { status: 403 });
     }
 
