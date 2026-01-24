@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  experimental: {
+    // Disable static generation for all pages to avoid pre-render errors
+    isrMemoryCacheSize: 0,
+  },
 };
 
 export default nextConfig;
