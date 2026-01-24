@@ -184,7 +184,7 @@ export async function PUT(request: NextRequest) {
 
     // Get the auth user ID from email
     const { data: authData } = await supabase.auth.admin.listUsers();
-    const authUser = authData.users.find(u => u.email === email);
+    const authUser = authData.users.find((u: any) => u.email === email);
 
     if (!authUser) {
       return NextResponse.json(

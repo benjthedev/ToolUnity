@@ -2,30 +2,24 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 let supabaseInstance: SupabaseClient | null = null;
 
-function initializeSupabase(): SupabaseClient {
+export function getSupabase(): SupabaseClient {
   if (supabaseInstance) return supabaseInstance;
   
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase environment variables');
+    // During build time, return a stub that won't crash
+    return createClient('https://stub.supabase.co', 'stub-key');
   }
   
   supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
   return supabaseInstance;
 }
 
-export const supabase = {
-  auth: new Proxy({}, {
-    get: (_, prop) => {
-      return (initializeSupabase().auth as any)[prop as string];
-    }
-  }),
-  from: (table: string) => {
-    return initializeSupabase().from(table);
-  },
-  rpc: (fn: string, args?: any) => {
-    return initializeSupabase().rpc(fn, args);
+// Create a lazy-loading proxy that always calls getSupabase()
+export const supabase = new Proxy({} as any, {
+  get(target, prop) {
+    return getSupabase()[prop as keyof SupabaseClient];
   }
-} as any;
+});
