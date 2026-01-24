@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/app/providers';
 import { supabase } from '@/lib/supabase';
@@ -40,7 +40,6 @@ interface Tool {
 export default function DashboardPage() {
   const { session, loading, logout } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [borrowRequests, setBorrowRequests] = useState<BorrowRequest[]>([]);
   const [ownerRequests, setOwnerRequests] = useState<BorrowRequest[]>([]);
   const [tools, setTools] = useState<Tool[]>([]);
@@ -52,28 +51,21 @@ export default function DashboardPage() {
   const [showUnlockCelebration, setShowUnlockCelebration] = useState<string | null>(null);
   const [syncingTier, setSyncingTier] = useState(false);
   const [syncMessage, setSyncMessage] = useState('');
-  const [isClient, setIsClient] = useState(false);
 
-  // Mark that we're on the client (for useSearchParams)
+  // Check for unlock celebration param using window.location instead of useSearchParams
   useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  // Check for unlock celebration param
-  useEffect(() => {
-    if (!isClient) return;
-    
     try {
-      const unlocked = searchParams?.get?.('unlocked');
+      const params = new URLSearchParams(window.location.search);
+      const unlocked = params.get('unlocked');
       if (unlocked === 'basic' || unlocked === 'standard') {
         setShowUnlockCelebration(unlocked);
         // Clear the URL param after showing
         window.history.replaceState({}, '', '/dashboard');
       }
     } catch (e) {
-      // Silently handle errors in case searchParams isn't available
+      // Silently handle errors
     }
-  }, [isClient, searchParams]);
+  }, []);
 
   useEffect(() => {
     if (!loading && !session) {
