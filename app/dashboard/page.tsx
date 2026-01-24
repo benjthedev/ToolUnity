@@ -52,16 +52,28 @@ export default function DashboardPage() {
   const [showUnlockCelebration, setShowUnlockCelebration] = useState<string | null>(null);
   const [syncingTier, setSyncingTier] = useState(false);
   const [syncMessage, setSyncMessage] = useState('');
+  const [isClient, setIsClient] = useState(false);
+
+  // Mark that we're on the client (for useSearchParams)
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Check for unlock celebration param
   useEffect(() => {
-    const unlocked = searchParams.get('unlocked');
-    if (unlocked === 'basic' || unlocked === 'standard') {
-      setShowUnlockCelebration(unlocked);
-      // Clear the URL param after showing
-      window.history.replaceState({}, '', '/dashboard');
+    if (!isClient) return;
+    
+    try {
+      const unlocked = searchParams?.get?.('unlocked');
+      if (unlocked === 'basic' || unlocked === 'standard') {
+        setShowUnlockCelebration(unlocked);
+        // Clear the URL param after showing
+        window.history.replaceState({}, '', '/dashboard');
+      }
+    } catch (e) {
+      // Silently handle errors in case searchParams isn't available
     }
-  }, [searchParams]);
+  }, [isClient, searchParams]);
 
   useEffect(() => {
     if (!loading && !session) {
