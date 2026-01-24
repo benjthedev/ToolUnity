@@ -17,7 +17,7 @@ export default function ToolOwnerPromo() {
         const { data } = await supabase
           .from('users_ext')
           .select('subscription_tier, tools_count')
-          .eq('user_id', session.user.id)
+          .eq('user_id', session?.user?.id!)
           .single();
         setSubscriptionTier(data?.subscription_tier || 'free');
         setToolsCount(data?.tools_count || 0);
