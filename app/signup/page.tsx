@@ -85,18 +85,14 @@ export default function SignupPage() {
         user_id: authData.user.id,
         email: email,
         username: username,
+        phone_number: phoneNumber,
         subscription_tier: 'free',
       };
-
-      // Only add phone_number if provided
-      if (phoneNumber) {
-        profileData.phone_number = phoneNumber;
-      }
 
       const response = await fetchWithCsrf('/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(profileData),
       });
 
       const data = await response.json();
