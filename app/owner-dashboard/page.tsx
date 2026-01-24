@@ -23,7 +23,7 @@ interface BorrowRequest {
   notes?: string | null;
   status: string;
   tools?: { name: string } | null;
-  users?: { email: string } | null;
+  users?: { email: string; phone_number?: string | null } | null;
 }
 
 export default function OwnerDashboard() {
