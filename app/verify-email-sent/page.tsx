@@ -1,14 +1,24 @@
 'use client';
 
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+export const dynamic = 'force-dynamic';
+
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 
 export default function VerifyEmailSentPage() {
-  const searchParams = useSearchParams();
   const router = useRouter();
-  const email = searchParams.get('email') || '';
+  const [email, setEmail] = useState('');
   const [resendLoading, setResendLoading] = useState(false);
   const [resendMessage, setResendMessage] = useState('');
+
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      setEmail(params.get('email') || '');
+    } catch (e) {
+      // Silently handle errors
+    }
+  }, []);
 
   const handleResendEmail = async () => {
     if (!email) {

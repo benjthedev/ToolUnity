@@ -1,29 +1,35 @@
 'use client';
 
-import { useSearchParams, useRouter } from 'next/navigation';
+export const dynamic = 'force-dynamic';
+
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function VerifyEmailPage() {
-  const searchParams = useSearchParams();
   const router = useRouter();
   const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'expired'>('loading');
 
   useEffect(() => {
-    const success = searchParams.get('success');
-    const error = searchParams.get('error');
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const success = params.get('success');
+      const error = params.get('error');
 
-    if (success === 'true') {
-      setStatus('success');
-      setTimeout(() => router.push('/login'), 3000);
-    } else if (success === 'already') {
-      setStatus('success');
-      setTimeout(() => router.push('/login'), 3000);
-    } else if (error === 'expired') {
-      setStatus('expired');
-    } else if (error) {
-      setStatus('error');
+      if (success === 'true') {
+        setStatus('success');
+        setTimeout(() => router.push('/login'), 3000);
+      } else if (success === 'already') {
+        setStatus('success');
+        setTimeout(() => router.push('/login'), 3000);
+      } else if (error === 'expired') {
+        setStatus('expired');
+      } else if (error) {
+        setStatus('error');
+      }
+    } catch (e) {
+      // Silently handle errors
     }
-  }, [searchParams, router]);
+  }, [router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
