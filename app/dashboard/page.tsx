@@ -213,8 +213,10 @@ export default function DashboardPage() {
               .select('user_id, email, phone_number')
               .in('user_id', userIds);
             
-            const usersMap = new Map(usersData?.map((u: any) => [u.user_id, { email: u.email, phone_number: u.phone_number }]) || []);
-            const toolsMap = new Map(toolsData.map((t: any) => [t.id, t.name]));
+            const usersMap = new Map<string, { email: string; phone_number: string | null }>(
+              usersData?.map((u: any) => [u.user_id, { email: u.email, phone_number: u.phone_number }]) || []
+            );
+            const toolsMap = new Map<string, string>(toolsData.map((t: any) => [t.id, t.name]));
             
             const transformedRequests: BorrowRequest[] = ownerRequestsData.map((req: any) => ({
               id: req.id,
