@@ -1,18 +1,32 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/auth';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-12-15.clover',
-});
+let stripe: Stripe | null = null;
+let supabase: any = null;
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getStripe(): Stripe {
+  if (!stripe) {
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+      apiVersion: '2025-12-15.clover',
+    });
+  }
+  return stripe;
+}
 
+function getSupabase() {
+  if (!supabase) {
+    supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+  }
+  return supabase;
+}
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
   
@@ -22,14 +36,14 @@ export async function POST(request: NextRequest) {
 
   try {
     // Find all subscriptions for this email
-    const subscriptions = await stripe.subscriptions.list({
+    const subscriptions = await getStripe().subscriptions.list({
       limit: 100,
     });
 
     // Filter for this user's email
     let userSubscription = null;
     for (const sub of subscriptions.data) {
-      const customer = await stripe.customers.retrieve(sub.customer as string);
+      const customer = await getStripe().customers.retrieve(sub.customer as string);
       if ('email' in customer && customer.email === session.user.email) {
         // Get the most recent active or trialing subscription
         if ((sub.status === 'active' || sub.status === 'trialing') && (!userSubscription || sub.created > userSubscription.created)) {

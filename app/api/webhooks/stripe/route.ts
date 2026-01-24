@@ -1,15 +1,30 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-12-15.clover',
-});
+let stripe: Stripe | null = null;
+let supabase: any = null;
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getStripe(): Stripe {
+  if (!stripe) {
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+      apiVersion: '2025-12-15.clover',
+    });
+  }
+  return stripe;
+}
+
+function getSupabase() {
+  if (!supabase) {
+    supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+  }
+  return supabase;
+}
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -47,7 +62,7 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      event = stripe.webhooks.constructEvent(
+      event = getStripe().webhooks.constructEvent(
         body,
         sig,
         process.env.STRIPE_WEBHOOK_SECRET!
@@ -68,7 +83,7 @@ export async function POST(request: NextRequest) {
         
         // Get the subscription details
         if (session.subscription) {
-          const subscription = await stripe.subscriptions.retrieve(
+          const subscription = await getStripe().subscriptions.retrieve(
             session.subscription as string
           );
           
@@ -113,11 +128,11 @@ export async function POST(request: NextRequest) {
         const subscription = event.data.object as Stripe.Subscription;
         
         // Get the customer to find their email
-        const customer = await stripe.customers.retrieve(subscription.customer as string);
+        const customer = await getStripe().customers.retrieve(subscription.customer as string);
         
         if (customer && 'email' in customer && customer.email) {
           // Find the user by email and reset their tier to 'none'
-          const { data, error: selectError } = await supabase
+          const { data, error: selectError } = await getSupabase()
             .from('users_ext')
             .select('user_id')
             .eq('email', customer.email)

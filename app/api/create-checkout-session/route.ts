@@ -1,15 +1,30 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-12-15.clover',
-});
+let stripe: Stripe | null = null;
+let supabase: any = null;
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getStripe(): Stripe {
+  if (!stripe) {
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+      apiVersion: '2025-12-15.clover',
+    });
+  }
+  return stripe;
+}
+
+function getSupabase() {
+  if (!supabase) {
+    supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+  }
+  return supabase;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -47,7 +62,7 @@ export async function POST(request: NextRequest) {
       sessionConfig.customer_email = email;
     }
 
-    const session = await stripe.checkout.sessions.create(sessionConfig);
+    const session = await getStripe().checkout.sessions.create(sessionConfig);
 
     return NextResponse.json({ sessionId: session.id, url: session.url }, { status: 200 });
   } catch (error) {
