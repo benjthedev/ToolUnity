@@ -88,13 +88,20 @@ export async function POST(request: NextRequest) {
     // Mark user as email confirmed using service role
     const sbAdmin = getSupabaseAdmin();
     if (sbAdmin) {
-      const { error: confirmError } = await sbAdmin.auth.admin.updateUserById(user_id, {
-        email_confirm: true,
-      });
-      if (confirmError) {
-        console.error('Email confirmation error:', confirmError);
-        // Don't fail the signup if confirmation fails - user can still sign in
+      try {
+        const { data, error: confirmError } = await sbAdmin.auth.admin.updateUserById(user_id, {
+          email_confirm: true,
+        });
+        if (confirmError) {
+          console.error('Email confirmation error:', confirmError);
+        } else {
+          console.log('Email confirmed for user:', user_id);
+        }
+      } catch (e) {
+        console.error('Error confirming email:', e);
       }
+    } else {
+      console.error('Could not initialize admin Supabase client - service role key missing');
     }
 
     return NextResponse.json(
