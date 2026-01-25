@@ -1,7 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { checkRateLimitByEmail, RATE_LIMIT_CONFIGS } from '@/lib/rate-limit';
 import { verifyCsrfToken } from '@/lib/csrf';
+
+let supabaseAdmin: any = null;
+
+function getSupabaseAdmin() {
+  if (supabaseAdmin) return supabaseAdmin;
+  
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!supabaseUrl || !serviceRoleKey) {
+    return null;
+  }
+  
+  supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+  return supabaseAdmin;
+}
+
+let supabase: any = null;
+
+function getSupabase() {
+  if (supabase) return supabase;
+  
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return null;
+  }
+  
+  supabase = createClient(supabaseUrl, supabaseAnonKey);
+  return supabase;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,7 +69,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Create user profile
-    const { error: profileError } = await supabase.from('users_ext').insert({
+    const sb = getSupabase();
+    const { error: profileError } = await sb.from('users_ext').insert({
       user_id: user_id,
       email: email,
       username: username,
@@ -50,6 +83,18 @@ export async function POST(request: NextRequest) {
     if (profileError) {
       console.error('Profile creation error:', profileError);
       return NextResponse.json({ error: profileError.message }, { status: 400 });
+    }
+
+    // Mark user as email confirmed using service role
+    const sbAdmin = getSupabaseAdmin();
+    if (sbAdmin) {
+      const { error: confirmError } = await sbAdmin.auth.admin.updateUserById(user_id, {
+        email_confirm: true,
+      });
+      if (confirmError) {
+        console.error('Email confirmation error:', confirmError);
+        // Don't fail the signup if confirmation fails - user can still sign in
+      }
     }
 
     return NextResponse.json(
