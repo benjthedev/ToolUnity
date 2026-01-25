@@ -12,10 +12,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { email, password } = body;
+    const { user_id, email, username, phone_number, subscription_tier } = body;
 
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password required' }, { status: 400 });
+    if (!user_id || !email || !username) {
+      return NextResponse.json({ error: 'user_id, email, and username required' }, { status: 400 });
     }
 
     // Rate limit signup by email (3 per hour)
@@ -36,39 +36,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create user with Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (authError) {
-      return NextResponse.json({ error: authError.message }, { status: 400 });
-    }
-
-    if (!authData.user) {
-      return NextResponse.json({ error: 'User creation failed' }, { status: 400 });
-    }
-
-    // Create user profile with free subscription
+    // Create user profile
     const { error: profileError } = await supabase.from('users_ext').insert({
-      user_id: authData.user.id,
+      user_id: user_id,
       email: email,
-      username: email.split('@')[0],
-      subscription_tier: 'free',
+      username: username,
+      phone_number: phone_number || null,
+      subscription_tier: subscription_tier || 'free',
       tools_count: 0,
       created_at: new Date().toISOString(),
     });
 
     if (profileError) {
       console.error('Profile creation error:', profileError);
-      // User is created in auth, even if profile fails
+      return NextResponse.json({ error: profileError.message }, { status: 400 });
     }
 
     return NextResponse.json(
       {
-        message: 'User created successfully',
-        user: { id: authData.user.id, email: authData.user.email },
+        message: 'User profile created successfully',
+        user: { id: user_id, email: email, username: username },
       },
       { status: 201 }
     );
