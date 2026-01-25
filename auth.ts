@@ -1,6 +1,6 @@
 import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -15,12 +15,14 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        const supabase = getSupabase();
         const { data, error } = await supabase.auth.signInWithPassword({
           email: credentials.email,
           password: credentials.password,
         });
 
         if (error || !data.user) {
+          console.error('Auth error:', error?.message);
           return null;
         }
 
