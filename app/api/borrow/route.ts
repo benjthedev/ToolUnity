@@ -77,19 +77,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check email verification before allowing borrow
-    if (!userProfile.email_verified) {
-      return NextResponse.json(
-        {
-          error: 'Email verification required',
-          reason: 'email_not_verified',
-          message: 'Please verify your email address before borrowing tools',
-          action: 'Check your inbox for verification link',
-        },
-        { status: 403 }
-      );
-    }
-
     // Calculate effective tier (account for both paid subscriptions and free tool unlocks)
     let effectiveTier = userProfile.subscription_tier || 'free';
     const hasPaidTier = userProfile.subscription_tier === 'basic' || userProfile.subscription_tier === 'standard' || userProfile.subscription_tier === 'pro';
