@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useAuth } from '@/app/providers';
 import { getSupabase } from '@/lib/supabase';
+import { fetchWithCsrf } from '@/app/utils/csrf-client';
 import TierSummary from '@/app/components/TierSummary';
 import ToolOwnerBadge from '@/app/components/ToolOwnerBadge';
 import { showToast } from '@/app/utils/toast';
@@ -158,7 +159,7 @@ export default function ToolDetailPage() {
       setLoadingPaymentInfo(true);
       setBorrowError(null);
       try {
-        const response = await fetch('/api/borrow/validate', {
+        const response = await fetchWithCsrf('/api/borrow/validate', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -226,7 +227,7 @@ export default function ToolDetailPage() {
     }
 
     try {
-      const response = await fetch('/api/borrow', {
+      const response = await fetchWithCsrf('/api/borrow', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -237,7 +238,6 @@ export default function ToolDetailPage() {
           startDate: borrowData.startDate,
           endDate: borrowData.endDate,
           notes: borrowData.notes,
-          // CSRF token is automatically handled by middleware
         }),
       });
 
