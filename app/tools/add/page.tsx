@@ -206,6 +206,12 @@ export default function AddToolPage() {
 
       // Create the tool record with rounded tool value
       const roundedToolValue = Math.round(parseFloat(formData.toolValue) * 100) / 100;
+      console.log('Creating tool with data:', { 
+        name: formData.name,
+        owner_id: session.user?.id,
+        tool_value: roundedToolValue
+      });
+      
       const { data: tool, error: toolError } = await sb
         .from('tools')
         .insert([
@@ -226,6 +232,13 @@ export default function AddToolPage() {
       if (toolError) {
         console.error('Tool creation error:', toolError);
         setError(`Failed to create tool: ${toolError.message}`);
+        setSubmitting(false);
+        return;
+      }
+
+      if (!tool || tool.length === 0) {
+        console.error('No tool returned from insert');
+        setError('Tool created but could not retrieve data');
         setSubmitting(false);
         return;
       }
@@ -281,8 +294,10 @@ export default function AddToolPage() {
 
       // Redirect to dashboard
       router.push('/dashboard');
-    } catch (err) {
-      setError('An error occurred');
+    } catch (err: any) {
+      console.error('Unexpected error in form submission:', err);
+      const errorMsg = err?.message || 'An unexpected error occurred';
+      setError(errorMsg);
       setSubmitting(false);
     }
   };
