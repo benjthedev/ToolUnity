@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/auth';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 
 /**
  * Validate if user can borrow a tool and return detailed messaging
@@ -39,7 +39,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Get user profile and tier info
-    const { data: userProfile } = await supabase
+    const sb = getSupabase();
+    const { data: userProfile } = await sb
       .from('users_ext')
       .select('subscription_tier, tools_count')
       .eq('user_id', session.user.id)
@@ -93,7 +94,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get tool info
-    const { data: tool } = await supabase
+    const { data: tool } = await sb
       .from('tools')
       .select('id, tool_value')
       .eq('id', toolId)
@@ -120,7 +121,7 @@ export async function POST(request: NextRequest) {
     const limits = tierLimits[effectiveTier] || tierLimits.basic;
 
     // Check active borrow count
-    const { data: activeBorrows } = await supabase
+    const { data: activeBorrows } = await sb
       .from('borrow_requests')
       .select('id')
       .eq('user_id', session.user.id)

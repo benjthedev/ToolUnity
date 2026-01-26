@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/auth';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 import { verifyCsrfToken } from '@/lib/csrf';
 import { checkRateLimitByUserId, RATE_LIMIT_CONFIGS } from '@/lib/rate-limit';
 
@@ -59,7 +59,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Get user profile and tier info
-    const { data: userProfile } = await supabase
+    const sb = getSupabase();
+    const { data: userProfile } = await sb
       .from('users_ext')
       .select('subscription_tier, tools_count, email_verified')
       .eq('user_id', session.user.id)
@@ -121,7 +122,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get tool info
-    const { data: tool } = await supabase
+    const { data: tool } = await sb
       .from('tools')
       .select('id, tool_value, available, owner_id')
       .eq('id', toolId)
@@ -165,7 +166,7 @@ export async function POST(request: NextRequest) {
     const limits = tierLimits[effectiveTier] || tierLimits.basic;
 
     // Check active borrow count
-    const { data: activeBorrows } = await supabase
+    const { data: activeBorrows } = await sb
       .from('borrow_requests')
       .select('id')
       .eq('user_id', session.user.id)
@@ -228,7 +229,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create borrow request
-    const { data: borrowRequest, error: createError } = await supabase
+    const { data: borrowRequest, error: createError } = await sb
       .from('borrow_requests')
       .insert({
         user_id: session.user.id,
