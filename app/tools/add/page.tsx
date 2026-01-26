@@ -474,43 +474,6 @@ export default function AddToolPage() {
               </div>
             </div>
 
-            {/* Tool Eligibility Checklist */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Tool Eligibility Checklist</h3>
-              <div className="space-y-3">
-                <label className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    required
-                    className="mt-1 w-4 h-4 text-blue-600 rounded"
-                  />
-                  <span className="text-sm text-gray-700">
-                    <strong>Not a weapon:</strong> This tool is not a firearm, explosive, or weapon of any kind.
-                  </span>
-                </label>
-                <label className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    required
-                    className="mt-1 w-4 h-4 text-blue-600 rounded"
-                  />
-                  <span className="text-sm text-gray-700">
-                    <strong>Not industrial:</strong> This is not industrial machinery or equipment requiring professional licenses.
-                  </span>
-                </label>
-                <label className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    required
-                    className="mt-1 w-4 h-4 text-blue-600 rounded"
-                  />
-                  <span className="text-sm text-gray-700">
-                    <strong>Safe for public:</strong> This tool is safe for general public use with basic instructions.
-                  </span>
-                </label>
-              </div>
-            </div>
-
             {/* Submit Button */}
             <div className="flex gap-4 pt-6 border-t border-gray-200">
               <button
