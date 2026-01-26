@@ -39,36 +39,36 @@ export default function ToolDetailPage() {
   useEffect(() => {
     const fetchTool = async () => {
       try {
-        // Fetch tool WITH owner data in a single query to prevent N+1
         const sb = getSupabase();
-        const { data, error } = await sb
+        // Fetch tool
+        const { data: toolData, error: toolError } = await sb
           .from('tools')
-          .select(`
-            *,
-            users_ext:owner_id (
-              user_id,
-              username,
-              email,
-              tools_count,
-              subscription_tier
-            )
-          `)
+          .select('*')
           .eq('id', toolId)
           .single();
 
-        if (error || !data) {
+        if (toolError || !toolData) {
           setTool(null);
           setLoading(false);
           return;
         }
 
-        // Extract owner data from the joined query
-        const ownerData = (data as any).users_ext;
-        
-        setTool(data);
-        setOwnerName(ownerData?.username || ownerData?.email?.split('@')[0] || 'Unknown Owner');
-        setOwnerToolsCount(ownerData?.tools_count || 0);
-        setOwnerSubscriptionTier(ownerData?.subscription_tier || 'none');
+        setTool(toolData);
+
+        // Fetch owner data separately
+        if (toolData.owner_id) {
+          const { data: ownerData } = await sb
+            .from('users_ext')
+            .select('user_id, username, email, tools_count, subscription_tier')
+            .eq('user_id', toolData.owner_id)
+            .single();
+          
+          if (ownerData) {
+            setOwnerName(ownerData.username || ownerData.email?.split('@')[0] || 'Unknown Owner');
+            setOwnerToolsCount(ownerData.tools_count || 0);
+            setOwnerSubscriptionTier(ownerData.subscription_tier || 'none');
+          }
+        }
       } catch (err) {
         console.error('Error fetching tool:', err);
         setTool(null);
