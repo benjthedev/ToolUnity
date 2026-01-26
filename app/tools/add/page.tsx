@@ -206,7 +206,7 @@ export default function AddToolPage() {
 
       // Create the tool record with rounded tool value
       const roundedToolValue = Math.round(parseFloat(formData.toolValue) * 100) / 100;
-      const { data: tool, error: toolError } = await supabase
+      const { data: tool, error: toolError } = await sb
         .from('tools')
         .insert([
           {
@@ -234,7 +234,7 @@ export default function AddToolPage() {
       if (session.user?.id) {
         try {
           // Get current tool count first
-          const { data: currentTools } = await supabase
+          const { data: currentTools } = await sb
             .from('tools')
             .select('id')
             .eq('owner_id', session.user.id);
@@ -242,7 +242,7 @@ export default function AddToolPage() {
           const newToolCount = currentTools?.length || 1;
           
           // Increment tools_count in users_ext
-          const { error: updateError } = await supabase
+          const { error: updateError } = await sb
             .from('users_ext')
             .update({ tools_count: newToolCount })
             .eq('user_id', session.user.id);
