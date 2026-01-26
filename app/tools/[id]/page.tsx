@@ -154,46 +154,9 @@ export default function ToolDetailPage() {
   }
 
   const handleShowBorrowForm = async () => {
-    if (!showBorrowForm && session?.user?.id) {
-      // Validate before showing form
-      setLoadingPaymentInfo(true);
+    setShowBorrowForm(!showBorrowForm);
+    if (!showBorrowForm) {
       setBorrowError(null);
-      try {
-        const response = await fetchWithCsrf('/api/borrow/validate', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify({
-            toolId,
-            startDate: borrowData.startDate,
-            endDate: borrowData.endDate,
-          }),
-        });
-
-        const validationResult = await response.json();
-
-        if (!response.ok || !validationResult.canBorrow) {
-          // Validation failed - show error but don't show form
-          setBorrowError(validationResult);
-          setLoadingPaymentInfo(false);
-          return;
-        }
-
-        // Validation passed - safe to show form
-        setUserPaymentInfo({ hasCard: true });
-        setShowBorrowForm(true);
-      } catch (error) {
-        console.error('Error validating borrow:', error);
-        setBorrowError({
-          message: 'Error checking borrow eligibility. Please try again.',
-        });
-      } finally {
-        setLoadingPaymentInfo(false);
-      }
-    } else {
-      setShowBorrowForm(!showBorrowForm);
     }
   };
 
@@ -226,7 +189,30 @@ export default function ToolDetailPage() {
       return;
     }
 
+    // Validate eligibility with the server before creating request
     try {
+      const validationResponse = await fetchWithCsrf('/api/borrow/validate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          toolId,
+          startDate: borrowData.startDate,
+          endDate: borrowData.endDate,
+        }),
+      });
+
+      const validationResult = await validationResponse.json();
+
+      if (!validationResponse.ok || !validationResult.canBorrow) {
+        setBorrowError(validationResult);
+        setSubmittingBorrow(false);
+        return;
+      }
+
+      // Validation passed, now create the borrow request
       const response = await fetchWithCsrf('/api/borrow', {
         method: 'POST',
         headers: {
