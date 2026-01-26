@@ -122,6 +122,7 @@ export default function AddToolPage() {
     try {
       let imageUrl = '';
       const conditionPhotosUrls: string[] = [];
+      const sb = getSupabase();
 
       // Helper function to upload file with retry logic
       const uploadFileWithRetry = async (file: File, path: string, maxRetries = 2): Promise<string> => {
@@ -129,7 +130,7 @@ export default function AddToolPage() {
           try {
             console.log(`Upload attempt ${attempt} for ${file.name}`);
             
-            const { data: uploadData, error: uploadError } = await supabase.storage
+            const { data: uploadData, error: uploadError } = await sb.storage
               .from('tool-images')
               .upload(path, file, {
                 cacheControl: '3600',
@@ -145,7 +146,7 @@ export default function AddToolPage() {
               continue;
             }
 
-            const { data: urlData } = supabase.storage
+            const { data: urlData } = sb.storage
               .from('tool-images')
               .getPublicUrl(path);
             
