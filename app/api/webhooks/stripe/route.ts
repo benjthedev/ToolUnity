@@ -91,11 +91,11 @@ export async function POST(request: NextRequest) {
           const priceId = subscription.items.data[0].price.id;
           let tier = 'none';
           
-          if (priceId === 'price_1SmI9kBt1LczyCVDZeEMqvMJ') {
+          if (priceId === process.env.STRIPE_PRICE_BASIC) {
             tier = 'basic';
-          } else if (priceId === 'price_1Sk7XZBt1LczyCVDOPofihFZ') {
+          } else if (priceId === process.env.STRIPE_PRICE_STANDARD) {
             tier = 'standard';
-          } else if (priceId === 'price_1Sk7YbBt1LczyCVDef9jBhUV') {
+          } else if (priceId === process.env.STRIPE_PRICE_PRO) {
             tier = 'pro';
           }
           

@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
       mode: 'subscription',
       subscription_data: 
         // Only Standard and Pro get free trial (not Basic)
-        (priceId === 'price_1Sk7XZBt1LczyCVDOPofihFZ' || priceId === 'price_1Sk7YbBt1LczyCVDef9jBhUV')
+        (priceId === process.env.STRIPE_PRICE_STANDARD || priceId === process.env.STRIPE_PRICE_PRO)
           ? { trial_period_days: 14 }
           : {},
       success_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard?upgrade=success&session_id={CHECKOUT_SESSION_ID}`,

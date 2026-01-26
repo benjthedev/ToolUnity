@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/app/providers';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 
 interface BorrowRequest {
   id: string;
@@ -37,7 +37,8 @@ export default function ReturnToolPage() {
     const fetchBorrowRequest = async () => {
       try {
         // Get the active borrow request for this tool (status = 'borrowed')
-        const { data, error: fetchError } = await supabase
+        const sb = getSupabase();
+        const { data, error: fetchError } = await sb
           .from('borrow_requests')
           .select(`
             id,
@@ -63,7 +64,7 @@ export default function ReturnToolPage() {
         }
 
         // Verify the current user is the tool owner
-        const { data: toolData, error: toolError } = await supabase
+        const { data: toolData, error: toolError } = await sb
           .from('tools')
           .select('owner_id')
           .eq('id', toolId)
@@ -105,7 +106,8 @@ export default function ReturnToolPage() {
 
     try {
       // Update borrow request status to 'returned'
-      const { error: updateError } = await supabase
+      const sb = getSupabase();
+      const { error: updateError } = await sb
         .from('borrow_requests')
         .update({
           status: 'returned',

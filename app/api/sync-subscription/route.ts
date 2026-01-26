@@ -58,17 +58,11 @@ export async function POST(request: NextRequest) {
       // Get the price ID from the subscription
       const priceId = userSubscription.items.data[0]?.price.id;
       
-      console.log('Found subscription:', {
-        status: userSubscription.status,
-        priceId,
-        email: session.user.email
-      });
-
-      if (priceId === 'price_1SmI9kBt1LczyCVDZeEMqvMJ') {
+      if (priceId === process.env.STRIPE_PRICE_BASIC) {
         newTier = 'basic';
-      } else if (priceId === 'price_1Sk7XZBt1LczyCVDOPofihFZ') {
+      } else if (priceId === process.env.STRIPE_PRICE_STANDARD) {
         newTier = 'standard';
-      } else if (priceId === 'price_1Sk7YbBt1LczyCVDef9jBhUV') {
+      } else if (priceId === process.env.STRIPE_PRICE_PRO) {
         newTier = 'pro';
       } else {
         // Unknown price ID - log it for debugging
