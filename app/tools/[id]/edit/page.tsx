@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/app/providers';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 
 const categories = ['Power Tools', 'Garden Tools', 'Camping Equipment', 'Sports Equipment', 'Other'];
 const conditions = ['Like New', 'Excellent', 'Good', 'Fair'];

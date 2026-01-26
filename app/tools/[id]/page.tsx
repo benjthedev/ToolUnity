@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useAuth } from '@/app/providers';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 import TierSummary from '@/app/components/TierSummary';
 import ToolOwnerBadge from '@/app/components/ToolOwnerBadge';
 import { showToast } from '@/app/utils/toast';
@@ -40,7 +40,8 @@ export default function ToolDetailPage() {
     const fetchTool = async () => {
       try {
         // Fetch tool WITH owner data in a single query to prevent N+1
-        const { data, error } = await supabase
+        const sb = getSupabase();
+        const { data, error } = await sb
           .from('tools')
           .select(`
             *,
@@ -84,14 +85,15 @@ export default function ToolDetailPage() {
     if (session?.user?.id) {
       const fetchUserTier = async () => {
         try {
-          const { data } = await supabase
+          const sb = getSupabase();
+          const { data } = await sb
             .from('users_ext')
             .select('subscription_tier, tools_count')
             .eq('user_id', session?.user?.id || '')
             .single();
           
           // Fetch active borrow count
-          const { data: activeBorrows } = await supabase
+          const { data: activeBorrows } = await sb
             .from('borrow_requests')
             .select('id')
             .eq('user_id', session?.user?.id || '')
