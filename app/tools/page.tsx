@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/app/providers';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 import { ToolCardSkeleton } from '@/app/components/LoadingSkeletons';
 
 interface Tool {
@@ -117,7 +117,8 @@ export default function ToolsPage() {
   const fetchTools = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      const sb = getSupabase();
+      const { data, error } = await sb
         .from('tools')
         .select('*')
         .eq('available', true)
