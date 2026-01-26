@@ -464,28 +464,20 @@ export default function AddToolPage() {
                 Main Tool Photo <span className="text-red-600">*</span>
               </label>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-blue-400 transition">
-                {preview ? (
-                  <div className="space-y-4">
+                {preview && (
+                  <div className="mb-4">
                     <img src={preview} alt="Preview" className="max-h-48 mx-auto rounded" />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      required
-                      onChange={handleImageChange}
-                      className="w-full text-gray-900"
-                    />
                   </div>
-                ) : (
-                  <div className="text-center">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      required
-                      onChange={handleImageChange}
-                      className="w-full text-gray-900"
-                    />
-                    <p className="text-gray-600 mt-2 text-sm">Click to upload a photo</p>
-                  </div>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  required
+                  onChange={handleImageChange}
+                  className="w-full text-gray-900"
+                />
+                {!preview && (
+                  <p className="text-gray-500 text-sm mt-2">Select an image to preview</p>
                 )}
               </div>
             </div>
