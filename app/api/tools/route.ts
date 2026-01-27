@@ -4,6 +4,7 @@ import { authOptions } from '@/auth';
 import { supabase } from '@/lib/supabase';
 import { verifyCsrfToken } from '@/lib/csrf';
 import { checkRateLimitByUserId, RATE_LIMIT_CONFIGS } from '@/lib/rate-limit';
+import { serverLog } from '@/lib/logger';
 
 /**
  * DELETE /api/tools?id=<toolId>
@@ -64,7 +65,7 @@ export async function DELETE(request: NextRequest) {
       .eq('id', toolId);
 
     if (deleteError) {
-      console.error('Tool deletion error:', deleteError);
+      serverLog.error('Tool deletion error:', deleteError);
       return NextResponse.json(
         { error: 'Failed to delete tool' },
         { status: 500 }
@@ -83,7 +84,7 @@ export async function DELETE(request: NextRequest) {
         body: JSON.stringify({ userId: session.user.id }),
       });
     } catch (err) {
-      console.error('Error triggering tool count check:', err);
+      serverLog.error('Error triggering tool count check:', err);
       // Don't fail the deletion if the check fails, but log it
     }
 
@@ -92,7 +93,7 @@ export async function DELETE(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Tool deletion error:', error);
+    serverLog.error('Tool deletion error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

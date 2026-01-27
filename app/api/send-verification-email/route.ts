@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import crypto from 'crypto';
 import { verifyCsrfToken } from '@/lib/csrf';
 import { checkRateLimitByEmail, RATE_LIMIT_CONFIGS } from '@/lib/rate-limit';
+import { serverLog } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -54,7 +55,7 @@ export async function POST(request: NextRequest) {
         .eq('user_id', body.userId);
 
       if (updateError) {
-        console.error('Error updating verification token:', updateError);
+        serverLog.error('Error updating verification token:', updateError);
       }
     } else {
       // If no userId, try to find user by email and update token
@@ -68,10 +69,10 @@ export async function POST(request: NextRequest) {
           .eq('email', email);
 
         if (updateError) {
-          console.error('Error updating verification token:', updateError);
+          serverLog.error('Error updating verification token:', updateError);
         }
       } catch (err) {
-        console.error('Error finding user by email:', err);
+        serverLog.error('Error finding user by email:', err);
       }
     }
 
@@ -116,7 +117,7 @@ export async function POST(request: NextRequest) {
           { status: 200 }
         );
       } catch (emailError) {
-        console.error('Resend email error:', emailError);
+        serverLog.error('Resend email error:', emailError);
         // Don't auto-verify - require actual email
         return NextResponse.json(
           { 
@@ -137,7 +138,7 @@ export async function POST(request: NextRequest) {
       );
     }
   } catch (error) {
-    console.error('Verification endpoint error:', error);
+    serverLog.error('Verification endpoint error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

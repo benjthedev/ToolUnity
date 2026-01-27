@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { serverLog } from '@/lib/logger';
 
 let supabase: any = null;
 
@@ -59,7 +60,7 @@ export async function POST(request: NextRequest) {
         );
       }
       
-      console.error('Supabase error:', error);
+      serverLog.error('Supabase error:', error);
       return NextResponse.json(
         { error: 'Failed to add to waitlist' },
         { status: 500 }
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('API error:', error);
+    serverLog.error('API error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

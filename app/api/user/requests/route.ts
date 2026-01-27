@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/auth';
 import { supabase } from '@/lib/supabase';
+import { serverLog } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Fetch requests error:', error);
+    serverLog.error('Fetch requests error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

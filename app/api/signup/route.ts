@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { checkRateLimitByEmail, RATE_LIMIT_CONFIGS } from '@/lib/rate-limit';
 import { verifyCsrfToken } from '@/lib/csrf';
+import { SignupSchema } from '@/lib/validation';
+import { serverLog } from '@/lib/logger';
+import { ZodError } from 'zod';
 
 let supabaseAdmin: any = null;
 
@@ -44,13 +47,30 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { user_id, email, username, phone_number, subscription_tier } = body;
-
-    if (!user_id || !email || !username) {
-      return NextResponse.json({ error: 'user_id, email, and username required' }, { status: 400 });
+    
+    // Validate input with Zod
+    let validated;
+    try {
+      validated = SignupSchema.parse({
+        email: body.email,
+        username: body.username,
+        phone_number: body.phone_number,
+        password: body.password,
+        subscription_tier: body.subscription_tier || 'free',
+      });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        return NextResponse.json(
+          { error: 'Validation failed', issues: error.issues },
+          { status: 400 }
+        );
+      }
+      throw error;
     }
 
-    // Rate limit signup by email (3 per hour)
+    const { user_id, email, username, phone_number, subscription_tier } = body;
+
+    // Rate limit signup by email
     const rateLimitCheck = checkRateLimitByEmail(
       email,
       RATE_LIMIT_CONFIGS.auth.maxAttempts,

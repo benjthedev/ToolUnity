@@ -5,6 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/auth';
 import Stripe from 'stripe';
+import { serverLog } from '@/lib/logger';
 
 let stripe: Stripe | null = null;
 let supabase: any = null;
@@ -66,7 +67,7 @@ export async function POST(request: NextRequest) {
         newTier = 'pro';
       } else {
         // Unknown price ID - log it for debugging
-        console.log('Unknown price ID detected:', priceId);
+        serverLog.warn('Unknown price ID detected:', priceId);
         // Try to infer tier from product name if available
         const product = userSubscription.items.data[0]?.price.product;
         if (typeof product === 'object' && product !== null && 'name' in product) {
@@ -93,7 +94,7 @@ export async function POST(request: NextRequest) {
         .eq('email', session.user.email);
 
       if (error) {
-        console.error('Error syncing subscription:', error);
+        serverLog.error('Error syncing subscription:', error);
         return NextResponse.json({ 
           error: error.message,
           tier: newTier,
@@ -114,7 +115,7 @@ export async function POST(request: NextRequest) {
         .eq('email', session.user.email);
 
       if (error) {
-        console.error('Error downgrading:', error);
+        serverLog.error('Error downgrading:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
@@ -125,7 +126,7 @@ export async function POST(request: NextRequest) {
       });
     }
   } catch (error) {
-    console.error('Error syncing subscription:', error);
+    serverLog.error('Error syncing subscription:', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }

@@ -4,6 +4,9 @@ import { authOptions } from '@/auth';
 import { getSupabase } from '@/lib/supabase';
 import { verifyCsrfToken } from '@/lib/csrf';
 import { checkRateLimitByUserId, RATE_LIMIT_CONFIGS } from '@/lib/rate-limit';
+import { BorrowRequestSchema } from '@/lib/validation';
+import { serverLog } from '@/lib/logger';
+import { ZodError } from 'zod';
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,11 +54,21 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { toolId, startDate, endDate, notes } = body;
 
-    if (!toolId || !startDate || !endDate) {
-      return NextResponse.json(
-        { error: 'Tool ID, start date, and end date required' },
-        { status: 400 }
-      );
+    // Validate input with Zod
+    try {
+      BorrowRequestSchema.parse({
+        tool_id: toolId,
+        start_date: startDate,
+        end_date: endDate,
+      });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        return NextResponse.json(
+          { error: 'Validation failed', issues: error.issues },
+          { status: 400 }
+        );
+      }
+      throw error;
     }
 
     // Get user profile and tier info

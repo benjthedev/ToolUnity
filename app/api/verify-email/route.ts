@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { serverLog } from '@/lib/logger';
 
 // Type definitions for type safety
 interface VerificationToken {
@@ -109,7 +110,7 @@ export async function GET(request: NextRequest) {
       new URL('/verify-email?success=true', request.url)
     );
   } catch (error) {
-    console.error('Verification error:', error);
+    serverLog.error('Verification error:', error);
     return NextResponse.redirect(
       new URL('/verify-email?error=server', request.url)
     );

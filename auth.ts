@@ -1,6 +1,7 @@
 import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { getSupabase } from '@/lib/supabase';
+import { serverLog } from '@/lib/logger';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -22,7 +23,7 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (error || !data.user) {
-          console.error('Auth error:', error?.message);
+          serverLog.error('Auth error:', error?.message);
           return null;
         }
 

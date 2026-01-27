@@ -5,6 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/auth';
 import Stripe from 'stripe';
+import { serverLog } from '@/lib/logger';
 
 let stripe: Stripe | null = null;
 let supabase: any = null;
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
           status: 'active',
         });
         hasActiveSubscription = subscriptions.data.length > 0;
-        console.log(`Subscription check for customer ${userData.stripe_customer_id}: ${hasActiveSubscription}`);
+        serverLog.info(`Subscription check for customer ${userData.stripe_customer_id}: ${hasActiveSubscription}`);
       } catch (err) {
         console.error('Error checking subscription by customer ID:', err);
         // Fall back to email lookup

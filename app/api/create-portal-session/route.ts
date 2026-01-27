@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/auth';
 import Stripe from 'stripe';
+import { serverLog } from '@/lib/logger';
 
 let stripe: Stripe | null = null;
 
@@ -44,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ url: portalSession.url }, { status: 200 });
   } catch (error) {
-    console.error('Error creating portal session:', error);
+    serverLog.error('Error creating portal session:', error);
     return NextResponse.json(
       { error: 'Failed to create portal session' },
       { status: 500 }

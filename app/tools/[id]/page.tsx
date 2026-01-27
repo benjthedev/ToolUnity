@@ -9,6 +9,7 @@ import { fetchWithCsrf } from '@/app/utils/csrf-client';
 import TierSummary from '@/app/components/TierSummary';
 import ToolOwnerBadge from '@/app/components/ToolOwnerBadge';
 import { showToast } from '@/app/utils/toast';
+import { sanitizeHtml } from '@/lib/sanitizer';
 
 export default function ToolDetailPage() {
   const { session } = useAuth();
@@ -414,7 +415,7 @@ export default function ToolDetailPage() {
 
               <div className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">About this tool</h2>
-                <p className="text-gray-700 leading-relaxed text-lg">{tool.description}</p>
+                <p className="text-gray-700 leading-relaxed text-lg">{sanitizeHtml(tool.description)}</p>
               </div>
 
               {/* Borrowing Rules */}

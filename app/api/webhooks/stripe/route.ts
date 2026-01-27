@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { serverLog } from '@/lib/logger';
 
 let stripe: Stripe | null = null;
 let supabase: any = null;
@@ -41,20 +42,20 @@ export async function POST(request: NextRequest) {
     // Development without secret: allow unsigned events from Stripe CLI
     try {
       event = JSON.parse(body) as Stripe.Event;
-      console.log('Development mode: Skipping signature verification (no secret configured)');
+      serverLog.debug('Development mode: Skipping signature verification (no secret configured)');
     } catch (error) {
-      console.error('Failed to parse webhook body:', error);
+      serverLog.error('Failed to parse webhook body:', error);
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
   } else {
     // Production OR development with secret: require signature verification
     if (!sig) {
-      console.error('Webhook missing signature - rejecting unsigned event');
+      serverLog.error('Webhook missing signature - rejecting unsigned event');
       return NextResponse.json({ error: 'Missing signature' }, { status: 400 });
     }
 
     if (!hasSecret) {
-      console.error('CRITICAL: Webhook signature required but STRIPE_WEBHOOK_SECRET not configured');
+      serverLog.error('CRITICAL: Webhook signature required but STRIPE_WEBHOOK_SECRET not configured');
       return NextResponse.json(
         { error: 'Webhook signature verification failed - server misconfiguration' },
         { status: 500 }
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
         process.env.STRIPE_WEBHOOK_SECRET!
       );
     } catch (error) {
-      console.error('Webhook signature verification failed:', error);
+      serverLog.error('Webhook signature verification failed:', error);
       return NextResponse.json(
         { error: 'Webhook signature verification failed' },
         { status: 400 }
@@ -109,9 +110,9 @@ export async function POST(request: NextRequest) {
             .eq('user_id', session.client_reference_id);
           
           if (error) {
-            console.error('Error updating user tier:', error);
+            serverLog.error('Error updating user tier:', error);
           } else {
-            console.log(`Updated user ${session.client_reference_id} to tier: ${tier}`);
+            serverLog.info(`Updated user ${session.client_reference_id} to tier: ${tier}`);
           }
         }
         break;
@@ -120,7 +121,7 @@ export async function POST(request: NextRequest) {
       case 'customer.subscription.updated': {
         // Subscription updates are handled via checkout.session.completed
         // This event fires too early before we can link the subscription
-        console.log('Subscription updated - handled via checkout.session.completed');
+        serverLog.debug('Subscription updated - handled via checkout.session.completed');
         break;
       }
 
@@ -139,7 +140,7 @@ export async function POST(request: NextRequest) {
             .single();
           
           if (selectError) {
-            console.error('Error finding user by email:', selectError);
+            serverLog.error('Error finding user by email:', selectError);
             break;
           }
           
@@ -152,9 +153,9 @@ export async function POST(request: NextRequest) {
               .eq('user_id', data.user_id);
             
             if (updateError) {
-              console.error('Error resetting user tier:', updateError);
+              serverLog.error('Error resetting user tier:', updateError);
             } else {
-              console.log(`Subscription ${subscription.id} deleted - Reset user ${data.user_id} (${customer.email}) to tier: none`);
+              serverLog.info(`Subscription ${subscription.id} deleted - Reset user ${data.user_id} (${customer.email}) to tier: none`);
             }
           }
         }
@@ -162,12 +163,12 @@ export async function POST(request: NextRequest) {
       }
 
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        serverLog.debug(`Unhandled event type: ${event.type}`);
     }
 
     return NextResponse.json({ received: true }, { status: 200 });
   } catch (error) {
-    console.error('Webhook processing error:', error);
+    serverLog.error('Webhook processing error:', error);
     return NextResponse.json(
       { error: 'Webhook processing failed' },
       { status: 500 }

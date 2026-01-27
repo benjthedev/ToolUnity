@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { NextRequest, NextResponse } from 'next/server';
+import { serverLog } from '@/lib/logger';
 
 /**
  * Check user's active tool count and automatically adjust subscription tier.
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
       .eq('available', true);
 
     if (toolsError) {
-      console.error('Error counting tools:', toolsError);
+      serverLog.error('Error counting tools:', toolsError);
       return NextResponse.json(
         { error: 'Failed to count tools' },
         { status: 500 }
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (userError && userError.code !== 'PGRST116') {
-      console.error('Error fetching user:', userError);
+      serverLog.error('Error fetching user:', userError);
       return NextResponse.json(
         { error: 'Failed to fetch user data' },
         { status: 500 }
@@ -99,7 +100,7 @@ export async function POST(request: NextRequest) {
         .eq('user_id', userId);
 
       if (updateError) {
-        console.error('Error updating user tier:', updateError);
+        serverLog.error('Error updating user tier:', updateError);
         return NextResponse.json(
           { error: 'Failed to update subscription tier' },
           { status: 500 }
@@ -122,7 +123,7 @@ export async function POST(request: NextRequest) {
       message: action === 'no_change' ? 'Tier unchanged' : `Tier updated: ${currentTier} → ${newTier}`,
     });
   } catch (error) {
-    console.error('Unexpected error in subscription check:', error);
+    serverLog.error('Unexpected error in subscription check:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

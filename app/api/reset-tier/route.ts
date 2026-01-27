@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/auth';
+import { serverLog } from '@/lib/logger';
 
 let supabase: any = null;
 
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
     .select();
 
   if (error) {
-    console.error('Error resetting tier:', error);
+    serverLog.error('Error resetting tier:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
