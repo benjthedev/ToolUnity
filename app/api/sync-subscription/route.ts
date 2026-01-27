@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
       const customerId = userSubscription.customer;
       
       // Update database - only update subscription_tier
-      const { error } = await supabase
+      const { error } = await getSupabase()
         .from('users_ext')
         .update({
           subscription_tier: newTier,
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
       });
     } else {
       // No active subscription - downgrade to none
-      const { error } = await supabase
+      const { error } = await getSupabase()
         .from('users_ext')
         .update({ subscription_tier: 'none' })
         .eq('email', session.user.email);
