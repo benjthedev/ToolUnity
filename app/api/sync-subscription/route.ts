@@ -31,7 +31,7 @@ function getSupabase() {
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
   
-  if (!session?.user?.email) {
+  if (!session?.user?.email || !session?.user?.id) {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
   }
 
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
       const { data: userData, error: userError } = await getSupabase()
         .from('users_ext')
         .select('tools_count')
-        .eq('email', session.user.email)
+        .eq('user_id', session.user.id)
         .single();
 
       if (userError || !userData) {
@@ -133,7 +133,7 @@ export async function POST(request: NextRequest) {
       const { error } = await getSupabase()
         .from('users_ext')
         .update({ subscription_tier: tierToSet })
-        .eq('email', session.user.email);
+        .eq('user_id', session.user.id);
 
       if (error) {
         serverLog.error('Error updating tier:', error);
