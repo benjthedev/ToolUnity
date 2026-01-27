@@ -108,21 +108,44 @@ export async function POST(request: NextRequest) {
         message: `Updated to ${newTier} tier (${userSubscription.status})`
       });
     } else {
-      // No active subscription - downgrade to none
+      // No active subscription - check if user qualifies for free tier via tool count
+      const { data: userData, error: userError } = await getSupabase()
+        .from('users_ext')
+        .select('tools_count')
+        .eq('email', session.user.email)
+        .single();
+
+      if (userError || !userData) {
+        serverLog.error('Error fetching user tools count:', userError);
+        return NextResponse.json({ error: 'Failed to fetch user data' }, { status: 500 });
+      }
+
+      let tierToSet = 'none';
+      
+      // Check tool count incentive
+      if (userData.tools_count >= 3) {
+        tierToSet = 'standard'; // 3+ tools = Standard tier free waiver
+      } else if (userData.tools_count >= 1) {
+        tierToSet = 'basic'; // 1+ tools = Basic tier free waiver
+      }
+
+      // Update database with the appropriate tier
       const { error } = await getSupabase()
         .from('users_ext')
-        .update({ subscription_tier: 'none' })
+        .update({ subscription_tier: tierToSet })
         .eq('email', session.user.email);
 
       if (error) {
-        serverLog.error('Error downgrading:', error);
+        serverLog.error('Error updating tier:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
       return NextResponse.json({ 
         synced: true,
-        tier: 'none',
-        message: 'No active subscription found - downgraded to free'
+        tier: tierToSet,
+        message: tierToSet === 'none' 
+          ? 'No active subscription and no tools listed - set to free' 
+          : `Upgraded to ${tierToSet} tier (free waiver via ${userData.tools_count} tool${userData.tools_count > 1 ? 's' : ''})`
       });
     }
   } catch (error) {
