@@ -135,4 +135,7 @@ export const RATE_LIMIT_CONFIGS = {
 
   // Tool creation: 5 per hour per user
   toolCreate: { maxAttempts: 5, windowMs: 60 * 60 * 1000 },
+
+  // Tool update: 10 per hour per user
+  toolUpdate: { maxAttempts: 10, windowMs: 60 * 60 * 1000 },
 };

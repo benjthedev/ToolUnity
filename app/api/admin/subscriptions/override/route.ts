@@ -1,11 +1,15 @@
 import { supabase } from '@/lib/supabase';
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/auth';
 
 // Force dynamic rendering - this route uses runtime environment variables
 export const dynamic = 'force-dynamic';
 
 /**
  * Admin endpoint to override subscriptions
+ * PROTECTED: Requires admin user authentication
+ * 
  * Allows admins to:
  * - Manually revoke free tool owner grants
  * - Set manual subscription values
@@ -13,14 +17,35 @@ export const dynamic = 'force-dynamic';
  */
 export async function POST(request: NextRequest) {
   try {
+    // Step 1: Check authentication
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized: You must be logged in' },
+        { status: 401 }
+      );
+    }
+
+    // Step 2: Check admin role
+    const { data: admin, error: adminError } = await supabase
+      .from('users_ext')
+      .select('is_admin')
+      .eq('id', session.user.id)
+      .single();
+
+    if (adminError || !admin?.is_admin) {
+      return NextResponse.json(
+        { error: 'Forbidden: Admin access required' },
+        { status: 403 }
+      );
+    }
+
     const { userId, action, newPlan, reason } = await request.json();
 
-    // TODO: Add proper admin authentication/authorization
-    // For now, this is a placeholder - implement your own admin check
-
+    // Step 3: Validate inputs
     if (!userId || !action) {
       return NextResponse.json(
-        { error: 'Missing userId or action' },
+        { error: 'Missing required fields: userId, action' },
         { status: 400 }
       );
     }
@@ -115,7 +140,6 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   } catch (error) {
-    console.error('Admin subscription override error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

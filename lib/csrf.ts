@@ -42,8 +42,8 @@ export function validateCsrfToken(request: NextRequest): boolean {
 }
 
 /**
- * Middleware to protect against CSRF attacks on state-changing operations
- * Apply to POST, PUT, PATCH, DELETE endpoints
+ * Verify CSRF token from request headers
+ * Used by API endpoints for form submissions
  */
 export async function verifyCsrfToken(request: NextRequest): Promise<{ valid: boolean; error?: string }> {
   // Skip GET requests (should be idempotent anyway)
@@ -60,4 +60,32 @@ export async function verifyCsrfToken(request: NextRequest): Promise<{ valid: bo
   }
 
   return { valid: true };
+}
+
+/**
+ * Verify CSRF token from a string value
+ * Used for validating tokens sent in request body
+ */
+export function validateCsrfTokenString(tokenString: string, request: NextRequest): boolean {
+  if (!tokenString) {
+    return false;
+  }
+
+  const cookieHeader = request.headers.get('cookie');
+  
+  // Extract CSRF token from cookies
+  let tokenFromCookie: string | null = null;
+  if (cookieHeader) {
+    const cookies = cookieHeader.split(';');
+    for (const cookie of cookies) {
+      const [name, value] = cookie.trim().split('=');
+      if (name === CSRF_COOKIE_NAME) {
+        tokenFromCookie = decodeURIComponent(value);
+        break;
+      }
+    }
+  }
+
+  // Tokens must match
+  return tokenString === tokenFromCookie;
 }

@@ -101,7 +101,6 @@ export async function POST(request: NextRequest) {
     });
 
     if (profileError) {
-      console.error('Profile creation error:', profileError);
       return NextResponse.json({ error: profileError.message }, { status: 400 });
     }
 
@@ -113,15 +112,14 @@ export async function POST(request: NextRequest) {
           email_confirm: true,
         });
         if (confirmError) {
-          console.error('Email confirmation error:', confirmError);
+          // Email confirmation failed but account created
         } else {
-          console.log('Email confirmed for user:', user_id);
         }
       } catch (e) {
-        console.error('Error confirming email:', e);
+        // Log suppressed - development only
       }
     } else {
-      console.error('Could not initialize admin Supabase client - service role key missing');
+      // Service role key not configured
     }
 
     return NextResponse.json(
@@ -132,7 +130,6 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error('Signup error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

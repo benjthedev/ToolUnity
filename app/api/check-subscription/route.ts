@@ -70,8 +70,7 @@ export async function POST(request: NextRequest) {
         hasActiveSubscription = subscriptions.data.length > 0;
         serverLog.info(`Subscription check for customer ${userData.stripe_customer_id}: ${hasActiveSubscription}`);
       } catch (err) {
-        console.error('Error checking subscription by customer ID:', err);
-        // Fall back to email lookup
+        // Fallback to email lookup
         const emailSubscriptions = await getStripe().subscriptions.list({
           limit: 10,
         });
@@ -99,14 +98,12 @@ export async function POST(request: NextRequest) {
 
     if (!hasActiveSubscription) {
       // Subscription was cancelled - reset to 'none'
-      console.log(`Downgrading ${session.user.email} - no active subscription found`);
       const { error: updateError } = await supabase
         .from('users_ext')
         .update({ subscription_tier: 'none' })
         .eq('email', session.user.email);
 
       if (updateError) {
-        console.error('Error downgrading tier:', updateError);
         return NextResponse.json({ 
           stillActive: false, 
           downgraded: false,
@@ -127,7 +124,6 @@ export async function POST(request: NextRequest) {
       message: 'Subscription still active'
     });
   } catch (error) {
-    console.error('Error checking subscription:', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }
