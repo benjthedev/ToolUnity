@@ -101,6 +101,9 @@ export default function ToolsPage() {
   const [loading, setLoading] = useState(true);
   const [useMockData, setUseMockData] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const pageSize = 20; // Items per page
   const [filters, setFilters] = useState({
     category: '',
     postcode: '',
@@ -112,56 +115,74 @@ export default function ToolsPage() {
 
   useEffect(() => {
     fetchTools();
-  }, []);
+  }, [currentPage, filters]);
 
   const fetchTools = async () => {
     try {
       setLoading(true);
       const sb = getSupabase();
-      const { data, error } = await sb
-        .from('tools')
-        .select('*')
-        .eq('available', true)
-        .order('created_at', { ascending: false });
+      
+      // Calculate pagination
+      const offset = (currentPage - 1) * pageSize;
+
+      // Build query with pagination
+      let query = sb.from('tools').select('*', { count: 'exact' });
+      
+      if (filters.category) {
+        query = query.eq('category', filters.category);
+      }
+      if (filters.postcode) {
+        query = query.eq('postcode', filters.postcode);
+      }
+      if (filters.availability) {
+        query = query.eq('available', true);
+      }
+
+      // Add pagination
+      query = query
+        .order('created_at', { ascending: false })
+        .range(offset, offset + pageSize - 1);
+
+      const { data, error, count } = await query;
 
       if (error) {
-        console.warn('Supabase fetch failed:', error);
-        console.log('Switching to demo/mock data mode');
+        // Supabase temporarily unavailable, using demo data
         setTools(MOCK_TOOLS);
         setUseMockData(true);
+        setTotalPages(1);
         throw error;
       }
       
-      // If we got data, use it
       if (data && data.length > 0) {
         setTools(data);
         setUseMockData(false);
-      } else {
-        // If no data but no error, use mock data for demo
-        console.log('No tools found, using demo data');
+        // Calculate total pages
+        const calculated = count ? Math.ceil(count / pageSize) : 1;
+        setTotalPages(calculated);
+      } else if (currentPage === 1) {
+        // Only show demo on first page if no data
         setTools(MOCK_TOOLS);
         setUseMockData(true);
+        setTotalPages(1);
+      } else {
+        setTools([]);
+        setTotalPages(1);
       }
     } catch (err) {
-      console.error('Error fetching tools:', err);
-      // Fall back to mock data
-      setTools(MOCK_TOOLS);
-      setUseMockData(true);
+      if (currentPage === 1) {
+        setTools(MOCK_TOOLS);
+        setUseMockData(true);
+        setTotalPages(1);
+      } else {
+        setTools([]);
+        setTotalPages(1);
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredTools = tools.filter((tool) => {
-    const matchesSearch = tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tool.category.toLowerCase().includes(searchQuery.toLowerCase());
-    if (!matchesSearch) return false;
-    
-    if (filters.category && tool.category !== filters.category) return false;
-    if (filters.postcode && tool.postcode !== filters.postcode) return false;
-    if (filters.availability && !tool.available) return false;
-    return true;
-  });
+  const filteredTools = tools; // Filtering is now done server-side with pagination
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -291,6 +312,43 @@ export default function ToolsPage() {
               className="text-blue-600 hover:text-blue-700 font-semibold underline"
             >
               Clear filters and try again
+            </button>
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {!loading && filteredTools.length > 0 && totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-12">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              ← Previous
+            </button>
+            
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`px-3 py-2 rounded-lg ${
+                    currentPage === page
+                      ? 'bg-blue-600 text-white'
+                      : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+            
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              Next →
             </button>
           </div>
         )}

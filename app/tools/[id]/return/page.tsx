@@ -79,7 +79,6 @@ export default function ReturnToolPage() {
         setBorrowRequest(data);
         setPageLoading(false);
       } catch (err) {
-        console.error('Error fetching borrow request:', err);
         setError('Failed to load borrow request');
         setPageLoading(false);
       }
@@ -116,7 +115,7 @@ export default function ReturnToolPage() {
         .eq('id', borrowRequest.id);
 
       if (updateError) {
-        console.error('Update error:', updateError);
+
         setError('Failed to confirm return');
         setSubmitting(false);
         return;
@@ -125,7 +124,6 @@ export default function ReturnToolPage() {
       // Redirect to owner dashboard
       router.push('/dashboard?returnConfirmed=true');
     } catch (err) {
-      console.error('Error confirming return:', err);
       setError('Failed to confirm return');
       setSubmitting(false);
     }

@@ -156,6 +156,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check for date overlap with existing borrow requests
+    const { data: existingBorrows } = await sb
+      .from('borrow_requests')
+      .select('id, start_date, end_date, status')
+      .eq('tool_id', toolId)
+      .neq('status', 'returned')
+      .neq('status', 'declined');
+
+    if (existingBorrows && existingBorrows.length > 0) {
+      const startDate = new Date(startDate);
+      const endDate = new Date(endDate);
+
+      for (const existing of existingBorrows) {
+        const existingStart = new Date(existing.start_date);
+        const existingEnd = new Date(existing.end_date);
+
+        // Check if date ranges overlap
+        if (startDate < existingEnd && endDate > existingStart) {
+          return NextResponse.json(
+            {
+              error: 'Tool already borrowed for those dates',
+              reason: 'date_conflict',
+              message: `This tool is already borrowed from ${existingStart.toDateString()} to ${existingEnd.toDateString()}`,
+            },
+            { status: 409 }
+          );
+        }
+      }
+    }
+
     // Determine tier limits
     const tierLimits: Record<string, { maxBorrows: number; maxValue: number; maxDays: number }> = {
       basic: { maxBorrows: 1, maxValue: 100, maxDays: 3 },

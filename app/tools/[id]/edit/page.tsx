@@ -57,7 +57,6 @@ export default function EditToolPage() {
           setError('You do not have permission to edit this tool.');
         }
       } catch (err) {
-        console.error('Error fetching tool:', err);
         setError('Failed to load tool details.');
       } finally {
         setLoading(false);
@@ -101,7 +100,6 @@ export default function EditToolPage() {
 
       router.push('/owner-dashboard');
     } catch (err) {
-      console.error('Error updating tool:', err);
       setError('Failed to update tool. Please try again.');
     } finally {
       setSubmitting(false);

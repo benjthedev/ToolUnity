@@ -72,7 +72,6 @@ export default function ToolDetailPage() {
           }
         }
       } catch (err) {
-        console.error('Error fetching tool:', err);
         setTool(null);
       } finally {
         setLoading(false);
@@ -120,7 +119,6 @@ export default function ToolDetailPage() {
             setUserTier(effectiveTier);
           }
         } catch (err) {
-          console.error('Error fetching user tier:', err);
         } finally {
           setLoadingUserTier(false);
         }

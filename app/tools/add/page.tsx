@@ -167,13 +167,10 @@ export default function AddToolPage() {
           const fileExt = imageFile.name.split('.').pop();
           const fileName = `${session.user.id}/${Date.now()}.${fileExt}`;
 
-          console.log('Image file:', { name: imageFile.name, size: imageFile.size, type: imageFile.type });
-          console.log('Attempting to upload image to:', fileName);
+          // Image file upload starting
 
           imageUrl = await uploadFileWithRetry(imageFile, fileName);
-          console.log('Image uploaded successfully, URL:', imageUrl);
         } catch (uploadError: any) {
-          console.error('Image upload failed after retries:', uploadError);
           const errorMessage = uploadError?.message || 'Unknown error';
           const userMessage = 
             errorMessage.includes('bucket') ? 'Storage service unavailable. Please try again.' :
@@ -196,7 +193,6 @@ export default function AddToolPage() {
           const photoUrl = await uploadFileWithRetry(photo, fileName);
           conditionPhotosUrls.push(photoUrl);
         } catch (uploadError: any) {
-          console.error('Condition photo upload failed after retries:', uploadError);
           const errorMessage = uploadError?.message || 'Unknown error';
           setError(`Failed to upload condition photo: ${errorMessage}. You can proceed without condition photos.`);
           // Don't fail completely - condition photos are optional
@@ -206,11 +202,7 @@ export default function AddToolPage() {
 
       // Create the tool record with rounded tool value
       const roundedToolValue = Math.round(parseFloat(formData.toolValue) * 100) / 100;
-      console.log('Creating tool with data:', { 
-        name: formData.name,
-        owner_id: session.user?.id,
-        tool_value: roundedToolValue
-      });
+      // Creating tool record
       
       const { data: tool, error: toolError } = await sb
         .from('tools')
@@ -230,14 +222,12 @@ export default function AddToolPage() {
         .select();
 
       if (toolError) {
-        console.error('Tool creation error:', toolError);
         setError(`Failed to create tool: ${toolError.message}`);
         setSubmitting(false);
         return;
       }
 
       if (!tool || tool.length === 0) {
-        console.error('No tool returned from insert');
         setError('Tool created but could not retrieve data');
         setSubmitting(false);
         return;
