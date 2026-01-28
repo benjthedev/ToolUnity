@@ -60,7 +60,6 @@ export default function PricingUpgradePage() {
       // Redirect to Stripe - using window.location for checkout
       window.location.href = `/api/checkout-redirect?sessionId=${sessionId}`;
     } catch (error) {
-      console.error('Error:', error);
       alert('Failed to initiate checkout');
     } finally {
       setLoading(false);

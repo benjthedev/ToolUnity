@@ -128,7 +128,6 @@ export default function AddToolPage() {
       const uploadFileWithRetry = async (file: File, path: string, maxRetries = 2): Promise<string> => {
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
           try {
-            console.log(`Upload attempt ${attempt} for ${file.name}`);
             
             const { data: uploadData, error: uploadError } = await sb.storage
               .from('tool-images')
@@ -251,7 +250,7 @@ export default function AddToolPage() {
             .eq('user_id', session.user.id);
 
           if (updateError) {
-            console.error('Error updating tools_count:', updateError);
+            // Silently continue - tools_count update is not critical
           }
 
           const response = await fetch('/api/subscriptions/check-tool-count', {
@@ -262,7 +261,6 @@ export default function AddToolPage() {
 
           if (response.ok) {
             const result = await response.json();
-            console.log('Subscription check result:', result);
             
             // Determine if user unlocked a new tier
             let unlockParam = '';
@@ -277,7 +275,6 @@ export default function AddToolPage() {
             return;
           }
         } catch (err) {
-          console.error('Error checking subscription eligibility:', err);
           // Don't fail the flow if subscription check fails
         }
       }
@@ -285,7 +282,6 @@ export default function AddToolPage() {
       // Redirect to dashboard
       router.push('/dashboard');
     } catch (err: any) {
-      console.error('Unexpected error in form submission:', err);
       const errorMsg = err?.message || 'An unexpected error occurred';
       setError(errorMsg);
       setSubmitting(false);

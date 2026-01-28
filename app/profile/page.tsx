@@ -41,7 +41,7 @@ export default function ProfilePage() {
           method: 'POST',
         });
       } catch (err) {
-        console.error('Error syncing subscription:', err);
+        // Silently continue on sync error
       }
       
       const { data, error: fetchError } = await supabase

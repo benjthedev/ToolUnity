@@ -36,7 +36,8 @@ export default function EditToolPage() {
 
     const fetchTool = async () => {
       try {
-        const { data, error } = await supabase
+        const sb = getSupabase();
+        const { data, error } = await sb
           .from('tools')
           .select('*')
           .eq('id', toolId)
@@ -82,7 +83,8 @@ export default function EditToolPage() {
     setError('');
 
     try {
-      const { error } = await supabase
+      const sb = getSupabase();
+      const { error } = await sb
         .from('tools')
         .update({
           name: formData.name,

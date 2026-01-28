@@ -249,7 +249,6 @@ export default function ToolDetailPage() {
       showToast('Borrow request submitted successfully!', 'success');
       setShowBorrowForm(false);
     } catch (error) {
-      console.error('Error submitting borrow request:', error);
       setBorrowError({
         message: 'An error occurred. Please try again.',
         reason: 'network_error',

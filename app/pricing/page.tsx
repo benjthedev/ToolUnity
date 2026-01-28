@@ -83,7 +83,6 @@ export default function PricingPage() {
   useEffect(() => {
     if (session?.user?.id && !loading) {
       const fetchTier = async () => {
-        console.log('PRICING: Starting fetchTier for user:', session?.user?.id);
         
         // Sync subscription with Stripe to get latest status
         try {
@@ -91,7 +90,7 @@ export default function PricingPage() {
             method: 'POST',
           });
         } catch (err) {
-          console.error('Error syncing subscription:', err);
+          // Silently continue on sync error
         }
         
         const { data, error } = await supabase
@@ -100,9 +99,8 @@ export default function PricingPage() {
           .eq('user_id', session?.user?.id || '')
           .single();
         
-        console.log('PRICING: User data fetched:', data);
         if (error) {
-          console.error('PRICING: Supabase error:', error);
+          // Log error but continue
         }
         
         if (data) {
@@ -115,8 +113,6 @@ export default function PricingPage() {
             .eq('owner_id', session?.user?.id);
           
           const actualToolCount = userTools?.length || 0;
-          console.log('PRICING: Actual tool count:', actualToolCount);
-          setActiveToolCount(actualToolCount);
           
           // Use consolidated tier calculation logic with actual tool count
           const tierInfo = calculateEffectiveTier(
@@ -124,17 +120,8 @@ export default function PricingPage() {
             actualToolCount
           );
           
-          console.log('PRICING PAGE - Tier Calculation:', {
-            subscriptionTier: data.subscription_tier,
-            actualToolCount,
-            calculatedTier: tierInfo.effectiveTier,
-            isFreeTier: tierInfo.isFreeTier,
-          });
-          
           setEffectiveTier(tierInfo.effectiveTier);
           setIsPaidTier(!tierInfo.isFreeTier && data.subscription_tier && ['basic', 'standard', 'pro'].includes(data.subscription_tier));
-          
-          console.log('PRICING: State updated with tier:', tierInfo.effectiveTier);
         }
         setLoadingTier(false);
       };
@@ -145,18 +132,14 @@ export default function PricingPage() {
   }, [session?.user?.id, loading]);
 
   const handleCheckout = async (priceId: string) => {
-    console.log('handleCheckout called with priceId:', priceId);
-    console.log('session:', session);
     
     if (!session) {
-      console.log('No session, redirecting to signup');
       router.push('/signup');
       return;
     }
 
     setCheckoutLoading(true);
     try {
-      console.log('Creating checkout session with userId:', session.user?.id);
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
@@ -170,7 +153,6 @@ export default function PricingPage() {
       });
 
       const data = await response.json();
-      console.log('Checkout session response:', data);
       
       if (data.error) {
         showToast('Failed to initiate checkout', 'error');
@@ -184,7 +166,6 @@ export default function PricingPage() {
         showToast('Failed to get checkout URL', 'error');
       }
     } catch (error) {
-      console.error('Error:', error);
       showToast('Failed to initiate checkout', 'error');
     } finally {
       setCheckoutLoading(false);
@@ -318,15 +299,7 @@ export default function PricingPage() {
             const isCurrentTier = session && effectiveTier && effectiveTier === tierNameLower;
             const shouldHighlight = session && isCurrentTier ? true : !session && tier.name === 'Standard';
             
-            // Debug logging
-            if (tier.name === 'Basic') {
-              console.log('Basic tier check:', {
-                session: !!session,
-                effectiveTier,
-                tierNameLower,
-                isCurrentTier,
-              });
-            }
+            // Debug logging removed - use shouldHighlight variable set above
             
             return (
             <div

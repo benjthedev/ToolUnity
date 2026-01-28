@@ -53,7 +53,6 @@ export default function Home() {
       setWaitlistMessage(data.message);
       setWaitlistEmail('');
     } catch (error) {
-      console.error('Waitlist error:', error);
       setWaitlistError('Something went wrong. Please try again.');
     } finally {
       setWaitlistSubmitting(false);

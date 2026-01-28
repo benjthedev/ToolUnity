@@ -59,7 +59,7 @@ export default function OwnerDashboard() {
         .order('created_at', { ascending: false });
 
       if (toolsError) {
-        console.warn('Tools fetch failed, using demo data:', toolsError);
+
         // Demo tools
         const demoTools: Tool[] = [
           {
@@ -94,22 +94,22 @@ export default function OwnerDashboard() {
         setRequests(demoRequests);
         throw toolsError;
       }
-      console.log('Owner ID:', session?.user?.id);
-      console.log('Owner tools fetched:', toolsData);
-      console.log('Tool IDs:', toolsData?.map((t: any) => ({ id: t.id, name: t.name })));
+
+
+
       setTools(toolsData || []);
 
       // Fetch borrow requests for owner's tools
       if (toolsData && toolsData.length > 0) {
         const toolIds = toolsData.map((t: any) => t.id);
-        console.log('Looking for requests with tool_id in:', toolIds);
+
         
         // First check: get ALL borrow requests to see what exists
         const { data: allReqs } = await supabase
           .from('borrow_requests')
           .select('id, tool_id, user_id, status');
         
-        console.log('All borrow requests in database:', allReqs);
+
         
         // Now do the filtered query
         const { data: requestsData, error: requestsError } = await supabase
@@ -119,10 +119,10 @@ export default function OwnerDashboard() {
           .order('created_at', { ascending: false });
 
         if (requestsError) {
-          console.warn('Requests fetch failed:', requestsError);
+
           setRequests([]);
         } else {
-          console.log('Filtered requests (matching owner tools):', requestsData);
+
           
           // Transform the data to match BorrowRequest interface
           if (requestsData && requestsData.length > 0) {
@@ -151,10 +151,10 @@ export default function OwnerDashboard() {
               users: { email: usersMap.get(req.user_id) || 'Unknown User' },
             }));
             
-            console.log('Transformed requests:', transformedRequests);
+
             setRequests(transformedRequests);
           } else {
-            console.log('No requests found for these tool IDs');
+
             setRequests([]);
           }
         }
@@ -162,7 +162,7 @@ export default function OwnerDashboard() {
         setRequests([]);
       }
     } catch (err) {
-      console.error('Error fetching data:', err);
+
     } finally {
       setLoadingData(false);
     }
@@ -178,7 +178,7 @@ export default function OwnerDashboard() {
       if (error) throw error;
       fetchData();
     } catch (err) {
-      console.error('Error approving request:', err);
+
       alert('Failed to approve request');
     }
   };
@@ -193,7 +193,7 @@ export default function OwnerDashboard() {
       if (error) throw error;
       fetchData();
     } catch (err) {
-      console.error('Error rejecting request:', err);
+
       alert('Failed to reject request');
     }
   };
@@ -228,11 +228,11 @@ export default function OwnerDashboard() {
             showToast('You no longer qualify for your previous tier', 'info');
           }
         } catch (tierErr) {
-          console.warn('Failed to recalculate tier after tool deletion:', tierErr);
+
         }
       }
     } catch (err) {
-      console.error('Error deleting tool:', err);
+
       showToast('Failed to delete tool', 'error');
     }
   };

@@ -77,7 +77,6 @@ export default function ResetPasswordPage() {
       }, 2000);
     } catch (err) {
       setError('An error occurred. Please try again.');
-      console.error('Error:', err);
     } finally {
       setLoading(false);
     }

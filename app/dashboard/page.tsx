@@ -89,7 +89,7 @@ export default function DashboardPage() {
           method: 'POST',
         });
       } catch (err) {
-        console.error('Error syncing subscription:', err);
+        // Silently continue on sync error
       }
       
       // Fetch subscription tier from users_ext
@@ -116,13 +116,6 @@ export default function DashboardPage() {
           userData.subscription_tier,
           actualToolCount
         );
-        console.log('=== TIER CALCULATION DEBUG ===');
-        console.log('Input subscriptionTier:', userData.subscription_tier);
-        console.log('Input actualToolCount:', actualToolCount);
-        console.log('Output effectiveTier:', tierInfo.effectiveTier);
-        console.log('Output isFreeTier:', tierInfo.isFreeTier);
-        console.log('Output action:', tierInfo.action);
-        console.log('==============================');
         
         setEffectiveTier(tierInfo.effectiveTier);
         // isPaidTier is true only if they have a paid subscription (not free tool waiver)
@@ -178,11 +171,9 @@ export default function DashboardPage() {
       }
 
       if (borrowDataWithOwners) {
-        console.log('Borrow requests fetched:', borrowDataWithOwners);
-        // Filter out returned requests from active display
+        // Requests fetched successfully
         setBorrowRequests((borrowDataWithOwners as unknown as BorrowRequest[]) || []);
       } else if (borrowError) {
-        console.error('Error fetching borrow requests:', borrowError);
         setBorrowRequests([]);
       }
 
