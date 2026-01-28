@@ -27,11 +27,19 @@ export default function EditToolPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [csrfToken, setCsrfToken] = useState('');
 
   useEffect(() => {
     if (!session) {
       router.push('/login');
       return;
+    }
+
+    // Get CSRF token from cookie
+    const cookies = document.cookie.split(';');
+    const csrf = cookies.find(c => c.trim().startsWith('__csrf_token='));
+    if (csrf) {
+      setCsrfToken(decodeURIComponent(csrf.split('=')[1]));
     }
 
     const fetchTool = async () => {
@@ -51,7 +59,7 @@ export default function EditToolPage() {
             category: data.category || 'Power Tools',
             description: data.description || '',
             condition: data.condition || 'Good',
-            toolValue: data.tool_value?.toString() || '',
+            toolValue: data.daily_rate?.toString() || data.tool_value?.toString() || '',
             postcode: data.postcode || '',
           });
         } else {
@@ -83,22 +91,30 @@ export default function EditToolPage() {
     setError('');
 
     try {
-      const sb = getSupabase();
-      const { error } = await sb
-        .from('tools')
-        .update({
+      // Call secure API endpoint instead of direct Supabase update
+      const response = await fetch(`/api/tools/update?toolId=${toolId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': csrfToken,
+        },
+        body: JSON.stringify({
           name: formData.name,
           category: formData.category,
           description: formData.description,
           condition: formData.condition,
-          tool_value: parseFloat(formData.toolValue) || 0,
-          postcode: formData.postcode,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', toolId)
-        .eq('owner_id', session?.user?.id);
+          daily_rate: parseFloat(formData.toolValue) || 0,
+          csrf_token: csrfToken,
+        }),
+      });
 
-      if (error) throw error;
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || 'Failed to update tool');
+        setSubmitting(false);
+        return;
+      }
 
       router.push('/owner-dashboard');
     } catch (err) {

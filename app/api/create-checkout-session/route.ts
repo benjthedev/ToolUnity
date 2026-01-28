@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { serverLog } from '@/lib/logger';
+import { getStripePrices } from '@/lib/pricing-config';
 
 let stripe: Stripe | null = null;
 let supabase: any = null;
@@ -39,6 +40,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const prices = getStripePrices();
+    
     const sessionConfig: Stripe.Checkout.SessionCreateParams = {
       payment_method_types: ['card'],
       line_items: [
@@ -50,7 +53,7 @@ export async function POST(request: NextRequest) {
       mode: 'subscription',
       subscription_data: 
         // Only Standard and Pro get free trial (not Basic)
-        (priceId === process.env.STRIPE_PRICE_STANDARD || priceId === process.env.STRIPE_PRICE_PRO)
+        (priceId === prices.STANDARD || priceId === prices.PRO)
           ? { trial_period_days: 14 }
           : {},
       success_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard?upgrade=success&session_id={CHECKOUT_SESSION_ID}`,

@@ -102,7 +102,6 @@ export default function AddToolPage() {
     }
 
     // Validate tool value
-    // Validate tool value
     const toolValue = parseFloat(formData.toolValue);
     if (isNaN(toolValue) || toolValue < 0) {
       setError('Tool value must be a valid number');
@@ -118,6 +117,11 @@ export default function AddToolPage() {
     }
 
     setSubmitting(true);
+
+    // Get CSRF token from cookie
+    const cookies = document.cookie.split(';');
+    const csrf = cookies.find(c => c.trim().startsWith('__csrf_token='));
+    const csrfToken = csrf ? decodeURIComponent(csrf.split('=')[1]) : '';
 
     try {
       let imageUrl = '';
@@ -199,35 +203,36 @@ export default function AddToolPage() {
         }
       }
 
-      // Create the tool record with rounded tool value
-      const roundedToolValue = Math.round(parseFloat(formData.toolValue) * 100) / 100;
-      // Creating tool record
-      
-      const { data: tool, error: toolError } = await sb
-        .from('tools')
-        .insert([
-          {
-            name: formData.name,
-            category: formData.category,
-            description: formData.description,
-            condition: formData.condition,
-            tool_value: roundedToolValue,
-            postcode: formData.postcode,
-            image_url: imageUrl || null,
-            owner_id: session.user?.id,
-            available: true,
-          },
-        ])
-        .select();
+      // Create tool via secure API endpoint (with validation, CSRF, rate limiting)
+      const response = await fetch('/api/tools/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': csrfToken,
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          category: formData.category,
+          description: formData.description,
+          condition: formData.condition,
+          daily_rate: roundedValue,
+          images: imageUrl ? [imageUrl] : [],
+          csrf_token: csrfToken,
+        }),
+      });
 
-      if (toolError) {
-        setError(`Failed to create tool: ${toolError.message}`);
+      if (!response.ok) {
+        const result = await response.json();
+        setError(result.error || 'Failed to create tool');
         setSubmitting(false);
         return;
       }
 
-      if (!tool || tool.length === 0) {
-        setError('Tool created but could not retrieve data');
+      const toolResult = await response.json();
+      const toolId = toolResult.tool?.id;
+
+      if (!toolId) {
+        setError('Tool created but could not retrieve ID');
         setSubmitting(false);
         return;
       }

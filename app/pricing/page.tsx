@@ -8,6 +8,7 @@ import TierSummary from '@/app/components/TierSummary';
 import { useRouter } from 'next/navigation';
 import { showToast } from '@/app/utils/toast';
 import { calculateEffectiveTier } from '@/app/utils/tierCalculation';
+import { STRIPE_PRICES } from '@/lib/pricing-config';
 
 const pricingTiers = [
   {
@@ -25,7 +26,7 @@ const pricingTiers = [
     ],
     waiver: 'Free if you list 1+ tools',
     cta: 'Subscribe',
-    priceId: 'price_1SmI9kBt1LczyCVDZeEMqvMJ',
+    priceId: STRIPE_PRICES.BASIC,
   },
   {
     name: 'Standard',
@@ -44,7 +45,7 @@ const pricingTiers = [
     waiver: 'Free if you list 3+ tools',
     trial: '14 days free trial',
     cta: 'Subscribe',
-    priceId: 'price_1Sk7XZBt1LczyCVDOPofihFZ',
+    priceId: STRIPE_PRICES.STANDARD,
     highlighted: true,
     badge: 'Best Value',
   },
@@ -65,7 +66,7 @@ const pricingTiers = [
     trial: '14 days free trial',
     comingSoon: true,
     cta: 'Subscribe',
-    priceId: 'price_1Sk7YbBt1LczyCVDef9jBhUV',
+    priceId: STRIPE_PRICES.PRO,
   },
 ];
 
