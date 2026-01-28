@@ -6,6 +6,7 @@ import { verifyCsrfToken } from '@/lib/csrf';
 import { checkRateLimitByUserId, RATE_LIMIT_CONFIGS } from '@/lib/rate-limit';
 import { BorrowRequestSchema } from '@/lib/validation';
 import { serverLog } from '@/lib/logger';
+import { ApiErrors } from '@/lib/api-response';
 import { ZodError } from 'zod';
 
 export async function POST(request: NextRequest) {
@@ -13,24 +14,14 @@ export async function POST(request: NextRequest) {
     // Verify CSRF token
     const csrfCheck = await verifyCsrfToken(request);
     if (!csrfCheck.valid) {
-      return NextResponse.json(
-        { error: 'CSRF token validation failed', reason: 'csrf_invalid' },
-        { status: 403 }
-      );
+      return ApiErrors.CSRF_FAILED();
     }
 
     // Get session - pass authOptions explicitly
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        {
-          error: 'Unauthorized',
-          reason: 'not_authenticated',
-          message: 'You must be signed in to borrow tools',
-        },
-        { status: 401 }
-      );
+      return ApiErrors.UNAUTHORIZED();
     }
 
     // Rate limit borrow requests (10 per hour per user)
@@ -41,14 +32,7 @@ export async function POST(request: NextRequest) {
     );
 
     if (!rateLimitCheck.allowed) {
-      return NextResponse.json(
-        {
-          error: 'Too many borrow requests',
-          reason: 'rate_limited',
-          message: `Please wait before making another borrow request (${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 60000)} minutes remaining)`,
-        },
-        { status: 429, headers: { 'Retry-After': String(Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)) } }
-      );
+      return ApiErrors.RATE_LIMITED();
     }
 
     const body = await request.json();
@@ -63,10 +47,7 @@ export async function POST(request: NextRequest) {
       });
     } catch (error) {
       if (error instanceof ZodError) {
-        return NextResponse.json(
-          { error: 'Validation failed', issues: error.issues },
-          { status: 400 }
-        );
+        return ApiErrors.VALIDATION_ERROR('Invalid borrow request data');
       }
       throw error;
     }

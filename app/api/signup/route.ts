@@ -4,6 +4,7 @@ import { checkRateLimitByEmail, RATE_LIMIT_CONFIGS } from '@/lib/rate-limit';
 import { verifyCsrfToken } from '@/lib/csrf';
 import { SignupSchema } from '@/lib/validation';
 import { serverLog } from '@/lib/logger';
+import { ApiErrors, apiSuccess } from '@/lib/api-response';
 import { ZodError } from 'zod';
 
 let supabaseAdmin: any = null;
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest) {
     // Verify CSRF token
     const csrfCheck = await verifyCsrfToken(request);
     if (!csrfCheck.valid) {
-      return NextResponse.json({ error: 'CSRF token validation failed' }, { status: 403 });
+      return ApiErrors.CSRF_FAILED();
     }
 
     const body = await request.json();
@@ -60,10 +61,7 @@ export async function POST(request: NextRequest) {
       });
     } catch (error) {
       if (error instanceof ZodError) {
-        return NextResponse.json(
-          { error: 'Validation failed', issues: error.issues },
-          { status: 400 }
-        );
+        return ApiErrors.VALIDATION_ERROR('Invalid signup data provided');
       }
       throw error;
     }
@@ -78,14 +76,7 @@ export async function POST(request: NextRequest) {
     );
 
     if (!rateLimitCheck.allowed) {
-      return NextResponse.json(
-        {
-          error: 'Too many signup attempts',
-          reason: 'rate_limited',
-          message: `Please try again in ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 60000)} minutes`,
-        },
-        { status: 429, headers: { 'Retry-After': String(Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)) } }
-      );
+      return ApiErrors.RATE_LIMITED();
     }
 
     // Create user profile
@@ -101,7 +92,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (profileError) {
-      return NextResponse.json({ error: profileError.message }, { status: 400 });
+      return ApiErrors.BAD_REQUEST(profileError.message);
     }
 
     // Mark user as email confirmed using service role
@@ -122,14 +113,12 @@ export async function POST(request: NextRequest) {
       // Service role key not configured
     }
 
-    return NextResponse.json(
-      {
-        message: 'User profile created successfully',
-        user: { id: user_id, email: email, username: username },
-      },
-      { status: 201 }
+    return apiSuccess(
+      { id: user_id, email: email, username: username },
+      'User profile created successfully',
+      201
     );
   } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return ApiErrors.INTERNAL_ERROR();
   }
 }
