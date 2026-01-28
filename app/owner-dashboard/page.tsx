@@ -127,10 +127,10 @@ export default function OwnerDashboard() {
           // Transform the data to match BorrowRequest interface
           if (requestsData && requestsData.length > 0) {
             // Get the tool names from toolsData
-            const toolsMap = new Map(toolsData.map(t => [t.id, t.name]));
+            const toolsMap = new Map(toolsData.map((t: any) => [t.id, t.name]));
             
             // Get unique user IDs from requests
-            const userIds = [...new Set(requestsData.map(r => r.user_id))];
+            const userIds = [...new Set(requestsData.map((r: any) => r.user_id))];
             
             // Fetch user emails
             const { data: usersData } = await supabase
@@ -138,9 +138,9 @@ export default function OwnerDashboard() {
               .select('user_id, email')
               .in('user_id', userIds);
             
-            const usersMap = new Map(usersData?.map(u => [u.user_id, u.email]) || []);
+            const usersMap = new Map(usersData?.map((u: any) => [u.user_id, u.email]) || []);
             
-            const transformedRequests: BorrowRequest[] = requestsData.map(req => ({
+            const transformedRequests: BorrowRequest[] = requestsData.map((req: any) => ({
               id: req.id,
               tool_id: req.tool_id,
               start_date: req.start_date,
