@@ -24,10 +24,25 @@ export default function EditToolPage() {
     postcode: '',
   });
 
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState('');
+  const [currentImageUrl, setCurrentImageUrl] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [csrfToken, setCsrfToken] = useState('');
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   useEffect(() => {
     if (!session) {
@@ -62,6 +77,7 @@ export default function EditToolPage() {
             toolValue: data.daily_rate?.toString() || data.tool_value?.toString() || '',
             postcode: data.postcode || '',
           });
+          setCurrentImageUrl(data.image_url || '');
         } else {
           setError('You do not have permission to edit this tool.');
         }
@@ -91,6 +107,63 @@ export default function EditToolPage() {
     setError('');
 
     try {
+      const sb = getSupabase();
+      let imageUrl = currentImageUrl;
+
+      // Helper function to upload file with retry logic
+      const uploadFileWithRetry = async (file: File, path: string, maxRetries = 2): Promise<string> => {
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+          try {
+            const { data: uploadData, error: uploadError } = await sb.storage
+              .from('tool-images')
+              .upload(path, file, {
+                cacheControl: '3600',
+                upsert: false,
+              });
+
+            if (uploadError) {
+              if (attempt === maxRetries) {
+                throw uploadError;
+              }
+              await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt - 1) * 1000));
+              continue;
+            }
+
+            const { data: urlData } = sb.storage
+              .from('tool-images')
+              .getPublicUrl(path);
+            
+            return urlData.publicUrl;
+          } catch (err) {
+            if (attempt === maxRetries) {
+              throw err;
+            }
+            await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt - 1) * 1000));
+          }
+        }
+        throw new Error('Upload failed after retries');
+      };
+
+      // Upload new image if selected
+      if (imageFile && session?.user?.id) {
+        try {
+          const fileExt = imageFile.name.split('.').pop();
+          const fileName = `${session.user.id}/${Date.now()}.${fileExt}`;
+          imageUrl = await uploadFileWithRetry(imageFile, fileName);
+        } catch (uploadError: any) {
+          const errorMessage = uploadError?.message || 'Unknown error';
+          const userMessage = 
+            errorMessage.includes('bucket') ? 'Storage service unavailable. Please try again.' :
+            errorMessage.includes('size') ? 'File is too large. Please choose a smaller image.' :
+            errorMessage.includes('format') ? 'Invalid image format. Use JPG, PNG, or WebP.' :
+            `Image upload failed: ${errorMessage}`;
+          
+          setError(userMessage);
+          setSubmitting(false);
+          return;
+        }
+      }
+
       // Call secure API endpoint instead of direct Supabase update
       const response = await fetch(`/api/tools/update?toolId=${toolId}`, {
         method: 'PUT',
@@ -104,6 +177,7 @@ export default function EditToolPage() {
           description: formData.description,
           condition: formData.condition,
           daily_rate: parseFloat(formData.toolValue) || 0,
+          image_url: imageUrl,
           csrf_token: csrfToken,
         }),
       });
@@ -238,6 +312,33 @@ export default function EditToolPage() {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="e.g., 150"
             />
+          </div>
+
+          {/* Tool Image */}
+          <div className="mb-8">
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
+              Tool Photo
+            </label>
+            <div className="space-y-4">
+              {(preview || currentImageUrl) && (
+                <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
+                  <img
+                    src={preview || currentImageUrl}
+                    alt="Tool preview"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+              <p className="text-sm text-gray-600">
+                {preview || currentImageUrl ? 'Choose a different image or keep the current one' : 'Upload a clear photo of your tool'}
+              </p>
+            </div>
           </div>
 
           {/* Postcode */}

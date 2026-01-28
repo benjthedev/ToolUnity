@@ -55,7 +55,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Step 4: Validate input
+    // Parse and validate data
     const toolId = request.nextUrl.searchParams.get('toolId');
     if (!toolId) {
       return NextResponse.json(
@@ -71,6 +71,7 @@ export async function PUT(request: NextRequest) {
       category: body.category,
       condition: body.condition,
       daily_rate: body.daily_rate,
+      image_url: body.image_url,
     });
 
     // Step 5: Sanitize description for XSS protection
@@ -108,6 +109,7 @@ export async function PUT(request: NextRequest) {
         description: sanitizedDescription,
         condition: updateData.condition,
         daily_rate: updateData.daily_rate,
+        ...(updateData.image_url && { image_url: updateData.image_url }),
         updated_at: new Date().toISOString(),
       })
       .eq('id', toolId)
