@@ -7,6 +7,7 @@ import { z } from 'zod';
 
 // Auth Schemas
 export const SignupSchema = z.object({
+  user_id: z.string().optional(),
   email: z.string().email('Invalid email address'),
   username: z.string().min(3, 'Username must be at least 3 characters').max(20, 'Username must be less than 20 characters'),
   phone_number: z.string().refine(
@@ -17,7 +18,7 @@ export const SignupSchema = z.object({
     },
     'Phone number must contain at least 10 digits'
   ),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: z.string().min(8, 'Password must be at least 8 characters').optional(),
   subscription_tier: z.enum(['free', 'basic', 'standard', 'pro']).optional().default('free'),
 });
 
