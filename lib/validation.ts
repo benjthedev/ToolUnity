@@ -9,7 +9,14 @@ import { z } from 'zod';
 export const SignupSchema = z.object({
   email: z.string().email('Invalid email address'),
   username: z.string().min(3, 'Username must be at least 3 characters').max(20, 'Username must be less than 20 characters'),
-  phone_number: z.string().regex(/^\d{10,}$/, 'Phone number must contain at least 10 digits'),
+  phone_number: z.string().refine(
+    (phone) => {
+      // Remove spaces, dashes, and parentheses, then check if at least 10 digits remain
+      const digitsOnly = phone.replace(/[\s\-()]/g, '');
+      return /^\d{10,}$/.test(digitsOnly);
+    },
+    'Phone number must contain at least 10 digits'
+  ),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   subscription_tier: z.enum(['free', 'basic', 'standard', 'pro']).optional().default('free'),
 });
