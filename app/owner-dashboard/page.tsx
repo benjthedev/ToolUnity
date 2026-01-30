@@ -251,7 +251,7 @@ export default function OwnerDashboard() {
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-2">Your Earnings</h2>
               <p className="text-gray-700 mb-4">
-                You earn <strong>70% of every rental</strong>. Payouts are sent to your bank account monthly.
+                You earn <strong>85% of every rental</strong>. Payouts are sent to your bank account monthly.
               </p>
               <p className="text-sm text-gray-600 mb-4">
                 The more tools you list and the more they get rented, the more you earn. No hidden fees or surprises.

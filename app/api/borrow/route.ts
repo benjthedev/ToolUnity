@@ -151,8 +151,8 @@ export async function POST(request: NextRequest) {
     // Calculate costs
     const dailyRate = tool.tool_value || 3; // Default £3/day
     const rentalCost = parseFloat((dailyRate * durationDays).toFixed(2));
-    const platformFee = parseFloat((rentalCost * 0.30).toFixed(2)); // Platform takes 30%
-    const ownerPayout = parseFloat((rentalCost * 0.70).toFixed(2)); // Owner gets 70%
+    const platformFee = parseFloat((rentalCost * 0.15).toFixed(2)); // Platform takes 15%
+    const ownerPayout = parseFloat((rentalCost * 0.85).toFixed(2)); // Owner gets 85%
     const totalCost = rentalCost;
 
     // Create rental transaction record (status: pending_payment)

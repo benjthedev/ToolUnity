@@ -50,7 +50,7 @@ export default function TermsOfServicePage() {
             
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">4.1 Rental Fees</h3>
             <p className="text-gray-700 mb-4">
-              Tool owners set their own daily rental rates. Renters pay the daily rate multiplied by the number of rental days. ToolUnity retains 30% of the rental fee as a platform fee; owners receive 70%.
+              Tool owners set their own daily rental rates. Renters pay the daily rate multiplied by the number of rental days. ToolUnity retains 15% of the rental fee as a platform fee; owners receive 85%.
             </p>
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">4.2 Payment Processing</h3>

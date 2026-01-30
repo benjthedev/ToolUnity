@@ -290,7 +290,7 @@ export default function Home() {
             <div className="text-5xl mb-4">💰</div>
             <h2 className="text-3xl font-bold text-gray-900 mb-3">Earn Money From Your Tools</h2>
             <p className="text-xl text-gray-700 max-w-2xl mx-auto">
-              Turn your idle tools into income. You keep 70% of every rental—we handle the rest.
+              Turn your idle tools into income. You keep 85% of every rental—we handle the rest.
             </p>
           </div>
 
@@ -300,7 +300,7 @@ export default function Home() {
               <ul className="space-y-3 text-gray-700">
                 <li className="flex items-start gap-3">
                   <span className="text-emerald-600 font-bold text-lg">✓</span>
-                  <span>Keep 70% of every rental</span>
+                  <span>Keep 85% of every rental</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-emerald-600 font-bold text-lg">✓</span>
@@ -334,7 +334,7 @@ export default function Home() {
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-emerald-600 font-bold text-lg">💵</span>
-                  <span><strong>Get paid</strong> — 70% goes directly to you</span>
+                  <span><strong>Get paid</strong> — 85% goes directly to you</span>
                 </li>
               </ol>
             </div>

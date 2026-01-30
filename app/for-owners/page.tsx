@@ -46,7 +46,7 @@ export default function ForOwnersPage() {
               <div className="text-4xl mb-3">�</div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Earn Money</h3>
               <p className="text-gray-700">
-                Keep your tools in use and earn 70% of every rental. Passive income from tools sitting in your shed.
+                Keep your tools in use and earn 85% of every rental. Passive income from tools sitting in your shed.
               </p>
             </div>
 

@@ -155,7 +155,7 @@ export default function DashboardPage() {
   }
 
   const totalEarningsPotential = tools.length > 0 
-    ? ownerRentals.reduce((sum, r) => sum + (r.rental_cost || 0), 0) * 0.7
+    ? ownerRentals.reduce((sum, r) => sum + (r.rental_cost || 0), 0) * 0.85
     : 0;
 
   return (
@@ -379,8 +379,8 @@ export default function DashboardPage() {
                         </div>
                         {rental.rental_cost && (
                           <div className="bg-green-50 rounded p-3 text-sm border border-green-200">
-                            <p className="text-gray-600">You Earn (70%)</p>
-                            <p className="font-semibold text-green-600">£{(rental.rental_cost * 0.7).toFixed(2)}</p>
+                            <p className="text-gray-600">You Earn (85%)</p>
+                            <p className="font-semibold text-green-600">£{(rental.rental_cost * 0.85).toFixed(2)}</p>
                           </div>
                         )}
                       </div>

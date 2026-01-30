@@ -334,7 +334,7 @@ export default function ToolDetailPage() {
                   <p className="font-semibold text-gray-900 mb-2">✓ What's Included</p>
                   <ul className="space-y-2 text-sm text-gray-700">
                     <li>• No hidden fees—you see the total before paying</li>
-                    <li>• Owner gets 70% of rental, ToolUnity keeps 30%</li>
+                    <li>• Owner gets 85% of rental, ToolUnity keeps 15%</li>
                     <li>• Flexible rental periods—rent for 1 day or longer</li>
                     <li>• Contact owner directly for questions</li>
                   </ul>
@@ -460,7 +460,7 @@ export default function ToolDetailPage() {
                                     <span className="font-bold text-gray-900">Total:</span>
                                     <span className="text-2xl font-bold text-green-600">£{rentalCost}</span>
                                   </div>
-                                  <p className="text-xs text-gray-500 mt-2">Owner receives 70% (£{(parseFloat(rentalCost) * 0.7).toFixed(2)})</p>
+                                  <p className="text-xs text-gray-500 mt-2">Owner receives 85% (£{(parseFloat(rentalCost) * 0.85).toFixed(2)})</p>
                                 </>
                               );
                             })()
