@@ -77,33 +77,33 @@ export default function ForOwnersPage() {
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white rounded-lg p-6 border border-green-200">
-                  <p className="text-sm text-gray-600 mb-2 font-semibold">Getting Started</p>
-                  <p className="text-3xl font-bold text-green-600 mb-4">1-2 Tools</p>
+                  <p className="text-sm text-gray-600 mb-2 font-semibold">Set Your Price</p>
+                  <p className="text-3xl font-bold text-green-600 mb-4">£1-5/day</p>
                   <div className="space-y-3 text-sm text-gray-700">
-                    <p>Example: Drill at £3/day</p>
-                    <p className="text-lg font-semibold text-green-600">£40–80/month</p>
-                    <p className="text-xs text-gray-600">From 5 rentals × 2 days avg</p>
+                    <p>Drill, Pressure Washer, Ladder</p>
+                    <p className="text-lg font-semibold text-green-600">You choose the rate</p>
+                    <p className="text-xs text-gray-600">Based on tool value & demand</p>
                   </div>
                 </div>
 
                 <div className="bg-white rounded-lg p-6 border-2 border-green-500">
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold">MOST POPULAR</div>
-                  <p className="text-sm text-gray-600 mb-2 font-semibold">Side Income</p>
-                  <p className="text-3xl font-bold text-green-600 mb-4">5-10 Tools</p>
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold">YOU GET 70%</div>
+                  <p className="text-sm text-gray-600 mb-2 font-semibold">Simple Split</p>
+                  <p className="text-3xl font-bold text-green-600 mb-4">70% Owner</p>
                   <div className="space-y-3 text-sm text-gray-700">
-                    <p>Mixed tools: £1.50–4/day</p>
-                    <p className="text-lg font-semibold text-green-600">£200–500/month</p>
-                    <p className="text-xs text-gray-600">3 rentals per tool avg</p>
+                    <p>Of every rental</p>
+                    <p className="text-lg font-semibold text-green-600">No hidden fees</p>
+                    <p className="text-xs text-gray-600">30% covers platform & operations</p>
                   </div>
                 </div>
 
                 <div className="bg-white rounded-lg p-6 border border-green-200">
-                  <p className="text-sm text-gray-600 mb-2 font-semibold">Serious Income</p>
-                  <p className="text-3xl font-bold text-green-600 mb-4">15+ Tools</p>
+                  <p className="text-sm text-gray-600 mb-2 font-semibold">More Tools = More Opportunities</p>
+                  <p className="text-3xl font-bold text-green-600 mb-4">Scale Up</p>
                   <div className="space-y-3 text-sm text-gray-700">
-                    <p>Build a collection fast</p>
-                    <p className="text-lg font-semibold text-green-600">£1,000+/month</p>
-                    <p className="text-xs text-gray-600">Real business potential</p>
+                    <p>List as many tools as you want</p>
+                    <p className="text-lg font-semibold text-green-600">Build your catalog</p>
+                    <p className="text-xs text-gray-600">Earnings scale with rentals</p>
                   </div>
                 </div>
               </div>
@@ -282,7 +282,7 @@ export default function ForOwnersPage() {
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">How much should I charge per day?</h3>
               <p className="text-gray-700">
-                You set the price. Most owners charge £1-5 per day depending on the tool. A £3 drill, £4 pressure washer, £1.50 ladder. Look at similar tools and set what feels fair. You can always adjust.
+                You set the price. Consider the tool's value, condition, and demand in your area. Most tools rent between £1-5/day. You can always adjust your prices anytime.
               </p>
             </div>
 

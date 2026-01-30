@@ -161,44 +161,43 @@ export default function PricingPage() {
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-bold text-gray-900 mb-4 text-center">For Tool Owners</h2>
           <p className="text-gray-600 text-lg text-center mb-12 max-w-2xl mx-auto">
-            Turn your unused tools into passive income. Share with neighbors, earn every rental.
+                Set your rental prices. Earn 70% of every rental. List as many tools as you want.
           </p>
-
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-            {/* Earnings Example 1 */}
+            {/* Pricing Example 1 */}
             <div className="bg-white rounded-lg p-8 shadow-sm">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Tool Owner A</h3>
-              <p className="text-gray-600 text-sm mb-4">Lists 1 pressure washer (£4/day)</p>
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Example Tool 1</h3>
+              <p className="text-gray-600 text-sm mb-4">Pressure washer at £4/day</p>
               <div className="bg-green-50 rounded-lg p-4 mb-4">
-                <p className="text-sm text-gray-600">5 rentals/month × £4/day × 2 days avg</p>
-                <p className="text-2xl font-bold text-green-600">£40/month</p>
-                <p className="text-xs text-gray-600 mt-2">Earn: £28 (70%)</p>
+                <p className="text-sm text-gray-600">Your daily rate: £4</p>
+                <p className="text-2xl font-bold text-green-600">You get 70%</p>
+                <p className="text-xs text-gray-600 mt-2">Per rental day</p>
               </div>
-              <p className="text-xs text-gray-600">Passive income from one tool!</p>
+              <p className="text-xs text-gray-600">Earnings depend on rental frequency</p>
             </div>
 
-            {/* Earnings Example 2 */}
+            {/* Pricing Example 2 */}
             <div className="bg-white rounded-lg p-8 shadow-sm border-2 border-green-500">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Tool Owner B</h3>
-              <p className="text-gray-600 text-sm mb-4">Lists 8 tools (mixed tools)</p>
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Example Tool 2</h3>
+              <p className="text-gray-600 text-sm mb-4">Electric drill at £3/day</p>
               <div className="bg-green-50 rounded-lg p-4 mb-4">
-                <p className="text-sm text-gray-600">Average 3 rentals/month per tool × £2-4 avg</p>
-                <p className="text-2xl font-bold text-green-600">£240/month</p>
-                <p className="text-xs text-gray-600 mt-2">Earn: £168 (70%)</p>
+                <p className="text-sm text-gray-600">Your daily rate: £3</p>
+                <p className="text-2xl font-bold text-green-600">You get 70%</p>
+                <p className="text-xs text-gray-600 mt-2">Per rental day</p>
               </div>
-              <p className="text-xs text-gray-600">Build a serious side income!</p>
+              <p className="text-xs text-gray-600">Earnings depend on rental frequency</p>
             </div>
 
-            {/* Earnings Example 3 */}
+            {/* Pricing Example 3 */}
             <div className="bg-white rounded-lg p-8 shadow-sm">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Tool Owner C</h3>
-              <p className="text-gray-600 text-sm mb-4">Lists 20 tools (diverse fleet)</p>
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Example Tool 3</h3>
+              <p className="text-gray-600 text-sm mb-4">Ladder at £1.50/day</p>
               <div className="bg-green-50 rounded-lg p-4 mb-4">
-                <p className="text-sm text-gray-600">Average 2 rentals/month per tool × £2-3 avg</p>
-                <p className="text-2xl font-bold text-green-600">£1,200/month</p>
-                <p className="text-xs text-gray-600 mt-2">Earn: £840 (70%)</p>
+                <p className="text-sm text-gray-600">Your daily rate: £1.50</p>
+                <p className="text-2xl font-bold text-green-600">You get 70%</p>
+                <p className="text-xs text-gray-600 mt-2">Per rental day</p>
               </div>
-              <p className="text-xs text-gray-600">Real business-level income!</p>
+              <p className="text-xs text-gray-600">Earnings depend on rental frequency</p>
             </div>
           </div>
 
@@ -219,20 +218,15 @@ export default function PricingPage() {
           {session && !loadingStats && ownerStats.toolsCount > 0 && (
             <div className="mt-12 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-8 border-2 border-green-600">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Your Owner Dashboard</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6\">
                 <div className="bg-white rounded-lg p-4 text-center">
                   <p className="text-gray-600 text-sm mb-2">Tools Listed</p>
                   <p className="text-3xl font-bold text-green-600">{ownerStats.toolsCount}</p>
                 </div>
                 <div className="bg-white rounded-lg p-4 text-center">
-                  <p className="text-gray-600 text-sm mb-2">Potential Monthly Earnings</p>
-                  <p className="text-3xl font-bold text-green-600">£{(ownerStats.toolsCount * 40).toLocaleString()}</p>
-                  <p className="text-xs text-gray-600 mt-2">(assuming average rentals)</p>
-                </div>
-                <div className="bg-white rounded-lg p-4 text-center">
-                  <p className="text-gray-600 text-sm mb-2">Your Earnings (This Month)</p>
-                  <p className="text-3xl font-bold text-green-600">£{ownerStats.monthlyEarnings}</p>
-                  <p className="text-xs text-gray-600 mt-2">Payouts every 30 days</p>
+                  <p className="text-gray-600 text-sm mb-2">Earn 70% Per Rental</p>
+                  <p className="text-3xl font-bold text-green-600">You set the price</p>
+                  <p className="text-xs text-gray-600 mt-2">Get paid monthly</p>
                 </div>
               </div>
               <Link href="/owner-dashboard" className="block mt-6 text-center bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-semibold">
