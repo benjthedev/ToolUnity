@@ -274,7 +274,7 @@ export default function PricingPage() {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">How much can I earn as an owner?</h3>
-              <p className="text-gray-600">It depends on how many tools you list and rental demand. Most owners list between 1-5 tools and earn £20-100+ per month. Some list 10+ tools and earn £500/month+. You set the daily rental price and keep 70%.</p>
+              <p className="text-gray-600">It depends on how many tools you list and rental demand. Most owners list between 1-5 tools and earn £20-100+ per month. Some list 10+ tools and earn £500/month+. You set the daily rental price and keep 85%.</p>
             </div>
 
             <div>

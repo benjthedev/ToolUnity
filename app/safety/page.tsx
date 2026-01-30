@@ -123,7 +123,7 @@ export default function SafetyPage() {
               <li>✓ <strong>Approve each request</strong> — You choose who rents your tools</li>
               <li>✓ <strong>Set your own rates</strong> — Charge what you think is fair (£1-5+/day)</li>
               <li>✓ <strong>Damage liability on renter</strong> — If damage occurs, the renter pays</li>
-              <li>✓ <strong>Keep 70%</strong> — You earn 70% of every rental</li>
+              <li>✓ <strong>Keep 85%</strong> — You earn 85% of every rental</li>
             </ul>
           </div>
         </section>

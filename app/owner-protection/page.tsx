@@ -44,7 +44,7 @@ export default function OwnerProtectionPage() {
               <div className="text-3xl font-bold text-blue-600 mb-3">70%</div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Your Earnings</h3>
               <p className="text-gray-700 text-sm">
-                You keep 70% of every rental. Set your own daily rates (£1-5+/day) and earn from idle tools.
+                You keep 85% of every rental. Set your own daily rates (£1-5+/day) and earn from idle tools.
               </p>
             </div>
           </div>
