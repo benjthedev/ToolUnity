@@ -42,7 +42,7 @@ export const CreateToolSchema = z.object({
   name: z.string().min(2, 'Tool name must be at least 2 characters').max(100, 'Tool name must be less than 100 characters'),
   description: z.string().min(3, 'Description must be at least 3 characters').max(1000, 'Description must be less than 1000 characters').optional().default(''),
   category: z.string().min(1, 'Category is required'),
-  condition: z.enum(['good', 'fair', 'poor', 'Good', 'Fair', 'Poor']).transform(v => v.toLowerCase()).catch('good'),
+  condition: z.string().transform(v => v.toLowerCase()),
   daily_rate: z.number().min(0.5, 'Daily rate must be at least £0.50').max(500, 'Daily rate must be less than £500'),
   tool_value: z.number().min(1, 'Tool value must be at least £1').max(10000, 'Tool value must be less than £10,000').optional(),
   images: z.array(z.string().url()).optional().default([]),
