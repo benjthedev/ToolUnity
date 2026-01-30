@@ -48,6 +48,7 @@ export default function DashboardPage() {
   const [toolsCount, setToolsCount] = useState(0);
   const [effectiveTier, setEffectiveTier] = useState<string>('free');
   const [isPaidTier, setIsPaidTier] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
 
   // Check email verification status
   useEffect(() => {
@@ -70,6 +71,9 @@ export default function DashboardPage() {
           console.error('Error checking email verification:', error);
           return;
         }
+
+        // Set the verification state
+        setEmailVerified(!!data?.email_verified);
 
         // Redirect to verify email page if not verified
         if (!data?.email_verified) {
@@ -490,7 +494,7 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
 
         {/* Email Verification Badge */}
-        {session?.user?.emailVerified && (
+        {emailVerified && (
           <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg p-4 w-fit">
             <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
               <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
