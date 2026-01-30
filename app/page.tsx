@@ -65,10 +65,10 @@ export default function Home() {
       <section className="bg-gradient-to-r from-blue-600 via-purple-600 to-purple-700 text-white py-24 px-4">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            Borrow Tools,<br />Save Money
+            Rent Tools,<br />Save Money
           </h1>
           <p className="text-xl md:text-2xl mb-12 max-w-2xl mx-auto opacity-95">
-            Why buy expensive tools you'll only use once? Join your local community and borrow instead.
+            Why buy expensive tools you'll only use once? Rent from your local community instead.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {!loading && !session ? (
@@ -138,7 +138,7 @@ export default function Home() {
             <div className="bg-green-50 border-2 border-green-400 rounded-lg p-6 text-center">
               <p className="text-lg font-semibold text-green-900 mb-3">✨ Great News!</p>
               <p className="text-green-800 mb-4">
-                ToolUnity is available in your area. Join now and start borrowing or listing tools.
+                ToolUnity is available in your area. Join now and start renting or listing tools.
               </p>
               {!session ? (
                 <div className="flex gap-3 justify-center">
@@ -211,7 +211,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Protected Every Step</h2>
-            <p className="text-gray-600">Your borrowing experience is backed by damage coverage and community trust</p>
+            <p className="text-gray-600">Your rental experience is backed by clear liability terms and community trust</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Step 1: Join */}
@@ -246,7 +246,7 @@ export default function Home() {
           </div>
           <div className="mt-12 text-center">
             <p className="text-gray-700 mb-4">
-              <strong>Both borrowers and owners are protected.</strong> Learn more about our trust system on our{' '}
+              <strong>Both renters and owners are protected.</strong> Learn more about our trust system on our{' '}
               <Link href="/safety" className="text-blue-600 hover:text-blue-700 font-semibold">
                 Safety & Trust
               </Link>
@@ -261,7 +261,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">How It Works</h2>
-            <p className="text-gray-600">Three simple steps to borrow tools in your community</p>
+            <p className="text-gray-600">Three simple steps to rent tools in your community</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-gradient-to-br from-gray-50 to-white p-8 rounded-lg border border-gray-200">
@@ -271,12 +271,12 @@ export default function Home() {
             </div>
             <div className="bg-gradient-to-br from-gray-50 to-white p-8 rounded-lg border border-gray-200">
               <div className="text-4xl mb-4">📋</div>
-              <h4 className="text-xl font-semibold mb-4 text-gray-900">Request & Wait</h4>
-              <p className="text-gray-600">Submit a borrow request with your preferred dates. The owner reviews and approves requests.</p>
+              <h4 className="text-xl font-semibold mb-4 text-gray-900">Request & Pay</h4>
+              <p className="text-gray-600">Submit a rental request with your preferred dates. Pay securely through the platform.</p>
             </div>
             <div className="bg-gradient-to-br from-gray-50 to-white p-8 rounded-lg border border-gray-200">
               <div className="text-4xl mb-4">✅</div>
-              <h4 className="text-xl font-semibold mb-4 text-gray-900">Borrow & Return</h4>
+              <h4 className="text-xl font-semibold mb-4 text-gray-900">Rent & Return</h4>
               <p className="text-gray-600">Pick up the tool, use it, and return it on time. Build trust with your neighbours.</p>
             </div>
           </div>
@@ -371,7 +371,7 @@ export default function Home() {
           <div>
             <h4 className="text-2xl font-semibold text-blue-600 mb-4">🌍 Help the Planet</h4>
             <p className="text-gray-600 mb-4">
-              Reduce waste and overproduction. Every tool borrowed is one less tool manufactured.
+              Reduce waste and overproduction. Every tool rented is one less tool manufactured.
             </p>
             <p className="text-gray-600">
               Join thousands of people choosing sustainable consumption over buying.
@@ -380,7 +380,7 @@ export default function Home() {
           <div>
             <h4 className="text-2xl font-semibold text-purple-600 mb-4">👥 Build Community</h4>
             <p className="text-gray-600 mb-4">
-              Meet neighbours with shared interests. Trust grows through lending and borrowing.
+              Meet neighbours with shared interests. Trust grows through sharing and renting.
             </p>
             <p className="text-gray-600">
               Help each other complete projects. Make friends while making a difference.
@@ -403,7 +403,7 @@ export default function Home() {
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16 px-4">
         <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Join?</h2>
-          <p className="text-lg mb-8 opacity-95">It's free to use. Upgrade if you want more borrowing power.</p>
+          <p className="text-lg mb-8 opacity-95">It's free to sign up. Pay only when you rent a tool.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/tools"

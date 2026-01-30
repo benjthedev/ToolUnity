@@ -55,9 +55,9 @@ export default function ReturnToolPage() {
 
         if (fetchError) {
           if (fetchError.code === 'PGRST116') {
-            setError('No active borrow found for this tool');
+            setError('No active rental found for this tool');
           } else {
-            setError('Failed to load borrow request');
+            setError('Failed to load rental request');
           }
           setPageLoading(false);
           return;
@@ -155,7 +155,7 @@ export default function ReturnToolPage() {
 
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-            <p className="text-red-800">{error || 'No active borrow request found for this tool'}</p>
+            <p className="text-red-800">{error || 'No active rental found for this tool'}</p>
           </div>
         </div>
       </div>
@@ -178,7 +178,7 @@ export default function ReturnToolPage() {
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="bg-white rounded-lg border border-gray-200 p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Confirm Tool Return</h1>
-          <p className="text-gray-600 mb-8">Verify that the borrowed tool has been returned in good condition</p>
+          <p className="text-gray-600 mb-8">Verify that the rented tool has been returned in good condition</p>
 
           {error && (
             <div className="rounded-lg bg-red-50 border border-red-200 p-4 mb-6">
@@ -209,7 +209,7 @@ export default function ReturnToolPage() {
                     <dd className="text-sm font-medium text-gray-900">{expectedReturn}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-sm text-gray-600">Days Borrowed:</dt>
+                    <dt className="text-sm text-gray-600">Days Rented:</dt>
                     <dd className="text-sm font-medium text-gray-900">
                       {Math.floor((new Date().getTime() - new Date(borrowRequest.borrowed_at).getTime()) / (1000 * 60 * 60 * 24))} days
                     </dd>
@@ -235,7 +235,7 @@ export default function ReturnToolPage() {
                   className="mt-1 w-5 h-5 text-blue-600 rounded"
                 />
                 <span className="text-sm text-gray-700">
-                  <strong>I confirm</strong> that the tool has been returned in working condition and is ready for the next borrower.
+                  <strong>I confirm</strong> that the tool has been returned in working condition and is ready for the next renter.
                 </span>
               </label>
             </div>

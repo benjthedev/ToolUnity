@@ -19,10 +19,10 @@ export default function TermsOfServicePage() {
           <section>
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">2. Description of Service</h2>
             <p className="text-gray-700 mb-4">
-              ToolUnity provides a platform that facilitates tool sharing between users. ToolUnity does not own, rent, or lend tools. While we administer protection programmes and platform rules, we are not the owner or borrower of any tool.
+              ToolUnity provides a platform that facilitates tool sharing between users. ToolUnity does not own, rent, or lend tools. While we administer platform rules and investigate disputes, we are not the owner or renter of any tool.
             </p>
             <p className="text-gray-700">
-              ToolUnity offers damage protection coverage for listed tools but does not guarantee the condition, safety, or legality of any tools or the truth or accuracy of any listings.
+              ToolUnity facilitates payments between renters and owners but does not guarantee the condition, safety, or legality of any tools or the truth or accuracy of any listings.
             </p>
           </section>
 

@@ -10,7 +10,7 @@ import { showToast } from '@/app/utils/toast';
 const borrowingPlans = [
   {
     name: 'Pay Per Use',
-    description: 'Perfect for occasional borrowing',
+    description: 'Perfect for occasional rentals',
     useCase: 'One-off projects',
     features: [
       '✓ Rent any tool',
@@ -26,7 +26,7 @@ const borrowingPlans = [
 
 const ownerInfo = {
   title: 'Own Tools? Earn Money',
-  description: 'Get paid every time someone borrows your tools',
+  description: 'Get paid every time someone rents your tools',
   features: [
     '✓ List tools for free',
     '✓ Earn 70% of every rental',
@@ -71,11 +71,11 @@ export default function PricingPage() {
             Rent Tools from Your Neighbors
           </h1>
           <p className="text-xl text-gray-700 mb-4">
-            Borrow what you need, share what you have. Pay-per-use, no subscriptions.
+            Rent what you need, share what you have. Pay-per-use, no subscriptions.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
             <div className="bg-white rounded-lg p-8 shadow-sm">
-              <h3 className="text-2xl font-bold text-blue-600 mb-3">Borrowers</h3>
+              <h3 className="text-2xl font-bold text-blue-600 mb-3">Renters</h3>
               <p className="text-gray-700 text-lg font-semibold mb-2">£1-5 per day</p>
               <p className="text-gray-600 mb-4">Browse tools in your area. Rent for a day, a week, or longer. No membership required.</p>
               <Link href="/tools" className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold">
@@ -94,10 +94,10 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* For Borrowers Section */}
+      {/* For Renters Section */}
       <section className="py-16 px-4">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4 text-center">How to Borrow</h2>
+          <h2 className="text-4xl font-bold text-gray-900 mb-4 text-center">How to Rent</h2>
           <p className="text-gray-600 text-lg text-center mb-12 max-w-2xl mx-auto">
             Simple, flexible, transparent pricing for tool rentals.
           </p>
@@ -266,11 +266,11 @@ export default function PricingPage() {
           <div className="space-y-8">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">What is ToolUnity?</h3>
-              <p className="text-gray-600">ToolUnity is a peer-to-peer tool rental marketplace. Borrow tools from your neighbors instead of buying expensive equipment. Share your tools and earn money. It's that simple.</p>
+              <p className="text-gray-600">ToolUnity is a peer-to-peer tool rental marketplace. Rent tools from your neighbors instead of buying expensive equipment. Share your tools and earn money. It's that simple.</p>
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No subscription required?</h3>
-              <p className="text-gray-600">Right! You just pay per rental. Need a drill for one day? Rent it for £3. No membership, no monthly commitment. You only pay when you borrow.</p>
+              <p className="text-gray-600">Right! You just pay per rental. Need a drill for one day? Rent it for £3. No membership, no monthly commitment. You only pay when you rent.</p>
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">How much can I earn as an owner?</h3>
@@ -282,8 +282,8 @@ export default function PricingPage() {
               <p className="text-gray-600">We pay out directly to your bank account monthly. It's automatic—no invoices, no paperwork. Just list tools, get rented, earn. We keep 30% (to cover protection, platform costs, and payment processing).</p>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Can I cancel a borrow request as an owner?</h3>
-              <p className="text-gray-600">You can decline a request before confirming it. Once confirmed, only cancel if absolutely necessary—and the borrower won't be charged. Reliability matters for your reputation.</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Can I cancel a rental request as an owner?</h3>
+              <p className="text-gray-600">You can decline a request before confirming it. Once confirmed, only cancel if absolutely necessary—and the renter won't be charged. Reliability matters for your reputation.</p>
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">What if I need the tool during a rental?</h3>
@@ -301,7 +301,7 @@ export default function PricingPage() {
       <section className="bg-gradient-to-r from-blue-600 to-indigo-600 py-16 px-4 text-center">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-4xl font-bold text-white mb-4">Ready to Get Started?</h2>
-          <p className="text-blue-100 text-lg mb-8">Browse tools to borrow, or list your own tools to earn. Choose your path.</p>
+          <p className="text-blue-100 text-lg mb-8">Browse tools to rent, or list your own tools to earn. Choose your path.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/tools" className="px-8 py-3 bg-white text-blue-600 rounded-lg hover:bg-blue-50 font-bold text-lg">
               Browse Tools

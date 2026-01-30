@@ -148,7 +148,7 @@ export default function ForOwnersPage() {
               <div className="flex-shrink-0 w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">Approve Rental Requests</h3>
-                <p className="text-gray-700">Review and approve rental requests from verified borrowers. You decide who borrows what and when.</p>
+                <p className="text-gray-700">Review and approve rental requests from verified renters. You decide who rents what and when.</p>
               </div>
             </div>
 
@@ -167,7 +167,7 @@ export default function ForOwnersPage() {
           <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Simple Pricing</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
             <div>
-              <p className="text-gray-600 mb-2">Borrower Pays</p>
+              <p className="text-gray-600 mb-2">Renter Pays</p>
               <p className="text-3xl font-bold text-blue-600">£X/day</p>
               <p className="text-sm text-gray-600 mt-2">(You set the daily rate)</p>
             </div>
@@ -183,7 +183,7 @@ export default function ForOwnersPage() {
             </div>
           </div>
           <p className="text-center text-gray-700 mt-6">
-            No hidden fees. You set the price, borrowers pay per day, you get 70%. That's it.
+            No hidden fees. You set the price, renters pay per day, you get 70%. That's it.
           </p>
         </section>
 
@@ -294,16 +294,16 @@ export default function ForOwnersPage() {
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Can I see who's borrowing my tools?</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Can I see who's renting my tools?</h3>
               <p className="text-gray-700">
-                Yes. You review and approve every rental request before it happens. You see the borrower's name, verification status, and their reviews. You're in complete control.
+                Yes. You review and approve every rental request before it happens. You see the renter's name, verification status, and their reviews. You're in complete control.
               </p>
             </div>
 
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">What if a tool doesn't get returned?</h3>
               <p className="text-gray-700">
-                ToolUnity investigates immediately. If a rental isn't returned, the borrower is flagged, their account is reviewed, and you're compensated for the tool value. We handle it.
+                ToolUnity investigates immediately. If a rental isn't returned, the renter is flagged, their account is reviewed, and you're compensated for the tool value. We handle it.
               </p>
             </div>
 
@@ -315,7 +315,7 @@ export default function ForOwnersPage() {
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Is my personal info shared with borrowers?</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Is my personal info shared with renters?</h3>
               <p className="text-gray-700">
                 No. Your location and personal details stay private until you both agree to a rental. Then you coordinate directly for pickup/dropoff.
               </p>

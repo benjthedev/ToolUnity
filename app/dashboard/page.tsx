@@ -16,6 +16,7 @@ interface Rental {
   end_date: string;
   status: string;
   rental_cost: number;
+  daily_rental_rate?: number;
   tools?: { 
     name: string;
     owner: {
@@ -60,16 +61,16 @@ export default function DashboardPage() {
     try {
       setLoadingData(true);
 
-      // Fetch user's rentals (tools they borrowed)
+      // Fetch user's rentals (tools they rented)
       const { data: rentalData } = await supabase
         .from('rental_transactions')
         .select('*, tools(name, owner_id, users_ext(email, phone_number))')
-        .eq('borrower_id', session.user.id)
+        .eq('renter_id', session.user.id)
         .order('start_date', { ascending: false });
 
       if (rentalData) {
-        setActiveRentals(rentalData.filter(r => r.status === 'active') || []);
-        setPendingRentals(rentalData.filter(r => r.status === 'pending_payment') || []);
+        setActiveRentals(rentalData.filter((r: Rental) => r.status === 'active') || []);
+        setPendingRentals(rentalData.filter((r: Rental) => r.status === 'pending_payment') || []);
       }
 
       // Fetch owner's tools
@@ -196,7 +197,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* BORROWER SECTION */}
+        {/* RENTER SECTION */}
         <section>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">Your Rentals</h2>

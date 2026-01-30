@@ -304,7 +304,7 @@ export default function ToolDetailPage() {
                   href="/login"
                   className="block w-full text-center bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors mb-8"
                 >
-                  Sign in to Borrow
+                  Sign in to Rent
                 </Link>
               ) : (
                 <button
@@ -373,9 +373,9 @@ export default function ToolDetailPage() {
                     <div className="flex items-start gap-4">
                       <div className="text-4xl">🤝</div>
                       <div className="flex-1">
-                        <h3 className="font-bold text-gray-900 text-xl mb-3">How Borrowing Works</h3>
+                        <h3 className="font-bold text-gray-900 text-xl mb-3">How Renting Works</h3>
                         <p className="text-gray-700 mb-4 leading-relaxed">
-                          Borrowing builds trust in our community. You're responsible for normal use, and both parties work together to resolve any disputes fairly.
+                          Renting builds trust in our community. You're responsible for normal use, and both parties work together to resolve any disputes fairly.
                         </p>
                         <div className="bg-white rounded-lg p-5 mb-4 border-2 border-gray-200">
                           <p className="font-bold text-gray-900 mb-3 text-lg">Your responsibilities:</p>

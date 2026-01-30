@@ -15,7 +15,7 @@ export default function Footer() {
               ToolUnity
             </Link>
             <p className="mt-4 text-gray-400 max-w-md">
-              Borrow tools from your neighbours. Save money, reduce waste, and build community connections.
+              Rent tools from your neighbours. Save money, reduce waste, and build community connections.
             </p>
           </div>
 

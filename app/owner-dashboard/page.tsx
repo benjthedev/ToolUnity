@@ -214,23 +214,7 @@ export default function OwnerDashboard() {
       
       // Remove from local state
       setTools(tools.filter(t => t.id !== toolId));
-      
-      // Recalculate tier after tool deletion
-      if (session?.user?.id) {
-        try {
-          const response = await fetch('/api/subscriptions/check-tool-count', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: session.user.id }),
-          });
-          const result = await response.json();
-          if (result.action === 'downgraded_no_tools') {
-            showToast('You no longer qualify for your previous tier', 'info');
-          }
-        } catch (tierErr) {
-
-        }
-      }
+      showToast('Tool deleted successfully', 'success');
     } catch (err) {
 
       showToast('Failed to delete tool', 'error');
@@ -255,7 +239,7 @@ export default function OwnerDashboard() {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <h1 className="text-3xl font-bold text-gray-900">Owner Dashboard</h1>
-          <p className="text-gray-600 mt-1">Manage your tool listings and borrow requests</p>
+          <p className="text-gray-600 mt-1">Manage your tool listings and rental requests</p>
         </div>
       </div>
 
@@ -280,8 +264,8 @@ export default function OwnerDashboard() {
               </Link>
             </div>
             <div className="text-right">
-              <div className="text-3xl font-bold text-blue-600 mb-1">Free Tier</div>
-              <div className="text-sm text-gray-600">£100 coverage</div>
+              <div className="text-3xl font-bold text-green-600 mb-1">{tools.length} Tools</div>
+              <div className="text-sm text-gray-600">Listed on ToolUnity</div>
             </div>
           </div>
         </section>
@@ -354,9 +338,9 @@ export default function OwnerDashboard() {
           )}
         </section>
 
-        {/* Borrow Requests Section */}
+        {/* Rental Requests Section */}
         <section>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Borrow Requests</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Rental Requests</h2>
 
           {requests.length > 0 ? (
             <div className="space-y-4">
@@ -425,7 +409,7 @@ export default function OwnerDashboard() {
             </div>
           ) : (
             <div className="bg-white rounded-lg shadow p-12 text-center">
-              <p className="text-gray-600">No borrow requests yet</p>
+              <p className="text-gray-600">No rental requests yet</p>
             </div>
           )}
         </section>

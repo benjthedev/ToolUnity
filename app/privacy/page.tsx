@@ -44,11 +44,12 @@ export default function PrivacyPolicyPage() {
             <p className="text-gray-700 mb-2">We use the information we collect to:</p>
             <ul className="list-disc pl-6 text-gray-700 space-y-1">
               <li>Provide and maintain the ToolUnity platform</li>
-              <li>Process your subscription payments through Stripe</li>
-              <li>Facilitate damage protection claims and verify claims for payment</li>
-              <li>Show your tool listings to potential borrowers</li>
+              <li>Process rental payments through Stripe</li>
+              <li>Pay out earnings to tool owners</li>
+              <li>Show your tool listings to potential renters</li>
               <li>Send you important updates about your account or transactions</li>
               <li>Respond to your support requests</li>
+              <li>Investigate damage claims and disputes</li>
               <li>Protect against fraud and enforce our terms</li>
             </ul>
             <p className="text-gray-700 mt-3 text-sm italic">
@@ -61,7 +62,7 @@ export default function PrivacyPolicyPage() {
             
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">4.1 With Other Users</h3>
             <p className="text-gray-700 mb-4">
-              When you list a tool, your name and the location you provide are visible to potential borrowers. When you request to borrow, your name is visible to the tool owner.
+              When you list a tool, your name and the location you provide are visible to potential renters. When you request to rent, your name is visible to the tool owner.
             </p>
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">4.2 Service Providers</h3>
