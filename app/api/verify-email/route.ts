@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { serverLog } from '@/lib/logger';
+import { checkRateLimitByIp } from '@/lib/rate-limit';
 
 // Type definitions for type safety
 interface VerificationToken {
@@ -12,6 +13,15 @@ interface VerificationToken {
 
 export async function GET(request: NextRequest) {
   try {
+    // Rate limit by IP - 10 requests per hour
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+    const rateLimitCheck = checkRateLimitByIp(ip, 10, 60 * 60 * 1000);
+    if (!rateLimitCheck.allowed) {
+      return NextResponse.redirect(
+        new URL('/verify-email?error=rate_limited', request.url)
+      );
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const token = searchParams.get('token');
     const email = searchParams.get('email');

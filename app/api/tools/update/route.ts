@@ -119,8 +119,9 @@ export async function PUT(request: NextRequest) {
       .single();
 
     if (updateError) {
+      console.error('Supabase update error:', updateError);
       return NextResponse.json(
-        { error: 'Failed to update tool', reason: updateError.message },
+        { error: 'Failed to update tool', reason: updateError.message, code: updateError.code },
         { status: 500 }
       );
     }

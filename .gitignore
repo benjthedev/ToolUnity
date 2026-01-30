@@ -38,4 +38,24 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# Local utility scripts (may contain sensitive data)
+/add-*.js
+/check-*.js
+/create-*.js
+/debug-*.js
+/delete-*.js
+/downgrade-*.js
+/explore-*.js
+/fix-*.js
+/migrate-*.js
+/reset-*.js
+/seed-*.js
+/test-*.js
+
+# Documentation (local only)
+RENTAL_COST_FIX.md
+migration-add-daily-rate.sql
+*.md
+!README.md
 next-env.d.ts

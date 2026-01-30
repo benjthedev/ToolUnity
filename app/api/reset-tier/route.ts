@@ -5,6 +5,8 @@ import { createClient } from '@supabase/supabase-js';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/auth';
 import { serverLog } from '@/lib/logger';
+import { verifyCsrfToken } from '@/lib/csrf';
+import { checkRateLimitByUserId } from '@/lib/rate-limit';
 
 let supabase: any = null;
 
@@ -19,10 +21,22 @@ function getSupabase() {
 }
 
 export async function POST(request: NextRequest) {
+  // Verify CSRF token
+  const csrfCheck = await verifyCsrfToken(request);
+  if (!csrfCheck.valid) {
+    return NextResponse.json({ error: 'CSRF token validation failed' }, { status: 403 });
+  }
+
   const session = await getServerSession(authOptions);
   
-  if (!session?.user?.email) {
+  if (!session?.user?.email || !session?.user?.id) {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+  }
+
+  // Rate limit (5 per hour per user)
+  const rateLimitCheck = checkRateLimitByUserId(session.user.id, 5, 60 * 60 * 1000);
+  if (!rateLimitCheck.allowed) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
   }
 
   // Reset the subscription tier to 'none' for the current user

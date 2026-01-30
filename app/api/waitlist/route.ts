@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { serverLog } from '@/lib/logger';
+import { checkRateLimitByIp } from '@/lib/rate-limit';
 
 let supabase: any = null;
 
@@ -18,6 +19,16 @@ function getSupabase() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit by IP - 5 requests per hour
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+    const rateLimitCheck = checkRateLimitByIp(ip, 5, 60 * 60 * 1000);
+    if (!rateLimitCheck.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { email, postcode } = body;
 

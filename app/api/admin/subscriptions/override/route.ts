@@ -2,6 +2,8 @@ import { supabase } from '@/lib/supabase';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/auth';
+import { verifyCsrfToken } from '@/lib/csrf';
+import { checkRateLimitByUserId } from '@/lib/rate-limit';
 
 // Force dynamic rendering - this route uses runtime environment variables
 export const dynamic = 'force-dynamic';
@@ -17,7 +19,16 @@ export const dynamic = 'force-dynamic';
  */
 export async function POST(request: NextRequest) {
   try {
-    // Step 1: Check authentication
+    // Step 1: Verify CSRF token
+    const csrfCheck = await verifyCsrfToken(request);
+    if (!csrfCheck.valid) {
+      return NextResponse.json(
+        { error: 'CSRF token validation failed' },
+        { status: 403 }
+      );
+    }
+
+    // Step 2: Check authentication
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -26,7 +37,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 2: Check admin role
+    // Step 3: Rate limit (10 per hour per admin)
+    const rateLimitCheck = checkRateLimitByUserId(session.user.id, 10, 60 * 60 * 1000);
+    if (!rateLimitCheck.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
+    // Step 4: Check admin role
     const { data: admin, error: adminError } = await supabase
       .from('users_ext')
       .select('is_admin')
@@ -42,7 +62,7 @@ export async function POST(request: NextRequest) {
 
     const { userId, action, newPlan, reason } = await request.json();
 
-    // Step 3: Validate inputs
+    // Step 5: Validate inputs
     if (!userId || !action) {
       return NextResponse.json(
         { error: 'Missing required fields: userId, action' },

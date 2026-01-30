@@ -166,17 +166,17 @@ export default function EditToolPage() {
         }
       }
 
-      // Validate tool value
-      const toolValue = parseFloat(formData.toolValue);
-      if (toolValue < 0 || toolValue > 1000) {
+      // Validate tool value (optional)
+      const toolValue = formData.toolValue ? parseFloat(formData.toolValue) : undefined;
+      if (toolValue !== undefined && (toolValue < 0 || toolValue > 1000)) {
         setError('Tool value must be between £0 and £1,000');
         setSubmitting(false);
         return;
       }
 
-      // Validate daily rate
-      const dailyRate = parseFloat(formData.dailyRate);
-      if (isNaN(dailyRate) || dailyRate < 0.5) {
+      // Validate daily rate (required)
+      const dailyRate = formData.dailyRate ? parseFloat(formData.dailyRate) : undefined;
+      if (dailyRate === undefined || isNaN(dailyRate) || dailyRate < 0.5) {
         setError('Daily rental rate must be at least £0.50');
         setSubmitting(false);
         return;
@@ -200,23 +200,25 @@ export default function EditToolPage() {
           category: formData.category,
           description: formData.description,
           condition: formData.condition,
-          tool_value: toolValue || undefined,
-          daily_rate: dailyRate || undefined,
+          tool_value: toolValue,
+          daily_rate: dailyRate,
           image_url: imageUrl,
           csrf_token: csrfToken,
         }),
       });
 
       const result = await response.json();
-
+      
       if (!response.ok) {
-        setError(result.error || 'Failed to update tool');
+        console.error('Update error:', result);
+        setError(result.error || result.reason || 'Failed to update tool. Please try again.');
         setSubmitting(false);
         return;
       }
 
       router.push('/owner-dashboard');
     } catch (err) {
+      console.error('Update exception:', err);
       setError('Failed to update tool. Please try again.');
     } finally {
       setSubmitting(false);

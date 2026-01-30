@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/auth';
 import Stripe from 'stripe';
+import { checkRateLimitByUserId } from '@/lib/rate-limit';
 
 let stripe: Stripe | null = null;
 
@@ -19,8 +20,14 @@ function getStripe(): Stripe {
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
   
-  if (!session?.user?.email) {
+  if (!session?.user?.email || !session?.user?.id) {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+  }
+
+  // Rate limit (30 per hour per user)
+  const rateLimitCheck = checkRateLimitByUserId(session.user.id, 30, 60 * 60 * 1000);
+  if (!rateLimitCheck.allowed) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
   }
 
   try {
