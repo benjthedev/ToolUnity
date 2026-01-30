@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/app/providers';
@@ -23,6 +23,41 @@ export default function AddToolPage() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  // Check email verification status
+  useEffect(() => {
+    if (loading) return;
+    
+    if (!session) {
+      router.push('/login');
+      return;
+    }
+
+    const checkEmailVerification = async () => {
+      try {
+        const { supabase } = await getSupabase();
+        const { data, error } = await supabase
+          .from('users_ext')
+          .select('email_verified')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (error) {
+          console.error('Error checking email verification:', error);
+          return;
+        }
+
+        // Redirect to verify email page if not verified
+        if (!data?.email_verified) {
+          router.push(`/verify-email?email=${encodeURIComponent(session.user.email || '')}`);
+        }
+      } catch (err) {
+        console.error('Error:', err);
+      }
+    };
+
+    checkEmailVerification();
+  }, [session, loading, router]);
 
   if (loading) {
     return (

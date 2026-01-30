@@ -48,6 +48,40 @@ export default function DashboardPage() {
   const [toolsCount, setToolsCount] = useState(0);
   const [effectiveTier, setEffectiveTier] = useState<string>('free');
   const [isPaidTier, setIsPaidTier] = useState(false);
+
+  // Check email verification status
+  useEffect(() => {
+    if (loading) return;
+    
+    if (!session) {
+      router.push('/login');
+      return;
+    }
+
+    const checkEmailVerification = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('users_ext')
+          .select('email_verified')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (error) {
+          console.error('Error checking email verification:', error);
+          return;
+        }
+
+        // Redirect to verify email page if not verified
+        if (!data?.email_verified) {
+          router.push(`/verify-email?email=${encodeURIComponent(session.user.email || '')}`);
+        }
+      } catch (err) {
+        console.error('Error:', err);
+      }
+    };
+
+    checkEmailVerification();
+  }, [session, loading, router]);
   const [showUnlockCelebration, setShowUnlockCelebration] = useState<string | null>(null);
   const [syncingTier, setSyncingTier] = useState(false);
   const [syncMessage, setSyncMessage] = useState('');
