@@ -56,6 +56,7 @@ export const UpdateToolSchema = z.object({
   condition: z.string().transform(v => v.toLowerCase()).optional(),
   daily_rate: z.number().min(0.5).max(500).optional(),
   tool_value: z.number().min(1).max(10000).optional(),
+  postcode: z.string().max(10).optional(),
   image_url: z.string().url().optional(),
 });
 

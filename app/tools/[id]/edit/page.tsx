@@ -202,6 +202,7 @@ export default function EditToolPage() {
           condition: formData.condition,
           tool_value: toolValue,
           daily_rate: dailyRate,
+          postcode: formData.postcode,
           image_url: imageUrl,
           csrf_token: csrfToken,
         }),
