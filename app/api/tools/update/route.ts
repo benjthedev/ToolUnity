@@ -70,6 +70,7 @@ export async function PUT(request: NextRequest) {
       description: body.description,
       category: body.category,
       condition: body.condition,
+      tool_value: body.tool_value,
       daily_rate: body.daily_rate,
       image_url: body.image_url,
     });
@@ -108,7 +109,8 @@ export async function PUT(request: NextRequest) {
         category: updateData.category,
         description: sanitizedDescription,
         condition: updateData.condition,
-        daily_rate: updateData.daily_rate,
+        ...(updateData.tool_value !== undefined && { tool_value: updateData.tool_value }),
+        ...(updateData.daily_rate !== undefined && { daily_rate: updateData.daily_rate }),
         ...(updateData.image_url && { image_url: updateData.image_url }),
         updated_at: new Date().toISOString(),
       })

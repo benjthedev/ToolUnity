@@ -21,6 +21,7 @@ export default function EditToolPage() {
     description: '',
     condition: 'Good',
     toolValue: '',
+    dailyRate: '',
     postcode: '',
   });
 
@@ -74,7 +75,8 @@ export default function EditToolPage() {
             category: data.category || 'Power Tools',
             description: data.description || '',
             condition: data.condition || 'Good',
-            toolValue: data.daily_rate?.toString() || data.tool_value?.toString() || '',
+            toolValue: data.tool_value?.toString() || '',
+            dailyRate: data.daily_rate?.toString() || '',
             postcode: data.postcode || '',
           });
           setCurrentImageUrl(data.image_url || '');
@@ -164,6 +166,28 @@ export default function EditToolPage() {
         }
       }
 
+      // Validate tool value
+      const toolValue = parseFloat(formData.toolValue);
+      if (toolValue < 0 || toolValue > 1000) {
+        setError('Tool value must be between £0 and £1,000');
+        setSubmitting(false);
+        return;
+      }
+
+      // Validate daily rate
+      const dailyRate = parseFloat(formData.dailyRate);
+      if (isNaN(dailyRate) || dailyRate < 0.5) {
+        setError('Daily rental rate must be at least £0.50');
+        setSubmitting(false);
+        return;
+      }
+
+      if (dailyRate > 500) {
+        setError('Daily rental rate cannot exceed £500');
+        setSubmitting(false);
+        return;
+      }
+
       // Call secure API endpoint instead of direct Supabase update
       const response = await fetch(`/api/tools/update?toolId=${toolId}`, {
         method: 'PUT',
@@ -176,7 +200,8 @@ export default function EditToolPage() {
           category: formData.category,
           description: formData.description,
           condition: formData.condition,
-          daily_rate: parseFloat(formData.toolValue) || 0,
+          tool_value: toolValue || undefined,
+          daily_rate: dailyRate || undefined,
           image_url: imageUrl,
           csrf_token: csrfToken,
         }),
@@ -311,6 +336,24 @@ export default function EditToolPage() {
               step="0.01"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="e.g., 150"
+            />
+          </div>
+
+          {/* Daily Rental Rate */}
+          <div className="mb-6">
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
+              Daily Rental Rate (£/day) *
+            </label>
+            <input
+              type="number"
+              name="dailyRate"
+              value={formData.dailyRate}
+              onChange={handleChange}
+              required
+              min="0.50"
+              step="0.50"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="e.g., 3.50"
             />
           </div>
 

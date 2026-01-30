@@ -18,7 +18,8 @@ export default function AddToolPage() {
     category: '',
     description: '',
     condition: 'good',
-      toolValue: '',
+    toolValue: '',
+    dailyRate: '',
     postcode: '',
   });
   const [submitting, setSubmitting] = useState(false);
@@ -143,13 +144,26 @@ export default function AddToolPage() {
       return;
     }
 
-    // Round to 2 decimal places for consistency
-    const roundedValue = Math.round(toolValue * 100) / 100;
-
-    if (roundedValue > 1000) {
+    if (toolValue > 1000) {
       setError('Tool value cannot exceed £1,000');
       return;
     }
+
+    // Validate daily rate
+    const dailyRate = parseFloat(formData.dailyRate);
+    if (isNaN(dailyRate) || dailyRate < 0.5) {
+      setError('Daily rental rate must be at least £0.50');
+      return;
+    }
+
+    if (dailyRate > 500) {
+      setError('Daily rental rate cannot exceed £500');
+      return;
+    }
+
+    // Round to 2 decimal places for consistency
+    const roundedToolValue = Math.round(toolValue * 100) / 100;
+    const roundedDailyRate = Math.round(dailyRate * 100) / 100;
 
     setSubmitting(true);
 
@@ -250,7 +264,8 @@ export default function AddToolPage() {
           category: formData.category,
           description: formData.description,
           condition: formData.condition,
-          daily_rate: roundedValue,
+          tool_value: roundedToolValue,
+          daily_rate: roundedDailyRate,
           images: imageUrl ? [imageUrl] : [],
           csrf_token: csrfToken,
         }),
@@ -444,6 +459,26 @@ export default function AddToolPage() {
                   max="300"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500 bg-white"
                 />
+            </div>
+
+            {/* Daily Rental Rate */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Daily Rental Rate (£/day) <span className="text-red-600">*</span>
+              </label>
+              <p className="text-xs text-gray-600 mb-2">How much you want to charge per day for renting this tool</p>
+              <input
+                type="number"
+                name="dailyRate"
+                required
+                value={formData.dailyRate}
+                onChange={handleInputChange}
+                placeholder="e.g., 3.50"
+                step="0.50"
+                min="0.50"
+                max="500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500 bg-white"
+              />
             </div>
 
             {/* Postcode */}
