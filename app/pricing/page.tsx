@@ -16,7 +16,7 @@ const borrowingPlans = [
       '✓ Rent any tool',
       '✓ No subscription required',
       '✓ £1-5 per day per tool',
-      '✓ Damage protection included',
+      '✓ Flexible rental periods',
       '✓ Up to 14 days per borrow',
     ],
     note: 'Pay as you go—no commitments',
@@ -30,8 +30,8 @@ const ownerInfo = {
   features: [
     '✓ List tools for free',
     '✓ Earn 70% of every rental',
-    '✓ We handle damage claims',
     '✓ Monthly payouts to your bank',
+    '✓ Build passive income',
     '✓ No fees or hidden costs',
   ],
 };
@@ -121,7 +121,7 @@ export default function PricingPage() {
             <div className="bg-white rounded-lg p-8 shadow-sm border-l-4 border-blue-600">
               <div className="flex items-center justify-center w-12 h-12 bg-blue-100 text-blue-600 rounded-full font-bold text-lg mb-4">3</div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Pay & Pick Up</h3>
-              <p className="text-gray-600">Pay through ToolUnity. Arrange pickup time with owner. Damage protection included.</p>
+              <p className="text-gray-600">Pay through ToolUnity. Arrange pickup time with owner.</p>
             </div>
 
             {/* Step 4 */}
@@ -139,17 +139,17 @@ export default function PricingPage() {
               <div className="bg-white rounded-lg p-6">
                 <p className="text-gray-600 font-semibold mb-2">Electric Drill</p>
                 <p className="text-3xl font-bold text-blue-600 mb-2">£3/day</p>
-                <p className="text-sm text-gray-600">Typical rental: 2-3 days = £6-9</p>
+                <p className="text-sm text-gray-600">2-3 day weekend project</p>
               </div>
               <div className="bg-white rounded-lg p-6">
-                <p className="text-gray-600 font-semibold mb-2">Pressure Washer</p>
+                <p className="text-gray-600 text-sm mb-2">Pressure Washer</p>
                 <p className="text-3xl font-bold text-blue-600 mb-2">£4/day</p>
-                <p className="text-sm text-gray-600">Weekend rental: 2 days = £8</p>
+                <p className="text-sm text-gray-600">Day or weekend rental</p>
               </div>
               <div className="bg-white rounded-lg p-6">
-                <p className="text-gray-600 font-semibold mb-2">Ladder</p>
+                <p className="text-gray-600 text-sm mb-2">Ladder</p>
                 <p className="text-3xl font-bold text-blue-600 mb-2">£1.50/day</p>
-                <p className="text-sm text-gray-600">Day rental: 1 day = £1.50</p>
+                <p className="text-sm text-gray-600">Quick project rental</p>
               </div>
             </div>
           </div>
@@ -263,39 +263,7 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* Damage Protection */}
-      <section className="py-16 px-4">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Damage Protection</h2>
-          
-          <div className="bg-blue-50 border-l-4 border-blue-600 rounded-lg p-8 mb-8">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">How It Works</h3>
-            <p className="text-gray-700 mb-4">Every rental includes damage protection. If something breaks:</p>
-            <ol className="space-y-3 text-gray-700 ml-6 list-decimal">
-              <li>Report damage during return</li>
-              <li>Borrower has 48 hours to respond</li>
-              <li>We review evidence and make a fair determination</li>
-              <li>If confirmed, borrower pays the repair/replacement cost</li>
-              <li>Owner is reimbursed within 48 hours</li>
-            </ol>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-              <p className="font-semibold text-gray-900 mb-2">For Borrowers</p>
-              <p className="text-sm text-gray-600">Small fee per rental covers damage protection. Limits your liability for honest accidents.</p>
-            </div>
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-              <p className="font-semibold text-gray-900 mb-2">For Owners</p>
-              <p className="text-sm text-gray-600">Get reimbursed for legitimate damage claims. We handle verification—no disputes.</p>
-            </div>
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-              <p className="font-semibold text-gray-900 mb-2">Fair & Transparent</p>
-              <p className="text-sm text-gray-600">Both sides submit evidence. We're unbiased. Normal wear doesn't count as damage.</p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* FAQ */}
       <section className="bg-gray-50 py-16 px-4 border-t border-gray-200">
@@ -314,10 +282,7 @@ export default function PricingPage() {
               <h3 className="text-lg font-semibold text-gray-900 mb-2">How much can I earn as an owner?</h3>
               <p className="text-gray-600">It depends on how many tools you list and rental demand. Most owners list between 1-5 tools and earn £20-100+ per month. Some list 10+ tools and earn £500/month+. You set the daily rental price and keep 70%.</p>
             </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Is my tool protected from damage?</h3>
-              <p className="text-gray-600">Every rental includes damage protection. If something breaks, we investigate and handle the claim. Normal wear and tear doesn't count. You're reimbursed within 48 hours if damage is confirmed.</p>
-            </div>
+
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">How do I get paid as an owner?</h3>
               <p className="text-gray-600">We pay out directly to your bank account monthly. It's automatic—no invoices, no paperwork. Just list tools, get rented, earn. We keep 30% (to cover protection, platform costs, and payment processing).</p>

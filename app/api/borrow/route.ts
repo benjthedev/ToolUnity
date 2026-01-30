@@ -153,8 +153,7 @@ export async function POST(request: NextRequest) {
     const rentalCost = parseFloat((dailyRate * durationDays).toFixed(2));
     const platformFee = parseFloat((rentalCost * 0.30).toFixed(2)); // Platform takes 30%
     const ownerPayout = parseFloat((rentalCost * 0.70).toFixed(2)); // Owner gets 70%
-    const damageProtectionFee = 2.99; // Fixed protection fee
-    const totalCost = parseFloat((rentalCost + damageProtectionFee).toFixed(2));
+    const totalCost = rentalCost;
 
     // Create rental transaction record (status: pending_payment)
     const { data: rentalTransaction, error: createError } = await sb
@@ -170,7 +169,6 @@ export async function POST(request: NextRequest) {
         rental_cost: rentalCost,
         platform_fee: platformFee,
         owner_payout: ownerPayout,
-        damage_protection_fee: damageProtectionFee,
         total_cost: totalCost,
         status: 'pending_payment', // Waiting for Stripe payment
         notes: notes || null,
@@ -196,7 +194,6 @@ export async function POST(request: NextRequest) {
         pricing: {
           durationDays,
           rentalCost,
-          damageProtectionFee,
           totalCost,
           breakdown: {
             youPay: totalCost,

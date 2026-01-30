@@ -261,22 +261,22 @@ export default function OwnerDashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-        {/* Owner Protection Summary */}
-        <section className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        {/* Owner Earnings Summary */}
+        <section className="bg-green-50 border border-green-200 rounded-lg p-6">
           <div className="flex justify-between items-start">
             <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Your Owner Protection</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Your Earnings</h2>
               <p className="text-gray-700 mb-4">
-                Tools covered up to <strong>£100–£1,000</strong> (depending on your subscription). Damage claims paid within 48 hours.
+                You earn <strong>70% of every rental</strong>. Payouts are sent to your bank account monthly.
               </p>
               <p className="text-sm text-gray-600 mb-4">
-                All tools are protected by our damage liability guarantee. Upload clear baseline condition photos when listing to ensure fair damage assessment.
+                The more tools you list and the more they get rented, the more you earn. No hidden fees or surprises.
               </p>
               <Link
-                href="/owner-protection"
-                className="text-blue-600 hover:text-blue-700 font-semibold text-sm"
+                href="/pricing"
+                className="text-green-600 hover:text-green-700 font-semibold text-sm"
               >
-                Learn more about owner protection →
+                See earnings examples →
               </Link>
             </div>
             <div className="text-right">

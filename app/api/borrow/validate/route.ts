@@ -8,7 +8,7 @@ import { getSupabase } from '@/lib/supabase';
  * This endpoint checks:
  * - User is authenticated
  * - Tool exists and is available for rental
- * - Calculate rental cost (daily rate × duration + protection fee)
+ * - Calculate rental cost (daily rate × duration)
  * 
  * NEW: No subscription required - anyone can rent by paying per day
  */
@@ -109,8 +109,7 @@ export async function POST(request: NextRequest) {
     // Calculate rental cost
     const dailyRate = tool.daily_rental_rate || 3; // Default £3/day if not set
     const rentalCost = dailyRate * durationDays;
-    const damageProtectionFee = 2.99; // Fixed protection fee per rental
-    const totalCost = rentalCost + damageProtectionFee;
+    const totalCost = rentalCost;
 
     // All checks passed - user can proceed to payment
     return NextResponse.json(
@@ -121,7 +120,6 @@ export async function POST(request: NextRequest) {
           dailyRate,
           durationDays,
           rentalCost: parseFloat(rentalCost.toFixed(2)),
-          damageProtectionFee,
           totalCost: parseFloat(totalCost.toFixed(2)),
         },
       },
