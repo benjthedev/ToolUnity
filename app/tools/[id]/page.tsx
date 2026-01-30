@@ -175,21 +175,39 @@ export default function ToolDetailPage() {
         return;
       }
 
-      // Show success state with rental info
-      const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-      const dailyRate = tool?.daily_rental_rate || 3;
-      const rentalCost = dailyRate * days;
-      
-      setBorrowSuccess({
-        toolValue: tool.tool_value,
-        startDate: borrowData.startDate,
-        endDate: borrowData.endDate,
-        rentalDays: days,
-        dailyRate: dailyRate,
-        rentalCost: rentalCost.toFixed(2),
-      });
-      showToast('Rental request submitted successfully!', 'success');
-      setShowBorrowForm(false);
+      // Now create Stripe checkout session
+      try {
+        const checkoutResponse = await fetchWithCsrf('/api/rental-checkout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            rentalTransactionId: data.rentalId,
+          }),
+        });
+
+        const checkoutData = await checkoutResponse.json();
+
+        if (!checkoutResponse.ok || !checkoutData.url) {
+          setBorrowError({
+            message: 'Failed to create payment session',
+            reason: 'checkout_failed',
+          });
+          setSubmittingBorrow(false);
+          return;
+        }
+
+        // Redirect to Stripe checkout
+        window.location.href = checkoutData.url;
+      } catch (checkoutError) {
+        setBorrowError({
+          message: 'Failed to redirect to payment',
+          reason: 'redirect_failed',
+        });
+        showToast('Failed to redirect to payment', 'error');
+      }
     } catch (error) {
       setBorrowError({
         message: 'An error occurred. Please try again.',
@@ -278,7 +296,7 @@ export default function ToolDetailPage() {
                       <h3 className="font-bold text-gray-900 mb-3">Rental Price</h3>
                       <div className="bg-white rounded p-3 mb-3">
                         <p className="text-sm text-gray-700 mb-2">
-                          <strong>£{tool?.daily_rental_rate || '3.00'} per day</strong>
+                          <strong>£{tool?.daily_rate || '3.00'} per day</strong>
                         </p>
                         <p className="text-xs text-gray-600">
                           Select dates below to see your total rental cost
@@ -328,7 +346,7 @@ export default function ToolDetailPage() {
                 </p>
                 <div className="bg-white p-4 rounded border border-green-300 mb-4">
                   <p className="text-sm text-gray-600 mb-2">Daily Rental Rate</p>
-                  <p className="text-2xl font-bold text-green-600">£{tool?.daily_rental_rate || '3.00'}/day</p>
+                  <p className="text-2xl font-bold text-green-600">£{tool?.daily_rate || '3.00'}/day</p>
                 </div>
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
                   <p className="font-semibold text-gray-900 mb-2">✓ What's Included</p>
@@ -445,7 +463,7 @@ export default function ToolDetailPage() {
                               const start = new Date(borrowData.startDate);
                               const end = new Date(borrowData.endDate);
                               const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-                              const dailyRate = tool?.daily_rental_rate || 3;
+                              const dailyRate = tool?.daily_rate || 3;
                               const rentalCost = (dailyRate * days).toFixed(2);
                               
                               return (

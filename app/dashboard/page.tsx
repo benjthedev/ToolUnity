@@ -16,7 +16,7 @@ interface Rental {
   end_date: string;
   status: string;
   rental_cost: number;
-  daily_rental_rate?: number;
+  daily_rate?: number;
   tools?: { 
     name: string;
     owner: {
@@ -31,7 +31,7 @@ interface Tool {
   name: string;
   category: string;
   available: boolean;
-  daily_rental_rate: number;
+  daily_rate: number;
   owner_id: string;
 }
 
@@ -258,7 +258,7 @@ export default function DashboardPage() {
                           <div className="flex justify-between items-start">
                             <div>
                               <h3 className="text-lg font-semibold text-gray-900">{rental.tools?.name}</h3>
-                              <p className="text-gray-600 text-sm mt-1">£{rental.daily_rental_rate || 0}/day</p>
+                              <p className="text-gray-600 text-sm mt-1">£{rental.daily_rate || 0}/day</p>
                             </div>
                             <span className="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-semibold">
                               ✓ Active
@@ -303,7 +303,7 @@ export default function DashboardPage() {
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900">{rental.tools?.name}</h3>
-                        <p className="text-gray-600 text-sm mt-1">£{rental.daily_rental_rate || 0}/day</p>
+                        <p className="text-gray-600 text-sm mt-1">£{rental.daily_rate || 0}/day</p>
                       </div>
                       <span className="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-semibold">
                         ✓ Active
@@ -410,7 +410,7 @@ export default function DashboardPage() {
                       
                       <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                         <p className="text-gray-600 text-xs mb-1">Daily Rate</p>
-                        <p className="text-2xl font-bold text-blue-600">£{tool.daily_rental_rate || 0}</p>
+                        <p className="text-2xl font-bold text-blue-600">£{tool.daily_rate || 0}</p>
                       </div>
 
                       <div className="flex gap-2">
