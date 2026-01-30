@@ -83,6 +83,11 @@ export async function POST(request: NextRequest) {
     // Send verification email using Resend (if configured)
     if (process.env.RESEND_API_KEY) {
       try {
+        console.log('Attempting to send verification email...');
+        console.log('RESEND_API_KEY present:', !!process.env.RESEND_API_KEY);
+        console.log('RESEND_FROM_EMAIL:', process.env.RESEND_FROM_EMAIL);
+        console.log('Email recipient:', email);
+        
         const response = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
@@ -108,8 +113,12 @@ export async function POST(request: NextRequest) {
             `,
           }),
         });
+        console.log('Resend API response status:', response.status);
+        const responseData = await response.json();
+        console.log('Resend API response:', responseData);
+        
         if (!response.ok) {
-          throw new Error('Resend API error');
+          throw new Error(`Resend API error: ${response.status} ${JSON.stringify(responseData)}`);
         }
 
         return NextResponse.json(
