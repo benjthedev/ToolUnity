@@ -93,7 +93,7 @@ export default function ForOwnersPage() {
                   <div className="space-y-3 text-sm text-gray-700">
                     <p>Of every rental</p>
                     <p className="text-lg font-semibold text-green-600">No hidden fees</p>
-                    <p className="text-xs text-gray-600">30% covers platform & operations</p>
+                    <p className="text-xs text-gray-600">15% covers platform & operations</p>
                   </div>
                 </div>
 
