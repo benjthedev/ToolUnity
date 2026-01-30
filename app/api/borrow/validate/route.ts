@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     const { data: userProfile } = await sb
       .from('users_ext')
       .select('id')
-      .eq('id', session.user.id)
+      .eq('user_id', session.user.id)
       .single();
 
     if (!userProfile) {

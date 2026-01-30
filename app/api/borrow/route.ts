@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     const { data: userProfile } = await sb
       .from('users_ext')
       .select('stripe_customer_id, email')
-      .eq('id', session.user.id)
+      .eq('user_id', session.user.id)
       .single();
 
     if (!userProfile) {
