@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     // Get tool info including daily rental rate
     const { data: tool } = await sb
       .from('tools')
-      .select('id, owner_id, tool_value, description')
+      .select('id, owner_id, daily_rate, description')
       .eq('id', toolId)
       .single();
 
@@ -149,7 +149,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Calculate costs
-    const dailyRate = tool.tool_value || 3; // Default £3/day
+    const dailyRate = tool.daily_rate || 3; // Default £3/day
     const rentalCost = parseFloat((dailyRate * durationDays).toFixed(2));
     const platformFee = parseFloat((rentalCost * 0.15).toFixed(2)); // Platform takes 15%
     const ownerPayout = parseFloat((rentalCost * 0.85).toFixed(2)); // Owner gets 85%

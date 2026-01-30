@@ -74,7 +74,8 @@ export async function POST(request: NextRequest) {
           category: validated.category,
           description: validated.description,
           condition: validated.condition,
-          tool_value: validated.daily_rate,
+          daily_rate: validated.daily_rate,
+          tool_value: validated.tool_value || (validated.daily_rate * 30), // Default to 30 days of rental value if not provided
           postcode: body.postcode, // Additional field not in schema
           image_url: validated.images?.[0] || null,
           owner_id: session.user.id,
