@@ -108,11 +108,15 @@ export async function PUT(request: NextRequest) {
     if (updateData.name !== undefined) updatePayload.name = updateData.name;
     if (updateData.category !== undefined) updatePayload.category = updateData.category;
     if (sanitizedDescription !== undefined) updatePayload.description = sanitizedDescription;
-    if (updateData.condition !== undefined) updatePayload.condition = updateData.condition;
+    if (updateData.condition !== undefined) updatePayload.condition = updateData.condition.toLowerCase();
     if (updateData.tool_value !== undefined) updatePayload.tool_value = updateData.tool_value;
     if (updateData.postcode !== undefined) updatePayload.postcode = updateData.postcode;
     if (updateData.image_url !== undefined) updatePayload.image_url = updateData.image_url;
-    if (updateData.daily_rate !== undefined) updatePayload.daily_rate = updateData.daily_rate;
+    
+    // Handle daily_rate - might not exist in database yet
+    if (updateData.daily_rate !== undefined) {
+      updatePayload.daily_rate = updateData.daily_rate;
+    }
     
     updatePayload.updated_at = new Date().toISOString();
 
@@ -126,7 +130,12 @@ export async function PUT(request: NextRequest) {
     if (updateError) {
       console.error('Supabase update error:', updateError);
       return NextResponse.json(
-        { error: 'Failed to update tool', reason: updateError.message, code: updateError.code },
+        { 
+          error: 'Failed to update tool', 
+          details: updateError.message,
+          code: updateError.code,
+          hint: updateError.hint
+        },
         { status: 500 }
       );
     }
