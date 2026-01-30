@@ -4,483 +4,352 @@ import Link from 'next/link';
 import { useAuth } from '@/app/providers';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import TierSummary from '@/app/components/TierSummary';
 import { useRouter } from 'next/navigation';
 import { showToast } from '@/app/utils/toast';
-import { calculateEffectiveTier } from '@/app/utils/tierCalculation';
-import { STRIPE_PRICES } from '@/lib/pricing-config';
 
-const pricingTiers = [
+const borrowingPlans = [
   {
-    name: 'Basic',
-    price: '£2.00',
-    period: '/month',
-    description: 'Start borrowing with essential access',
-    useCase: 'Occasional projects',
+    name: 'Pay Per Use',
+    description: 'Perfect for occasional borrowing',
+    useCase: 'One-off projects',
     features: [
-      '✓ Max 1 active borrow at a time',
-      '✓ Up to £100 tool value',
-      '✓ Up to 3 days per borrow',
-      '✓ Browse tools in your area',
-      '✓ Make borrowing requests',
-    ],
-    waiver: 'Free if you list 1+ tools',
-    cta: 'Subscribe',
-    priceId: STRIPE_PRICES.BASIC,
-  },
-  {
-    name: 'Standard',
-    price: '£10.00',
-    period: '/month',
-    description: 'For regular tool borrowers',
-    useCase: 'DIY & home maintenance',
-    features: [
-      '✓ Max 2 active borrows at a time',
-      '✓ Up to £300 tool value',
-      '✓ Up to 7 days per borrow',
-      '✓ Browse all available tools',
-      '✓ Priority request reviews',
-      '✓ Help & support',
-    ],
-    waiver: 'Free if you list 3+ tools',
-    trial: '14 days free trial',
-    cta: 'Subscribe',
-    priceId: STRIPE_PRICES.STANDARD,
-    highlighted: true,
-    badge: 'Best Value',
-  },
-  {
-    name: 'Pro',
-    price: '£25.00',
-    period: '/month',
-    description: 'For power users (Coming Soon)',
-    useCase: 'Renovations & frequent projects',
-    features: [
-      '✓ Max 5 active borrows at a time',
-      '✓ Up to £1,000 tool value',
+      '✓ Rent any tool',
+      '✓ No subscription required',
+      '✓ £1-5 per day per tool',
+      '✓ Damage protection included',
       '✓ Up to 14 days per borrow',
-      '✓ Unlimited tool access',
-      '✓ Priority support',
-      '✓ No cooldown between borrows',
     ],
-    trial: '14 days free trial',
-    comingSoon: true,
-    cta: 'Subscribe',
-    priceId: STRIPE_PRICES.PRO,
+    note: 'Pay as you go—no commitments',
+    cta: 'Browse Tools',
   },
 ];
+
+const ownerInfo = {
+  title: 'Own Tools? Earn Money',
+  description: 'Get paid every time someone borrows your tools',
+  features: [
+    '✓ List tools for free',
+    '✓ Earn 70% of every rental',
+    '✓ We handle damage claims',
+    '✓ Monthly payouts to your bank',
+    '✓ No fees or hidden costs',
+  ],
+};
 
 export default function PricingPage() {
   const { session, loading } = useAuth();
   const router = useRouter();
-  const [subscriptionTier, setSubscriptionTier] = useState<string | null>(null);
-  const [activeToolCount, setActiveToolCount] = useState(0);
-  const [effectiveTier, setEffectiveTier] = useState<string | null>(null);
-  const [isPaidTier, setIsPaidTier] = useState(false);
-  const [trialUsed, setTrialUsed] = useState(false);
-  const [loadingTier, setLoadingTier] = useState(true);
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [ownerStats, setOwnerStats] = useState({ toolsCount: 0, monthlyEarnings: 0 });
+  const [loadingStats, setLoadingStats] = useState(true);
 
   useEffect(() => {
     if (session?.user?.id && !loading) {
-      const fetchTier = async () => {
+      const fetchStats = async () => {
+        const { data: userTools } = await supabase
+          .from('tools')
+          .select('id')
+          .eq('owner_id', session.user?.id);
         
-        // Sync subscription with Stripe to get latest status
-        try {
-          await fetch('/api/sync-subscription', {
-            method: 'POST',
-          });
-        } catch (err) {
-          // Silently continue on sync error
-        }
-        
-        const { data, error } = await supabase
-          .from('users_ext')
-          .select('subscription_tier, tools_count')
-          .eq('user_id', session?.user?.id || '')
-          .single();
-        
-        if (error) {
-          // Log error but continue
-        }
-        
-        if (data) {
-          setSubscriptionTier(data.subscription_tier || 'none');
-          
-          // Always recount tools from database to ensure accuracy
-          const { data: userTools } = await supabase
-            .from('tools')
-            .select('id')
-            .eq('owner_id', session?.user?.id);
-          
-          const actualToolCount = userTools?.length || 0;
-          
-          // Use consolidated tier calculation logic with actual tool count
-          const tierInfo = calculateEffectiveTier(
-            data.subscription_tier,
-            actualToolCount
-          );
-          
-          setEffectiveTier(tierInfo.effectiveTier);
-          setIsPaidTier(!tierInfo.isFreeTier && data.subscription_tier && ['basic', 'standard', 'pro'].includes(data.subscription_tier));
-        }
-        setLoadingTier(false);
+        setOwnerStats({
+          toolsCount: userTools?.length || 0,
+          monthlyEarnings: 0, // TODO: Calculate from completed borrows
+        });
+        setLoadingStats(false);
       };
-      fetchTier();
+      fetchStats();
     } else if (!loading) {
-      setLoadingTier(false);
+      setLoadingStats(false);
     }
   }, [session?.user?.id, loading]);
 
-  const handleCheckout = async (priceId: string) => {
-    
-    if (!session) {
-      router.push('/signup');
-      return;
-    }
-
-    setCheckoutLoading(true);
-    try {
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          priceId,
-          userId: session.user?.id,
-          email: session.user?.email,
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (data.error) {
-        showToast('Failed to initiate checkout', 'error');
-        return;
-      }
-
-      // Redirect to Stripe hosted checkout using the URL returned by Stripe
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        showToast('Failed to get checkout URL', 'error');
-      }
-    } catch (error) {
-      showToast('Failed to initiate checkout', 'error');
-    } finally {
-      setCheckoutLoading(false);
-    }
-  };
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Hero Banner */}
-      <section className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b-2 border-blue-300 py-12 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Access Through Contribution or Payment</h1>
-            <p className="text-gray-700 text-lg mb-2">
-              ToolUnity works on a fairness model: you can build free borrowing access by sharing your tools.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="font-bold text-lg text-gray-900 mb-2">📋 Path 1: List Tools</h3>
-              <p className="text-gray-700 mb-3 text-sm">
-                Build free borrowing access by sharing your tools with your community.
-              </p>
-              <ul className="text-sm text-gray-600 space-y-1">
-                <li>✓ List 1 tool → Basic (£0/mo)</li>
-                <li>✓ List 3 tools → Standard (£0/mo)</li>
-              </ul>
-            </div>
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="font-bold text-lg text-gray-900 mb-2">💵 Path 2: Subscribe</h3>
-              <p className="text-gray-700 mb-3 text-sm">
-                Or subscribe directly for immediate, premium borrowing access.
-              </p>
-              <ul className="text-sm text-gray-600 space-y-1">
-                <li>✓ Basic → £2/mo</li>
-                <li>✓ Standard → £10/mo</li>
-                <li>✓ Pro → £25/mo</li>
-              </ul>
-            </div>
-          </div>
-          <p className="text-center text-gray-600 text-base mt-6 font-semibold">
-            Choose what works for you—both paths are equally respected.
+      {/* Hero Banner - New Rental Model */}
+      <section className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b-2 border-blue-300 py-16 px-4">
+        <div className="max-w-7xl mx-auto text-center">
+          <h1 className="text-5xl font-bold text-gray-900 mb-4">
+            Rent Tools from Your Neighbors
+          </h1>
+          <p className="text-xl text-gray-700 mb-4">
+            Borrow what you need, share what you have. Pay-per-use, no subscriptions.
           </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            <div className="bg-white rounded-lg p-8 shadow-sm">
+              <h3 className="text-2xl font-bold text-blue-600 mb-3">Borrowers</h3>
+              <p className="text-gray-700 text-lg font-semibold mb-2">£1-5 per day</p>
+              <p className="text-gray-600 mb-4">Browse tools in your area. Rent for a day, a week, or longer. No membership required.</p>
+              <Link href="/tools" className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold">
+                Browse Tools →
+              </Link>
+            </div>
+            <div className="bg-white rounded-lg p-8 shadow-sm">
+              <h3 className="text-2xl font-bold text-green-600 mb-3">Owners</h3>
+              <p className="text-gray-700 text-lg font-semibold mb-2">Earn 70% per rental</p>
+              <p className="text-gray-600 mb-4">List your tools free. Get paid every time someone borrows. We handle all the protection.</p>
+              <Link href="/tools/add" className="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-semibold">
+                List Your Tools →
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Your Current Tier Section */}
-      {session && !loadingTier && effectiveTier && effectiveTier !== 'none' && (
-        <section className="bg-white border-b-2 border-gray-200 py-8 px-4">
-          <div className="max-w-7xl mx-auto">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Current Tier</h2>
-            <TierSummary
-              effectiveTier={effectiveTier as 'basic' | 'standard' | 'pro'}
-              toolsCount={activeToolCount}
-              isPaidTier={isPaidTier}
-              showNextUnlock={true}
-              compact={false}
-            />
+      {/* For Borrowers Section */}
+      <section className="py-16 px-4">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4 text-center">How to Borrow</h2>
+          <p className="text-gray-600 text-lg text-center mb-12 max-w-2xl mx-auto">
+            Simple, flexible, transparent pricing for tool rentals.
+          </p>
+
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-12">
+            {/* Step 1 */}
+            <div className="bg-white rounded-lg p-8 shadow-sm border-l-4 border-blue-600">
+              <div className="flex items-center justify-center w-12 h-12 bg-blue-100 text-blue-600 rounded-full font-bold text-lg mb-4">1</div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Browse Tools</h3>
+              <p className="text-gray-600">Find the tool you need in your area. See prices, photos, and owner reviews.</p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="bg-white rounded-lg p-8 shadow-sm border-l-4 border-blue-600">
+              <div className="flex items-center justify-center w-12 h-12 bg-blue-100 text-blue-600 rounded-full font-bold text-lg mb-4">2</div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Request Rental</h3>
+              <p className="text-gray-600">Choose your rental dates. Owner reviews your request and confirms (usually within 24 hours).</p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="bg-white rounded-lg p-8 shadow-sm border-l-4 border-blue-600">
+              <div className="flex items-center justify-center w-12 h-12 bg-blue-100 text-blue-600 rounded-full font-bold text-lg mb-4">3</div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Pay & Pick Up</h3>
+              <p className="text-gray-600">Pay through ToolUnity. Arrange pickup time with owner. Damage protection included.</p>
+            </div>
+
+            {/* Step 4 */}
+            <div className="bg-white rounded-lg p-8 shadow-sm border-l-4 border-blue-600">
+              <div className="flex items-center justify-center w-12 h-12 bg-blue-100 text-blue-600 rounded-full font-bold text-lg mb-4">4</div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Return & Review</h3>
+              <p className="text-gray-600">Return on your rental date. Rate your experience. Move on to your next project.</p>
+            </div>
           </div>
-        </section>
-      )}
 
-      {/* Tool Owner Incentive Banner */}
-      {session ? (
-        <section className="bg-gradient-to-r from-emerald-50 to-cyan-50 border-b-2 border-emerald-300 py-8 px-4">
-          <div className="max-w-7xl mx-auto">
-            {!loadingTier && effectiveTier === 'standard' && activeToolCount >= 3 ? (
-              <div className="text-center">
-                <p className="text-gray-900 font-bold text-lg mb-2">✅ Standard Tier Unlocked!</p>
-                <p className="text-gray-700 mb-3">
-                  You have {activeToolCount} tools listed. You've unlocked Standard tier (2 active borrows, £300 coverage, 7 days) as long as your tools remain listed.
-                </p>
-                <Link href="/dashboard" className="inline-block bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 font-semibold transition">
-                  View Dashboard →
-                </Link>
+          {/* Pricing Examples */}
+          <div className="bg-blue-50 rounded-lg p-8 border border-blue-200">
+            <h3 className="text-2xl font-bold text-gray-900 mb-6">Rental Pricing Examples</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white rounded-lg p-6">
+                <p className="text-gray-600 font-semibold mb-2">Electric Drill</p>
+                <p className="text-3xl font-bold text-blue-600 mb-2">£3/day</p>
+                <p className="text-sm text-gray-600">Typical rental: 2-3 days = £6-9</p>
               </div>
-            ) : !loadingTier && effectiveTier !== 'standard' && effectiveTier !== 'pro' && activeToolCount >= 1 && activeToolCount < 3 ? (
-              <div className="text-center">
-                <p className="text-gray-900 font-bold text-lg mb-2">🎁 {3 - activeToolCount} More Tool{3 - activeToolCount !== 1 ? 's' : ''} to Unlock Standard</p>
-                <div className="bg-white bg-opacity-60 rounded-lg p-4 mb-4 inline-block">
-                  <p className="text-gray-700 mb-2">Progress: <strong>{activeToolCount}/3 tools listed</strong></p>
-                  <div className="w-full bg-gray-300 rounded-full h-2 mb-2">
-                    <div className="bg-green-600 h-2 rounded-full transition-all" style={{ width: `${(activeToolCount / 3) * 100}%` }}></div>
-                  </div>
-                </div>
-                <p className="text-gray-700 mb-3">
-                  List {3 - activeToolCount} more tool{3 - activeToolCount !== 1 ? 's' : ''} to unlock Standard (2 active borrows, £300 value, 7 days) free.
-                </p>
-                <Link href="/tools/add" className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-semibold transition">
-                  List Tool #{activeToolCount + 1}
-                </Link>
+              <div className="bg-white rounded-lg p-6">
+                <p className="text-gray-600 font-semibold mb-2">Pressure Washer</p>
+                <p className="text-3xl font-bold text-blue-600 mb-2">£4/day</p>
+                <p className="text-sm text-gray-600">Weekend rental: 2 days = £8</p>
               </div>
-            ) : !loadingTier && effectiveTier !== 'basic' && effectiveTier !== 'standard' && effectiveTier !== 'pro' && activeToolCount === 0 ? (
-              <div className="text-center">
-                <p className="text-gray-900 font-bold text-lg mb-2">🎁 List Tools to Unlock Free Membership</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div className="bg-white bg-opacity-60 rounded-lg p-4">
-                    <p className="text-gray-700"><strong>1 tool</strong> = Basic free (1 borrow, £100 value, 3 days)</p>
-                  </div>
-                  <div className="bg-white bg-opacity-60 rounded-lg p-4">
-                    <p className="text-gray-700"><strong>3 tools</strong> = Standard free (2 borrows, £300 value, 7 days)</p>
-                  </div>
-                </div>
-                <p className="text-gray-700 mb-3">No monthly fee—borrowing access unlocked by listing.</p>
-                <Link href="/tools/add" className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-semibold transition">
-                  Get Started Listing
-                </Link>
-              </div>
-            ) : null}
-          </div>
-        </section>
-      ) : (
-        <section className="bg-gradient-to-r from-emerald-50 to-cyan-50 border-b-2 border-emerald-300 py-8 px-4">
-          <div className="max-w-7xl mx-auto text-center">
-            <p className="text-gray-900 font-bold text-lg mb-2">🎁 List Tools to Unlock Free Membership</p>
-            <p className="text-gray-700 mb-4">
-              List 1 tool to unlock Basic free, or 3 tools for Standard free. No monthly fee required.
-            </p>
-            <Link href="/signup" className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-semibold transition">
-              Sign Up & Start Listing
-            </Link>
-          </div>
-        </section>
-      )}
-
-      {/* Pricing Cards */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {pricingTiers.map((tier) => {
-            // Determine if this tier should be highlighted
-            const tierNameLower = tier.name.toLowerCase();
-            const isCurrentTier = session && effectiveTier && effectiveTier === tierNameLower;
-            const shouldHighlight = session && isCurrentTier ? true : !session && tier.name === 'Standard';
-            
-            // Debug logging removed - use shouldHighlight variable set above
-            
-            return (
-            <div
-              key={tier.name}
-              className={`rounded-lg shadow-lg overflow-hidden transition-transform hover:scale-105 relative bg-white ${
-                shouldHighlight ? 'ring-2 ring-blue-600 md:scale-105' : ''
-              } ${tier.comingSoon ? 'opacity-75' : ''}`}
-            >
-              {tier.comingSoon && (
-                <div className="absolute top-0 right-0 bg-orange-500 text-white px-4 py-1 text-xs font-bold">
-                  Coming Soon
-                </div>
-              )}
-              {!session && tier.badge && !tier.comingSoon && (
-                <div className="absolute top-0 right-0 bg-yellow-500 text-white px-4 py-1 text-xs font-bold">
-                  {tier.badge}
-                </div>
-              )}
-              {session && isCurrentTier && (
-                <div className="absolute top-0 right-0 bg-green-500 text-white px-4 py-1 text-xs font-bold">
-                  Your Tier
-                </div>
-              )}
-              <div className="p-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">{tier.name}</h3>
-                <p className="text-gray-600 text-sm mb-2">{tier.description}</p>
-                <p className="text-xs text-blue-600 font-semibold mb-4">{tier.useCase}</p>
-                <div className="mb-2">
-                  <span className="text-5xl font-bold text-gray-900">{tier.price}</span>
-                  {tier.period && <span className="text-gray-600">{tier.period}</span>}
-                </div>
-                {tier.waiver && (
-                  <p className="text-xs text-green-700 bg-green-50 px-3 py-2 rounded mb-4">
-                    {tier.waiver}
-                  </p>
-                )}
-                {tier.trial && (
-                  <p className="text-xs text-blue-700 bg-blue-50 px-3 py-2 rounded mb-6 font-semibold">
-                    🎁 {tier.trial}
-                  </p>
-                )}
-
-                {loadingTier && (
-                  <div className="block w-full text-center py-3 px-4 rounded-lg font-semibold mb-8 bg-gray-100 text-gray-600">
-                    Loading...
-                  </div>
-                )}
-
-                {!loadingTier && tier.name === 'Pro' && (
-                  <div className="block w-full text-center py-3 px-4 rounded-lg font-semibold mb-8 bg-gray-100 text-gray-600">
-                    Coming Soon
-                  </div>
-                )}
-
-                {!loadingTier && tier.name !== 'Pro' && session && tierNameLower === effectiveTier && (
-                  <div className="block w-full text-center py-3 px-4 rounded-lg font-semibold mb-8 bg-green-100 text-green-800 border-2 border-green-500">
-                    ✓ Your Tier
-                  </div>
-                )}
-
-                {!loadingTier && tier.name !== 'Pro' && !session && (
-                  <Link
-                    href="/signup"
-                    className="block w-full text-center py-3 px-4 rounded-lg font-semibold mb-8 transition-colors bg-blue-600 text-white hover:bg-blue-700"
-                  >
-                    Start Free Trial
-                  </Link>
-                )}
-
-                {!loadingTier && tier.name !== 'Pro' && session && tierNameLower !== effectiveTier && (
-                  <button
-                    onClick={() => handleCheckout(tier.priceId)}
-                    disabled={checkoutLoading}
-                    className="block w-full text-center py-3 px-4 rounded-lg font-semibold mb-8 transition-colors bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-400"
-                  >
-                    {checkoutLoading ? 'Processing...' : 'Start Free Trial'}
-                  </button>
-                )}
-
-                <ul className="space-y-4">
-                  {tier.features.map((feature) => (
-                    <li key={feature} className="flex items-start">
-                      <span className="text-green-500 mr-3">✓</span>
-                      <span className="text-gray-700">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
+              <div className="bg-white rounded-lg p-6">
+                <p className="text-gray-600 font-semibold mb-2">Ladder</p>
+                <p className="text-3xl font-bold text-blue-600 mb-2">£1.50/day</p>
+                <p className="text-sm text-gray-600">Day rental: 1 day = £1.50</p>
               </div>
             </div>
-            );
-          })}
+          </div>
+        </div>
+      </section>
+
+      {/* For Owners Section */}
+      <section className="bg-gradient-to-r from-emerald-50 to-cyan-50 py-16 px-4 border-y border-emerald-200">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4 text-center">For Tool Owners</h2>
+          <p className="text-gray-600 text-lg text-center mb-12 max-w-2xl mx-auto">
+            Turn your unused tools into passive income. Share with neighbors, earn every rental.
+          </p>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+            {/* Earnings Example 1 */}
+            <div className="bg-white rounded-lg p-8 shadow-sm">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Tool Owner A</h3>
+              <p className="text-gray-600 text-sm mb-4">Lists 1 pressure washer (£4/day)</p>
+              <div className="bg-green-50 rounded-lg p-4 mb-4">
+                <p className="text-sm text-gray-600">5 rentals/month × £4/day × 2 days avg</p>
+                <p className="text-2xl font-bold text-green-600">£40/month</p>
+                <p className="text-xs text-gray-600 mt-2">Earn: £28 (70%)</p>
+              </div>
+              <p className="text-xs text-gray-600">Passive income from one tool!</p>
+            </div>
+
+            {/* Earnings Example 2 */}
+            <div className="bg-white rounded-lg p-8 shadow-sm border-2 border-green-500">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Tool Owner B</h3>
+              <p className="text-gray-600 text-sm mb-4">Lists 8 tools (mixed tools)</p>
+              <div className="bg-green-50 rounded-lg p-4 mb-4">
+                <p className="text-sm text-gray-600">Average 3 rentals/month per tool × £2-4 avg</p>
+                <p className="text-2xl font-bold text-green-600">£240/month</p>
+                <p className="text-xs text-gray-600 mt-2">Earn: £168 (70%)</p>
+              </div>
+              <p className="text-xs text-gray-600">Build a serious side income!</p>
+            </div>
+
+            {/* Earnings Example 3 */}
+            <div className="bg-white rounded-lg p-8 shadow-sm">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Tool Owner C</h3>
+              <p className="text-gray-600 text-sm mb-4">Lists 20 tools (diverse fleet)</p>
+              <div className="bg-green-50 rounded-lg p-4 mb-4">
+                <p className="text-sm text-gray-600">Average 2 rentals/month per tool × £2-3 avg</p>
+                <p className="text-2xl font-bold text-green-600">£1,200/month</p>
+                <p className="text-xs text-gray-600 mt-2">Earn: £840 (70%)</p>
+              </div>
+              <p className="text-xs text-gray-600">Real business-level income!</p>
+            </div>
+          </div>
+
+          {/* Owner Benefits */}
+          <div className="bg-white rounded-lg p-8 shadow-sm border-l-4 border-green-600">
+            <h3 className="text-2xl font-bold text-gray-900 mb-6">What Owners Get</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {ownerInfo.features.map((feature) => (
+                <div key={feature} className="flex items-start">
+                  <span className="text-green-600 font-bold mr-3 text-lg">✓</span>
+                  <span className="text-gray-700">{feature}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Your Stats (if logged in) */}
+          {session && !loadingStats && ownerStats.toolsCount > 0 && (
+            <div className="mt-12 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-8 border-2 border-green-600">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Your Owner Dashboard</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white rounded-lg p-4 text-center">
+                  <p className="text-gray-600 text-sm mb-2">Tools Listed</p>
+                  <p className="text-3xl font-bold text-green-600">{ownerStats.toolsCount}</p>
+                </div>
+                <div className="bg-white rounded-lg p-4 text-center">
+                  <p className="text-gray-600 text-sm mb-2">Potential Monthly Earnings</p>
+                  <p className="text-3xl font-bold text-green-600">£{(ownerStats.toolsCount * 40).toLocaleString()}</p>
+                  <p className="text-xs text-gray-600 mt-2">(assuming average rentals)</p>
+                </div>
+                <div className="bg-white rounded-lg p-4 text-center">
+                  <p className="text-gray-600 text-sm mb-2">Your Earnings (This Month)</p>
+                  <p className="text-3xl font-bold text-green-600">£{ownerStats.monthlyEarnings}</p>
+                  <p className="text-xs text-gray-600 mt-2">Payouts every 30 days</p>
+                </div>
+              </div>
+              <Link href="/owner-dashboard" className="block mt-6 text-center bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-semibold">
+                View Full Owner Dashboard →
+              </Link>
+            </div>
+          )}
+
+          {session && !loadingStats && ownerStats.toolsCount === 0 && (
+            <div className="mt-12 bg-blue-50 rounded-lg p-8 border-2 border-blue-600 text-center">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Ready to Earn?</h3>
+              <p className="text-gray-700 mb-6">You don't have any tools listed yet. Start by adding your first tool to your catalog.</p>
+              <Link href="/tools/add" className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold">
+                List Your First Tool →
+              </Link>
+            </div>
+          )}
+
+          {!session && (
+            <div className="mt-12 bg-blue-50 rounded-lg p-8 border-2 border-blue-600 text-center">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Start Earning Today</h3>
+              <p className="text-gray-700 mb-6">Sign up free and start listing tools. Get paid for every rental!</p>
+              <Link href="/signup" className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold">
+                Sign Up & List Tools →
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Damage Protection */}
+      <section className="py-16 px-4">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Damage Protection</h2>
+          
+          <div className="bg-blue-50 border-l-4 border-blue-600 rounded-lg p-8 mb-8">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">How It Works</h3>
+            <p className="text-gray-700 mb-4">Every rental includes damage protection. If something breaks:</p>
+            <ol className="space-y-3 text-gray-700 ml-6 list-decimal">
+              <li>Report damage during return</li>
+              <li>Borrower has 48 hours to respond</li>
+              <li>We review evidence and make a fair determination</li>
+              <li>If confirmed, borrower pays the repair/replacement cost</li>
+              <li>Owner is reimbursed within 48 hours</li>
+            </ol>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+              <p className="font-semibold text-gray-900 mb-2">For Borrowers</p>
+              <p className="text-sm text-gray-600">Small fee per rental covers damage protection. Limits your liability for honest accidents.</p>
+            </div>
+            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+              <p className="font-semibold text-gray-900 mb-2">For Owners</p>
+              <p className="text-sm text-gray-600">Get reimbursed for legitimate damage claims. We handle verification—no disputes.</p>
+            </div>
+            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+              <p className="font-semibold text-gray-900 mb-2">Fair & Transparent</p>
+              <p className="text-sm text-gray-600">Both sides submit evidence. We're unbiased. Normal wear doesn't count as damage.</p>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="bg-white py-16 border-t border-gray-200">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-12">How Protection Works</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-              <p className="text-sm text-gray-600 mb-2">Free Tier</p>
-              <p className="text-2xl font-bold text-gray-900">£100</p>
-              <p className="text-xs text-gray-600 mt-2">Damage liability cap</p>
+      <section className="bg-gray-50 py-16 px-4 border-t border-gray-200">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">Frequently Asked Questions</h2>
+          <div className="space-y-8">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">What is ToolUnity?</h3>
+              <p className="text-gray-600">ToolUnity is a peer-to-peer tool rental marketplace. Borrow tools from your neighbors instead of buying expensive equipment. Share your tools and earn money. It's that simple.</p>
             </div>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-              <p className="text-sm text-gray-600 mb-2">Standard Tier</p>
-              <p className="text-2xl font-bold text-gray-900">£300</p>
-              <p className="text-xs text-gray-600 mt-2">Damage liability cap</p>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No subscription required?</h3>
+              <p className="text-gray-600">Right! You just pay per rental. Need a drill for one day? Rent it for £3. No membership, no monthly commitment. You only pay when you borrow.</p>
             </div>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-              <p className="text-sm text-gray-600 mb-2">Pro Tier</p>
-              <p className="text-2xl font-bold text-gray-900">£1,000</p>
-              <p className="text-xs text-gray-600 mt-2">Damage liability cap</p>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">How much can I earn as an owner?</h3>
+              <p className="text-gray-600">It depends on how many tools you list and rental demand. Most owners list between 1-5 tools and earn £20-100+ per month. Some list 10+ tools and earn £500/month+. You set the daily rental price and keep 70%.</p>
             </div>
-          </div>
-
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 mb-12">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">What If Something Breaks?</h3>
-            <p className="text-gray-700 mb-4">
-              If you damage a tool beyond normal wear:
-            </p>
-            <ol className="space-y-3 text-gray-700 ml-4 list-decimal">
-              <li>The damage is reported during return</li>
-              <li>You have 48 hours to respond</li>
-              <li>We review evidence from both sides</li>
-              <li>If damage is confirmed, you're charged (up to the value of the tool)</li>
-              <li>Owner is reimbursed within 48 hours</li>
-            </ol>
-            <p className="text-gray-700 mt-6 pt-6 border-t border-gray-200">
-              <strong>Fair, transparent, and simple.</strong> Learn more on our <Link href="/safety" className="text-blue-600 hover:text-blue-700 font-semibold">Safety & Trust page</Link>.
-            </p>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Is my tool protected from damage?</h3>
+              <p className="text-gray-600">Every rental includes damage protection. If something breaks, we investigate and handle the claim. Normal wear and tear doesn't count. You're reimbursed within 48 hours if damage is confirmed.</p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">How do I get paid as an owner?</h3>
+              <p className="text-gray-600">We pay out directly to your bank account monthly. It's automatic—no invoices, no paperwork. Just list tools, get rented, earn. We keep 30% (to cover protection, platform costs, and payment processing).</p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Can I cancel a borrow request as an owner?</h3>
+              <p className="text-gray-600">You can decline a request before confirming it. Once confirmed, only cancel if absolutely necessary—and the borrower won't be charged. Reliability matters for your reputation.</p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">What if I need the tool during a rental?</h3>
+              <p className="text-gray-600">You choose your available dates when listing. Only open dates for rental. If you need it back, adjust your calendar before anyone books it.</p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">How does ToolUnity protect me?</h3>
+              <p className="text-gray-600">We verify user identities, manage payments securely through Stripe, investigate damage claims, and mediate disputes. Your location and personal details are kept private until you agree to a rental.</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Original FAQ */}
-      <section id="faq" className="bg-white py-16">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-12">Frequently Asked Questions</h2>
-          <div className="space-y-8">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">What is ToolUnity?</h3>
-              <p className="text-gray-600">ToolUnity is a peer-to-peer tool-sharing marketplace. Borrow tools from neighbours instead of buying expensive equipment you'll only use once or twice. Save money, reduce waste, build community.</p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Is browsing really free?</h3>
-              <p className="text-gray-600">Yes! You can browse all available tools without an account or payment. To make a borrowing request, you need a free or paid membership—or you can unlock free membership by listing tools.</p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">How do I borrow tools?</h3>
-              <p className="text-gray-600">You need active membership to borrow. Options:</p>
-              <ul className="list-disc ml-6 mt-2 text-gray-600 space-y-1">
-                <li><strong>Subscribe to a plan:</strong> Basic (£2/mo) or Standard (£10/mo). Pro (£25/mo) Coming Soon</li>
-                <li><strong>List tools for free:</strong> 1 tool = Basic free, 3 tools = Standard free</li>
-              </ul>
-              <p className="text-gray-600 mt-2">Once you have membership, browse tools and submit requests. Owners review and approve requests based on availability.</p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">What does each plan include?</h3>
-              <p className="text-gray-600"><strong>Basic (£2/mo or free with 1+ tools):</strong> 1 active borrow, £100 value limit, 3 days</p>
-              <p className="text-gray-600 mt-2"><strong>Standard (£10/mo or free with 3+ tools):</strong> 2 active borrows, £300 value limit, 7 days</p>
-              <p className="text-gray-600 mt-2"><strong>Pro (£25/mo - Coming Soon):</strong> 5 active borrows, £1,000 value limit, 14 days</p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Do paid plans have a trial period?</h3>
-              <p className="text-gray-600">Yes! All paid plans (Basic and Standard) include a <strong>14-day free trial</strong>. Try any plan risk-free. You won't be charged until your trial ends. Cancel anytime before your trial ends and you won't be charged at all. Pro will also include a trial when it launches.</p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Can I get free membership by listing tools?</h3>
-              <p className="text-gray-600">Yes! List 1 tool to unlock Basic free, or 3 tools to unlock Standard free. As long as your tools stay listed and available, your free membership remains active. If you delete tools below the threshold, you lose the benefit.</p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Can I upgrade or downgrade anytime?</h3>
-              <p className="text-gray-600">Yes! If you're on a paid plan, change instantly. Downgrading takes effect at your next billing cycle. Free memberships (unlocked by listing) have no billing—they're automatic based on your tool count.</p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">What are value limits?</h3>
-              <p className="text-gray-600">Value limits protect both you and owners. The limit is the total retail value of all tools you can borrow at once. For example, Basic lets you borrow items worth up to £100 combined (like one £100 drill or multiple smaller tools totaling £100).</p>
-            </div>
+      {/* Final CTA */}
+      <section className="bg-gradient-to-r from-blue-600 to-indigo-600 py-16 px-4 text-center">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-4xl font-bold text-white mb-4">Ready to Get Started?</h2>
+          <p className="text-blue-100 text-lg mb-8">Browse tools to borrow, or list your own tools to earn. Choose your path.</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/tools" className="px-8 py-3 bg-white text-blue-600 rounded-lg hover:bg-blue-50 font-bold text-lg">
+              Browse Tools
+            </Link>
+            <Link href="/signup" className="px-8 py-3 bg-blue-700 text-white rounded-lg hover:bg-blue-800 font-bold text-lg border-2 border-white">
+              Sign Up Free
+            </Link>
           </div>
         </div>
       </section>
