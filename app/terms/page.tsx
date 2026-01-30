@@ -214,8 +214,7 @@ export default function TermsOfServicePage() {
               If you have questions about these Terms, please contact us:
             </p>
             <ul className="text-gray-700 space-y-1">
-              <li>Email: support@toolunity.com</li>
-              <li>Phone: +44 (0) 123 456 7890</li>
+              <li>Email: support@toolunity.co.uk</li>
             </ul>
           </section>
         </div>

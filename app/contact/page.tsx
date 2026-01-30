@@ -43,34 +43,25 @@ export default function ContactPage() {
               {/* Email */}
               <div>
                 <h3 className="text-sm font-semibold text-gray-900 mb-2">Email</h3>
-                <a href="mailto:support@toolunity.com" className="text-blue-600 hover:text-blue-700">
-                  support@toolunity.com
+                <a href="mailto:support@toolunity.co.uk" className="text-blue-600 hover:text-blue-700">
+                  support@toolunity.co.uk
                 </a>
                 <p className="text-sm text-gray-600 mt-1">We'll respond within 24 hours</p>
-              </div>
-
-              {/* Phone */}
-              <div>
-                <h3 className="text-sm font-semibold text-gray-900 mb-2">Phone</h3>
-                <a href="tel:+441234567890" className="text-blue-600 hover:text-blue-700 block">
-                  +44 (0) 123 456 7890
-                </a>
-                <p className="text-sm text-gray-600 mt-1">Monday–Friday, 9 AM–5 PM GMT</p>
               </div>
 
               {/* General Inquiries */}
               <div>
                 <h3 className="text-sm font-semibold text-gray-900 mb-2">Business Inquiries</h3>
-                <a href="mailto:partnerships@toolunity.com" className="text-blue-600 hover:text-blue-700">
-                  partnerships@toolunity.com
+                <a href="mailto:support@toolunity.co.uk" className="text-blue-600 hover:text-blue-700">
+                  support@toolunity.co.uk
                 </a>
               </div>
 
               {/* Urgent Issues */}
               <div>
                 <h3 className="text-sm font-semibold text-gray-900 mb-2">Urgent Issues</h3>
-                <a href="mailto:urgent@toolunity.com" className="text-blue-600 hover:text-blue-700">
-                  urgent@toolunity.com
+                <a href="mailto:support@toolunity.co.uk" className="text-blue-600 hover:text-blue-700">
+                  support@toolunity.co.uk
                 </a>
                 <p className="text-sm text-gray-600 mt-1">For security or safety concerns</p>
               </div>

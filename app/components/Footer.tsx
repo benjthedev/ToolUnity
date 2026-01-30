@@ -78,11 +78,8 @@ export default function Footer() {
         <div className="border-t border-gray-800 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-6">
             <div className="flex flex-col sm:flex-row gap-6 text-sm">
-              <a href="mailto:support@toolunity.com" className="text-gray-400 hover:text-gray-200 transition">
-                support@toolunity.com
-              </a>
-              <a href="tel:+441234567890" className="text-gray-400 hover:text-gray-200 transition">
-                +44 (0) 123 456 7890
+              <a href="mailto:support@toolunity.co.uk" className="text-gray-400 hover:text-gray-200 transition">
+                support@toolunity.co.uk
               </a>
             </div>
             <div className="flex gap-6 text-sm">

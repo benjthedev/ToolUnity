@@ -228,7 +228,7 @@ export default function SafetyPage() {
             We're here to help. If you have questions about damage coverage, card policies, or how we protect you, reach out:
           </p>
           <p className="text-gray-700">
-            <strong>Email:</strong> support@toolunity.com
+            <strong>Email:</strong> support@toolunity.co.uk
           </p>
         </section>
 

@@ -100,7 +100,7 @@ export default function PrivacyPolicyPage() {
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">6.2 Delete Your Account</h3>
             <p className="text-gray-700 mb-4">
-              You can request deletion of your account by contacting us at support@toolunity.com. We'll delete your information within 30 days, except where required by law.
+              You can request deletion of your account by contacting us at support@toolunity.co.uk. We'll delete your information within 30 days, except where required by law.
             </p>
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">6.3 Cookies</h3>
@@ -143,8 +143,7 @@ export default function PrivacyPolicyPage() {
               If you have questions about this Privacy Policy or our privacy practices, please contact us:
             </p>
             <ul className="text-gray-700 space-y-1">
-              <li>Email: support@toolunity.com</li>
-              <li>Phone: +44 (0) 123 456 7890</li>
+              <li>Email: support@toolunity.co.uk</li>
             </ul>
           </section>
         </div>
