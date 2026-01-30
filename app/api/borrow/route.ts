@@ -9,6 +9,19 @@ import { serverLog } from '@/lib/logger';
 import { ApiErrors } from '@/lib/api-response';
 import { ZodError } from 'zod';
 
+/**
+ * NEW RENTAL MODEL: Create a rental request
+ * 
+ * This endpoint now handles:
+ * - Verify user authentication (no membership required anymore!)
+ * - Validate tool exists and owner isn't same as borrower
+ * - Calculate rental cost (daily rate × duration + protection fee)
+ * - Create a rental_transactions record
+ * - Return payment details for Stripe checkout
+ * 
+ * Payment is processed BEFORE the rental is confirmed
+ * (70% goes to owner, 30% to platform for protection + operations)
+ */
 export async function POST(request: NextRequest) {
   try {
     // Verify CSRF token
@@ -17,18 +30,18 @@ export async function POST(request: NextRequest) {
       return ApiErrors.CSRF_FAILED();
     }
 
-    // Get session - pass authOptions explicitly
+    // Get session
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
       return ApiErrors.UNAUTHORIZED();
     }
 
-    // Rate limit borrow requests (10 per hour per user)
+    // Rate limit rental requests (20 per hour per user - more permissive than before)
     const rateLimitCheck = checkRateLimitByUserId(
       session.user.id,
-      RATE_LIMIT_CONFIGS.borrow.maxAttempts,
-      RATE_LIMIT_CONFIGS.borrow.windowMs
+      20, // maxAttempts
+      60 * 60 * 1000 // windowMs (1 hour)
     );
 
     if (!rateLimitCheck.allowed) {
@@ -47,16 +60,16 @@ export async function POST(request: NextRequest) {
       });
     } catch (error) {
       if (error instanceof ZodError) {
-        return ApiErrors.VALIDATION_ERROR('Invalid borrow request data');
+        return ApiErrors.VALIDATION_ERROR('Invalid rental request data');
       }
       throw error;
     }
 
-    // Get user profile and tier info
+    // Get user profile
     const sb = getSupabase();
     const { data: userProfile } = await sb
       .from('users_ext')
-      .select('subscription_tier, tools_count, email_verified')
+      .select('stripe_customer_id, email')
       .eq('user_id', session.user.id)
       .single();
 
@@ -71,41 +84,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Calculate effective tier (account for both paid subscriptions and free tool unlocks)
-    let effectiveTier = userProfile.subscription_tier || 'free';
-    const hasPaidTier = userProfile.subscription_tier === 'basic' || userProfile.subscription_tier === 'standard' || userProfile.subscription_tier === 'pro';
-
-    if (hasPaidTier) {
-      effectiveTier = userProfile.subscription_tier;
-    } else if (userProfile.tools_count >= 3) {
-      effectiveTier = 'standard';
-    } else if (userProfile.tools_count >= 1) {
-      effectiveTier = 'basic';
-    }
-
-    // Check if user has any membership (paid subscription OR free tier from listing tools)
-    const hasMembership = hasPaidTier || userProfile.tools_count >= 1;
-
-    if (!hasMembership) {
-      return NextResponse.json(
-        {
-          error: 'No membership found',
-          reason: 'no_membership',
-          message: 'You need membership to borrow. Subscribe to a plan or list tools.',
-          suggestedActions: [
-            'Subscribe to Basic (£2/mo)',
-            'List 1 tool to unlock Basic free',
-            'List 3 tools to unlock Standard free',
-          ],
-        },
-        { status: 403 }
-      );
-    }
-
-    // Get tool info
+    // Get tool info including daily rental rate
     const { data: tool } = await sb
       .from('tools')
-      .select('id, tool_value, available, owner_id')
+      .select('id, owner_id, daily_rental_rate, description')
       .eq('id', toolId)
       .single();
 
@@ -113,53 +95,40 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Tool not found' }, { status: 404 });
     }
 
-    // Check if tool is available for borrowing
-    if (!tool.available) {
-      return NextResponse.json(
-        {
-          error: 'Tool not available',
-          reason: 'tool_unavailable',
-          message: 'This tool is currently unavailable for borrowing',
-        },
-        { status: 403 }
-      );
-    }
-
     // Prevent user from borrowing their own tool
     if (tool.owner_id === session.user.id) {
       return NextResponse.json(
         {
-          error: 'Cannot borrow own tool',
+          error: 'Cannot rent own tool',
           reason: 'self_borrow',
-          message: 'You cannot borrow a tool you own',
+          message: 'You cannot rent a tool you own',
         },
         { status: 403 }
       );
     }
 
-    // Check for date overlap with existing borrow requests
-    const { data: existingBorrows } = await sb
-      .from('borrow_requests')
+    // Check for date overlap with existing active rentals
+    const { data: existingRentals } = await sb
+      .from('rental_transactions')
       .select('id, start_date, end_date, status')
       .eq('tool_id', toolId)
-      .neq('status', 'returned')
-      .neq('status', 'declined');
+      .in('status', ['pending_payment', 'active', 'confirmed']);
 
-    if (existingBorrows && existingBorrows.length > 0) {
-      const startDate = new Date(startDate);
-      const endDate = new Date(endDate);
+    if (existingRentals && existingRentals.length > 0) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
 
-      for (const existing of existingBorrows) {
+      for (const existing of existingRentals) {
         const existingStart = new Date(existing.start_date);
         const existingEnd = new Date(existing.end_date);
 
         // Check if date ranges overlap
-        if (startDate < existingEnd && endDate > existingStart) {
+        if (start < existingEnd && end > existingStart) {
           return NextResponse.json(
             {
-              error: 'Tool already borrowed for those dates',
+              error: 'Tool not available for those dates',
               reason: 'date_conflict',
-              message: `This tool is already borrowed from ${existingStart.toDateString()} to ${existingEnd.toDateString()}`,
+              message: `This tool is already rented from ${existingStart.toDateString()} to ${existingEnd.toDateString()}`,
             },
             { status: 409 }
           );
@@ -167,113 +136,85 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Determine tier limits
-    const tierLimits: Record<string, { maxBorrows: number; maxValue: number; maxDays: number }> = {
-      basic: { maxBorrows: 1, maxValue: 100, maxDays: 3 },
-      standard: { maxBorrows: 2, maxValue: 300, maxDays: 7 },
-      pro: { maxBorrows: 5, maxValue: 1000, maxDays: 14 },
-    };
-
-    const limits = tierLimits[effectiveTier] || tierLimits.basic;
-
-    // Check active borrow count
-    const { data: activeBorrows } = await sb
-      .from('borrow_requests')
-      .select('id')
-      .eq('user_id', session.user.id)
-      .eq('status', 'approved');
-
-    const activeBorrowCount = activeBorrows?.length || 0;
-
-    if (activeBorrowCount >= limits.maxBorrows) {
-      const upgradeSuggestion = effectiveTier === 'basic' ? 'Standard (2 borrows)' : 'Pro (5 borrows)';
-      return NextResponse.json(
-        {
-          error: `You've reached your borrow limit`,
-          reason: 'borrow_limit_reached',
-          message: `You have ${activeBorrowCount} active borrow${activeBorrowCount !== 1 ? 's' : ''} (your limit is ${limits.maxBorrows})`,
-          tier: effectiveTier,
-          currentBorrows: activeBorrowCount,
-          maxBorrows: limits.maxBorrows,
-          suggestedAction: `Upgrade to ${upgradeSuggestion} or wait for a borrow to complete`,
-        },
-        { status: 403 }
-      );
-    }
-
-    // Check tool value
-    if (tool.tool_value > limits.maxValue) {
-      const upgradeSuggestion = effectiveTier === 'basic' ? 'Standard (£300)' : 'Pro (£1,000)';
-      return NextResponse.json(
-        {
-          error: `Tool value exceeds your limit`,
-          reason: 'value_limit_exceeded',
-          message: `This tool is worth £${tool.tool_value}, but your limit is £${limits.maxValue}`,
-          tier: effectiveTier,
-          toolValue: tool.tool_value,
-          userValueLimit: limits.maxValue,
-          suggestedAction: `Upgrade to ${upgradeSuggestion} to borrow this tool`,
-        },
-        { status: 403 }
-      );
-    }
-
-    // Check duration
+    // Calculate duration and cost
     const start = new Date(startDate);
     const end = new Date(endDate);
     const durationDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
 
-    if (durationDays > limits.maxDays) {
-      const upgradeSuggestion = effectiveTier === 'basic' ? 'Standard (7 days)' : 'Pro (14 days)';
+    if (durationDays < 1) {
       return NextResponse.json(
-        {
-          error: `Requested duration exceeds your limit`,
-          reason: 'duration_exceeds_limit',
-          message: `You requested ${durationDays} days, but your limit is ${limits.maxDays} days`,
-          tier: effectiveTier,
-          requestedDays: durationDays,
-          maxDays: limits.maxDays,
-          suggestedAction: `Shorten your request to ${limits.maxDays} days, or upgrade to ${upgradeSuggestion}`,
-        },
-        { status: 403 }
+        { error: 'Rental duration must be at least 1 day' },
+        { status: 400 }
       );
     }
 
-    // Create borrow request
-    const { data: borrowRequest, error: createError } = await sb
-      .from('borrow_requests')
+    // Calculate costs
+    const dailyRate = tool.daily_rental_rate || 3; // Default £3/day
+    const rentalCost = parseFloat((dailyRate * durationDays).toFixed(2));
+    const platformFee = parseFloat((rentalCost * 0.30).toFixed(2)); // Platform takes 30%
+    const ownerPayout = parseFloat((rentalCost * 0.70).toFixed(2)); // Owner gets 70%
+    const damageProtectionFee = 2.99; // Fixed protection fee
+    const totalCost = parseFloat((rentalCost + damageProtectionFee).toFixed(2));
+
+    // Create rental transaction record (status: pending_payment)
+    const { data: rentalTransaction, error: createError } = await sb
+      .from('rental_transactions')
       .insert({
-        user_id: session.user.id,
+        borrower_id: session.user.id,
         tool_id: toolId,
+        owner_id: tool.owner_id,
         start_date: startDate,
         end_date: endDate,
+        duration_days: durationDays,
+        daily_rate: dailyRate,
+        rental_cost: rentalCost,
+        platform_fee: platformFee,
+        owner_payout: ownerPayout,
+        damage_protection_fee: damageProtectionFee,
+        total_cost: totalCost,
+        status: 'pending_payment', // Waiting for Stripe payment
         notes: notes || null,
-        status: 'pending',
         created_at: new Date().toISOString(),
       })
       .select()
       .single();
 
     if (createError) {
-      console.error('Error creating borrow request:', createError);
-      return NextResponse.json({ error: 'Error creating borrow request' }, { status: 500 });
+      console.error('Error creating rental transaction:', createError);
+      return NextResponse.json({ error: 'Error processing rental request' }, { status: 500 });
     }
 
+    // Return rental details for Stripe checkout
     return NextResponse.json(
       {
-        message: 'Borrow request created successfully',
-        request: borrowRequest,
-        tier: effectiveTier,
-        tierSource: userProfile.tools_count >= 1 ? 'contribution' : 'subscription',
-        limits: limits,
-        toolValue: tool.tool_value,
-        withinLimits: true,
-        protectionActive: true,
+        message: 'Rental request created - proceed to payment',
+        rentalId: rentalTransaction.id,
+        tool: {
+          id: toolId,
+          dailyRate: dailyRate,
+        },
+        pricing: {
+          durationDays,
+          rentalCost,
+          damageProtectionFee,
+          totalCost,
+          breakdown: {
+            youPay: totalCost,
+            ownerGets: ownerPayout,
+            platformGets: platformFee,
+          },
+        },
+        stripeMetadata: {
+          rentalTransactionId: rentalTransaction.id,
+          borrowerId: session.user.id,
+          ownerId: tool.owner_id,
+          toolId,
+        },
       },
       { status: 201 }
     );
   } catch (error) {
-    console.error('Borrow request error:', error);
+    console.error('Rental request error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

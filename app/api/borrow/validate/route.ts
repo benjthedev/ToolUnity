@@ -4,12 +4,13 @@ import { authOptions } from '@/auth';
 import { getSupabase } from '@/lib/supabase';
 
 /**
- * Validate if user can borrow a tool and return detailed messaging
+ * Validate if user can borrow a tool in the rental model
  * This endpoint checks:
- * - User has active membership (paid or free via listing)
- * - User hasn't reached active borrow limit
- * - Tool value doesn't exceed user's value cap
- * - Borrow duration fits within user's max duration
+ * - User is authenticated
+ * - Tool exists and is available for rental
+ * - Calculate rental cost (daily rate × duration + protection fee)
+ * 
+ * NEW: No subscription required - anyone can rent by paying per day
  */
 export async function POST(request: NextRequest) {
   try {
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
         {
           canBorrow: false,
           reason: 'not_authenticated',
-          message: 'You must be signed in to borrow tools',
+          message: 'You must be signed in to rent tools',
           action: 'Sign in or create an account',
           actionType: 'login',
         },
@@ -38,11 +39,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user profile and tier info
+    // Get user profile for basic checks
     const sb = getSupabase();
     const { data: userProfile } = await sb
       .from('users_ext')
-      .select('subscription_tier, tools_count')
+      .select('id')
       .eq('user_id', session.user.id)
       .single();
 
@@ -59,44 +60,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Calculate effective tier
-    let effectiveTier = userProfile.subscription_tier || 'free';
-    let hasMembership = false;
-
-    if (userProfile.tools_count >= 3) {
-      effectiveTier = 'standard';
-      hasMembership = true;
-    } else if (userProfile.tools_count >= 1 && (effectiveTier === 'free' || effectiveTier === 'none')) {
-      effectiveTier = 'basic';
-      hasMembership = true;
-    } else if (userProfile.subscription_tier === 'basic' || userProfile.subscription_tier === 'standard' || userProfile.subscription_tier === 'pro') {
-      hasMembership = true;
-    }
-
-    // Check if user has any membership
-    if (!hasMembership) {
-      return NextResponse.json(
-        {
-          canBorrow: false,
-          reason: 'no_membership',
-          message: 'You need membership to borrow tools',
-          details: 'Subscribe to a plan or list tools to unlock free membership',
-          action: 'View membership options',
-          actionType: 'pricing',
-          suggestedPath: {
-            option1: 'Subscribe to Basic (£2/mo) or Standard (£10/mo)',
-            option2: 'List 1 tool to unlock Basic free (1 borrow, £100 value)',
-            option3: 'List 3 tools to unlock Standard free (2 borrows, £300 value)',
-          },
-        },
-        { status: 403 }
-      );
-    }
-
-    // Get tool info
+    // Get tool info including rental price
     const { data: tool } = await sb
       .from('tools')
-      .select('id, tool_value')
+      .select('id, owner_id, daily_rental_rate, condition')
       .eq('id', toolId)
       .single();
 
@@ -111,92 +78,51 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Determine tier limits
-    const tierLimits: Record<string, { maxBorrows: number; maxValue: number; maxDays: number }> = {
-      basic: { maxBorrows: 1, maxValue: 100, maxDays: 3 },
-      standard: { maxBorrows: 2, maxValue: 300, maxDays: 7 },
-      pro: { maxBorrows: 5, maxValue: 1000, maxDays: 14 },
-    };
-
-    const limits = tierLimits[effectiveTier] || tierLimits.basic;
-
-    // Check active borrow count
-    const { data: activeBorrows } = await sb
-      .from('borrow_requests')
-      .select('id')
-      .eq('user_id', session.user.id)
-      .eq('status', 'approved');
-
-    const activeBorrowCount = activeBorrows?.length || 0;
-
-    if (activeBorrowCount >= limits.maxBorrows) {
+    // Prevent borrowing own tools
+    if (tool.owner_id === session.user.id) {
       return NextResponse.json(
         {
           canBorrow: false,
-          reason: 'borrow_limit_reached',
-          message: `You've reached your active borrow limit (${activeBorrowCount}/${limits.maxBorrows})`,
-          tier: effectiveTier,
-          currentBorrows: activeBorrowCount,
-          maxBorrows: limits.maxBorrows,
-          action: `Wait for a borrow to complete, or upgrade to ${effectiveTier === 'basic' ? 'Standard' : 'Pro'}`,
-          actionType: effectiveTier === 'basic' ? 'upgrade_to_standard' : 'upgrade_to_pro',
+          reason: 'cannot_borrow_own_tool',
+          message: 'You cannot rent your own tools',
         },
         { status: 403 }
       );
     }
 
-    // Check tool value against tier limit
-    if (tool.tool_value > limits.maxValue) {
-      return NextResponse.json(
-        {
-          canBorrow: false,
-          reason: 'value_limit_exceeded',
-          message: `Tool value (£${tool.tool_value}) exceeds your limit`,
-          tier: effectiveTier,
-          toolValue: tool.tool_value,
-          userValueLimit: limits.maxValue,
-          action: `Upgrade to ${effectiveTier === 'basic' ? 'Standard (£300 limit)' : 'Pro (£1,000 limit)'} to borrow this tool`,
-          actionType: effectiveTier === 'basic' ? 'upgrade_to_standard' : 'upgrade_to_pro',
-        },
-        { status: 403 }
-      );
-    }
-
-    // Calculate duration and check against limit
+    // Calculate duration
     const start = new Date(startDate);
     const end = new Date(endDate);
     const durationDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
 
-    if (durationDays > limits.maxDays) {
+    if (durationDays < 1) {
       return NextResponse.json(
         {
           canBorrow: false,
-          reason: 'duration_exceeds_limit',
-          message: `Borrow duration (${durationDays} days) exceeds your limit`,
-          tier: effectiveTier,
-          requestedDays: durationDays,
-          maxDays: limits.maxDays,
-          action: `Shorten your borrow to ${limits.maxDays} days, or upgrade to ${effectiveTier === 'basic' ? 'Standard (7 days)' : 'Pro (14 days)'}`,
-          actionType: effectiveTier === 'basic' ? 'upgrade_to_standard' : 'upgrade_to_pro',
+          reason: 'invalid_duration',
+          message: 'Rental duration must be at least 1 day',
         },
-        { status: 403 }
+        { status: 400 }
       );
     }
 
-    // All checks passed
+    // Calculate rental cost
+    const dailyRate = tool.daily_rental_rate || 3; // Default £3/day if not set
+    const rentalCost = dailyRate * durationDays;
+    const damageProtectionFee = 2.99; // Fixed protection fee per rental
+    const totalCost = rentalCost + damageProtectionFee;
+
+    // All checks passed - user can proceed to payment
     return NextResponse.json(
       {
         canBorrow: true,
-        tier: effectiveTier,
-        limits: {
-          maxBorrows: limits.maxBorrows,
-          currentBorrows: activeBorrowCount,
-          maxValue: limits.maxValue,
-          maxDays: limits.maxDays,
-        },
         tool: {
-          value: tool.tool_value,
+          id: toolId,
+          dailyRate,
           durationDays,
+          rentalCost: parseFloat(rentalCost.toFixed(2)),
+          damageProtectionFee,
+          totalCost: parseFloat(totalCost.toFixed(2)),
         },
       },
       { status: 200 }
