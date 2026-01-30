@@ -103,19 +103,22 @@ export async function PUT(request: NextRequest) {
     }
 
     // Step 7: Update tool
+    const updatePayload: any = {};
+    
+    if (updateData.name !== undefined) updatePayload.name = updateData.name;
+    if (updateData.category !== undefined) updatePayload.category = updateData.category;
+    if (sanitizedDescription !== undefined) updatePayload.description = sanitizedDescription;
+    if (updateData.condition !== undefined) updatePayload.condition = updateData.condition;
+    if (updateData.tool_value !== undefined) updatePayload.tool_value = updateData.tool_value;
+    if (updateData.postcode !== undefined) updatePayload.postcode = updateData.postcode;
+    if (updateData.image_url !== undefined) updatePayload.image_url = updateData.image_url;
+    if (updateData.daily_rate !== undefined) updatePayload.daily_rate = updateData.daily_rate;
+    
+    updatePayload.updated_at = new Date().toISOString();
+
     const { data: updatedTool, error: updateError } = await supabase
       .from('tools')
-      .update({
-        name: updateData.name,
-        category: updateData.category,
-        description: sanitizedDescription,
-        condition: updateData.condition,
-        ...(updateData.tool_value !== undefined && { tool_value: updateData.tool_value }),
-        ...(updateData.daily_rate !== undefined && { daily_rate: updateData.daily_rate }),
-        ...(updateData.postcode && { postcode: updateData.postcode }),
-        ...(updateData.image_url && { image_url: updateData.image_url }),
-        updated_at: new Date().toISOString(),
-      })
+      .update(updatePayload)
       .eq('id', toolId)
       .select()
       .single();
