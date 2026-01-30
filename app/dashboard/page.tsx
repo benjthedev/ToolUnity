@@ -490,7 +490,7 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
 
         {/* Email Verification Badge */}
-        {session?.user?.email_confirmed && (
+        {session?.user?.emailVerified && (
           <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg p-4 w-fit">
             <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
               <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
