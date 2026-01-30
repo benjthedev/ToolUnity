@@ -224,7 +224,7 @@ export default function PricingPage() {
                   <p className="text-3xl font-bold text-green-600">{ownerStats.toolsCount}</p>
                 </div>
                 <div className="bg-white rounded-lg p-4 text-center">
-                  <p className="text-gray-600 text-sm mb-2">Earn 70% Per Rental</p>
+                  <p className="text-gray-600 text-sm mb-2">Earn 85% Per Rental</p>
                   <p className="text-3xl font-bold text-green-600">You set the price</p>
                   <p className="text-xs text-gray-600 mt-2">Get paid monthly</p>
                 </div>

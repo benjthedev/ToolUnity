@@ -20,7 +20,7 @@ import { ZodError } from 'zod';
  * - Return payment details for Stripe checkout
  * 
  * Payment is processed BEFORE the rental is confirmed
- * (70% goes to owner, 30% to platform for protection + operations)
+ * (85% goes to owner, 15% to platform for protection + operations)
  */
 export async function POST(request: NextRequest) {
   try {

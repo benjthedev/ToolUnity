@@ -249,7 +249,7 @@ export default function ProfilePage() {
 
                 <div className="space-y-3 text-sm">
                   <p className="text-gray-600">
-                    List tools to earn 70% of each rental. No fees until you make money!
+                    List tools to earn 85% of each rental. No fees until you make money!
                   </p>
                 </div>
               </div>

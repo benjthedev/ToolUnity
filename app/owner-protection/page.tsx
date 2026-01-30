@@ -41,7 +41,7 @@ export default function OwnerProtectionPage() {
 
             {/* Earn Money */}
             <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
-              <div className="text-3xl font-bold text-blue-600 mb-3">70%</div>
+              <div className="text-3xl font-bold text-blue-600 mb-3">85%</div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Your Earnings</h3>
               <p className="text-gray-700 text-sm">
                 You keep 85% of every rental. Set your own daily rates (£1-5+/day) and earn from idle tools.
@@ -78,7 +78,7 @@ export default function OwnerProtectionPage() {
             <div className="border-l-4 border-blue-600 pl-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">4. Get Paid</h3>
               <p className="text-gray-700">
-                You receive 70% of the rental fee. Payments are processed securely through Stripe.
+                You receive 85% of the rental fee. Payments are processed securely through Stripe.
               </p>
             </div>
           </div>
@@ -121,7 +121,7 @@ export default function OwnerProtectionPage() {
         {/* CTA */}
         <section className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-8 text-center text-white">
           <h2 className="text-2xl font-bold mb-4">Ready to Start Earning?</h2>
-          <p className="mb-6">List your first tool and start earning 70% of every rental.</p>
+          <p className="mb-6">List your first tool and start earning 85% of every rental.</p>
           <Link
             href="/tools/add"
             className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"

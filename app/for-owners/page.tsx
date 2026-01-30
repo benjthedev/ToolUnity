@@ -73,7 +73,7 @@ export default function ForOwnersPage() {
           <section className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-lg p-8">
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-2 text-center">How Much Can You Earn?</h2>
-              <p className="text-center text-gray-600 mb-8">Simple pay-per-rental model. You set the price, you get 70%.</p>
+              <p className="text-center text-gray-600 mb-8">Simple pay-per-rental model. You set the price, you get 85%.</p>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white rounded-lg p-6 border border-green-200">
@@ -87,9 +87,9 @@ export default function ForOwnersPage() {
                 </div>
 
                 <div className="bg-white rounded-lg p-6 border-2 border-green-500">
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold">YOU GET 70%</div>
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold">YOU GET 85%</div>
                   <p className="text-sm text-gray-600 mb-2 font-semibold">Simple Split</p>
-                  <p className="text-3xl font-bold text-green-600 mb-4">70% Owner</p>
+                  <p className="text-3xl font-bold text-green-600 mb-4">85% Owner</p>
                   <div className="space-y-3 text-sm text-gray-700">
                     <p>Of every rental</p>
                     <p className="text-lg font-semibold text-green-600">No hidden fees</p>
@@ -156,7 +156,7 @@ export default function ForOwnersPage() {
               <div className="flex-shrink-0 w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-bold">4</div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">Receive Payouts</h3>
-                <p className="text-gray-700">Get paid 70% of every rental automatically. Monthly payouts go straight to your bank account.</p>
+                <p className="text-gray-700">Get paid 85% of every rental automatically. Monthly payouts go straight to your bank account.</p>
               </div>
             </div>
           </div>
@@ -172,7 +172,7 @@ export default function ForOwnersPage() {
               <p className="text-sm text-gray-600 mt-2">(You set the daily rate)</p>
             </div>
             <div>
-              <p className="text-gray-600 mb-2">You Earn (70%)</p>
+              <p className="text-gray-600 mb-2">You Earn (85%)</p>
               <p className="text-3xl font-bold text-green-600">£X × 0.7</p>
               <p className="text-sm text-gray-600 mt-2">Per rental day</p>
             </div>
@@ -183,7 +183,7 @@ export default function ForOwnersPage() {
             </div>
           </div>
           <p className="text-center text-gray-700 mt-6">
-            No hidden fees. You set the price, renters pay per day, you get 70%. That's it.
+            No hidden fees. You set the price, renters pay per day, you get 85%. That's it.
           </p>
         </section>
 
@@ -248,7 +248,7 @@ export default function ForOwnersPage() {
         <section className="text-center py-12 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Ready to Start Earning?</h2>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            List your tools free. Set your own prices. Start earning 70% on every rental. No memberships, no hidden fees.
+            List your tools free. Set your own prices. Start earning 85% on every rental. No memberships, no hidden fees.
           </p>
           {session ? (
             <Link
