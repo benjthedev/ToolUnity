@@ -327,8 +327,31 @@ export default function ToolDetailPage() {
                 </span>
               </div>
 
-              {/* Show current tier context before borrow button */}
+              {/* Rental Pricing Info - Always Show */}
               {session && session.user?.id !== tool.owner_id && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
+                  <div className="flex items-start gap-4">
+                    <div className="text-2xl">💰</div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-gray-900 mb-3">Rental Price</h3>
+                      <div className="bg-white rounded p-3 mb-3">
+                        <p className="text-sm text-gray-700 mb-2">
+                          <strong>£{tool?.daily_rental_rate || '3.00'} per day</strong> + £2.99 damage protection
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          Select dates above to see your total rental cost
+                        </p>
+                      </div>
+                      <p className="text-sm text-gray-700">
+                        ✓ No membership required—just pay for what you rent
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Old Tier Section - Hide in Rental Model */}
+              {false && session && session.user?.id !== tool.owner_id && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
                   <div className="flex items-start gap-4">
                     <div className="text-2xl">📋</div>
@@ -392,7 +415,7 @@ export default function ToolDetailPage() {
                   onClick={handleShowBorrowForm}
                   className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors mb-8"
                 >
-                  {showBorrowForm ? 'Cancel' : 'Request to Borrow'}
+                  {showBorrowForm ? 'Close' : 'Rent This Tool'}
                 </button>
               ) : !session ? (
                 <Link
@@ -415,43 +438,28 @@ export default function ToolDetailPage() {
                 <p className="text-gray-700 leading-relaxed text-lg">{sanitizeHtml(tool.description)}</p>
               </div>
 
-              {/* Borrowing Rules */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">Borrowing Rules</h3>
+              {/* Rental Pricing Info */}
+              <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">How Rental Works</h3>
                 <p className="text-sm text-gray-700 mb-4">
-                  Get access to these tiers two ways: subscribe directly, or list tools. Both paths unlock the same limits.
+                  No membership required—just pay for the rental period you need.
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                  <div className="bg-white p-4 rounded border border-gray-200">
-                    <p className="font-semibold text-gray-900 mb-2">Basic</p>
-                    <p className="text-xs text-gray-600 mb-3">£2/mo or list 1 tool</p>
-                    <ul className="space-y-1 text-gray-700">
-                      <li>• Max 1 active borrow</li>
-                      <li>• Up to £100 value</li>
-                      <li>• Up to 3 days</li>
-                    </ul>
-                  </div>
-                  <div className="bg-white p-4 rounded border border-gray-200">
-                    <p className="font-semibold text-gray-900 mb-2">Standard</p>
-                    <p className="text-xs text-gray-600 mb-3">£10/mo or list 3 tools</p>
-                    <ul className="space-y-1 text-gray-700">
-                      <li>• Max 2 active borrows</li>
-                      <li>• Up to £300 value</li>
-                      <li>• Up to 7 days</li>
-                    </ul>
-                  </div>
-                  <div className="bg-white p-4 rounded border border-gray-200">
-                    <p className="font-semibold text-gray-900 mb-2">Pro</p>
-                    <p className="text-xs text-gray-600 mb-3">£25/mo only</p>
-                    <ul className="space-y-1 text-gray-700">
-                      <li>• Max 5 active borrows</li>
-                      <li>• Up to £1,000 value</li>
-                      <li>• Up to 14 days</li>
-                    </ul>
-                  </div>
+                <div className="bg-white p-4 rounded border border-green-300 mb-4">
+                  <p className="text-sm text-gray-600 mb-2">Daily Rental Rate</p>
+                  <p className="text-2xl font-bold text-green-600">£{tool?.daily_rental_rate || '3.00'}/day</p>
+                  <p className="text-xs text-gray-600 mt-1">Plus £2.99 damage protection per rental</p>
+                </div>
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+                  <p className="font-semibold text-gray-900 mb-2">✓ What's Included</p>
+                  <ul className="space-y-2 text-sm text-gray-700">
+                    <li>• No hidden fees—you see the total before paying</li>
+                    <li>• Damage protection covers accidental breakage</li>
+                    <li>• Owner gets 70% of rental, ToolUnity keeps 30%</li>
+                    <li>• Flexible rental periods—rent for 1 day or longer</li>
+                  </ul>
                 </div>
                 <p className="text-xs text-gray-600 mt-4">
-                  Learn more about our <Link href="/safety" className="text-blue-600 hover:text-blue-700 font-semibold">damage protection and borrowing rules</Link>.
+                  Learn more about our <Link href="/safety" className="text-blue-600 hover:text-blue-700 font-semibold">damage protection policy</Link>.
                 </p>
               </div>
             </div>
@@ -619,11 +627,11 @@ export default function ToolDetailPage() {
                   </div>
 
                   <form onSubmit={handleBorrowSubmit} className="bg-blue-50 border border-blue-200 rounded-lg p-8 mt-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Request to Borrow</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Rent This Tool</h2>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-900 mb-2">
-                          Start Date *
+                          Rental Start Date *
                         </label>
                         <input
                           type="date"
@@ -637,7 +645,7 @@ export default function ToolDetailPage() {
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-900 mb-2">
-                          End Date *
+                          Rental End Date *
                         </label>
                         <input
                           type="date"
@@ -649,18 +657,56 @@ export default function ToolDetailPage() {
                           }
                         />
                       </div>
+
+                      {/* Show rental cost if dates are selected */}
+                      {borrowData.startDate && borrowData.endDate && (
+                        <div className="bg-white p-4 rounded-lg border-2 border-green-300 mt-6">
+                          <p className="text-sm text-gray-600 mb-2">Rental Cost Summary</p>
+                          {
+                            (() => {
+                              const start = new Date(borrowData.startDate);
+                              const end = new Date(borrowData.endDate);
+                              const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+                              const dailyRate = tool?.daily_rental_rate || 3;
+                              const rentalCost = (dailyRate * days).toFixed(2);
+                              const protection = 2.99;
+                              const total = (parseFloat(rentalCost) + protection).toFixed(2);
+                              
+                              return (
+                                <>
+                                  <div className="space-y-2 mb-4">
+                                    <div className="flex justify-between">
+                                      <span className="text-gray-700">{days} day{days !== 1 ? 's' : ''} × £{dailyRate}/day</span>
+                                      <span className="font-semibold">£{rentalCost}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-gray-700">Damage protection</span>
+                                      <span className="font-semibold">£{protection.toFixed(2)}</span>
+                                    </div>
+                                  </div>
+                                  <div className="border-t border-gray-300 pt-2 flex justify-between">
+                                    <span className="font-bold text-gray-900">You'll pay:</span>
+                                    <span className="text-2xl font-bold text-green-600">£{total}</span>
+                                  </div>
+                                </>
+                              );
+                            })()
+                          }
+                        </div>
+                      )}
+
                       <div>
                         <label className="block text-sm font-semibold text-gray-900 mb-2">
-                          Notes (optional)
+                          Message to Owner (optional)
                         </label>
                         <textarea
                           className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          rows={4}
+                          rows={3}
                           value={borrowData.notes}
                           onChange={(e) =>
                             setBorrowData({ ...borrowData, notes: e.target.value })
                           }
-                          placeholder="Any special instructions or questions for the owner..."
+                          placeholder="Any questions or special instructions..."
                         />
                       </div>
                       <div className="flex gap-4">
@@ -669,7 +715,7 @@ export default function ToolDetailPage() {
                           disabled={submittingBorrow}
                           className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                         >
-                          {submittingBorrow ? 'Sending...' : 'Send Request'}
+                          {submittingBorrow ? 'Processing...' : 'Proceed to Payment'}
                         </button>
                         <button
                           type="button"
