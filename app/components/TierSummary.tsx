@@ -8,6 +8,7 @@ interface TierSummaryProps {
   isPaidTier: boolean;
   showNextUnlock?: boolean;
   compact?: boolean;
+  emailVerified?: boolean;
 }
 
 const tierLimits: Record<string, { maxBorrows: number; maxValue: number; maxDays: number }> = {
@@ -22,6 +23,7 @@ export default function TierSummary({
   isPaidTier,
   showNextUnlock = true,
   compact = false,
+  emailVerified = false,
 }: TierSummaryProps) {
   const limits = tierLimits[effectiveTier] || { maxBorrows: 0, maxValue: 0, maxDays: 0 };
   
@@ -88,7 +90,17 @@ export default function TierSummary({
         {/* Left: Tier Info */}
         <div>
           <div className="mb-6">
-            <p className="text-blue-100 text-sm font-semibold mb-2">YOUR TIER</p>
+            <div className="flex items-center gap-3 mb-2">
+              <p className="text-blue-100 text-sm font-semibold">YOUR TIER</p>
+              {emailVerified && (
+                <div className="flex items-center gap-1 bg-green-500/20 px-2 py-1 rounded-full">
+                  <svg className="w-4 h-4 text-green-200" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-xs font-semibold text-green-200">Email Verified</span>
+                </div>
+              )}
+            </div>
             <h3 className="text-4xl font-bold mb-3 capitalize">{effectiveTier}</h3>
             <div className="inline-block bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm font-semibold text-gray-900">
               {isPaidTier && toolsCount > 0 ? (
