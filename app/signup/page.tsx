@@ -109,8 +109,25 @@ export default function SignupPage() {
         return;
       }
 
-      // Redirect to login
-      router.push('/login?registered=true');
+      // Send verification email
+      try {
+        const emailResponse = await fetchWithCsrf('/api/send-verification-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email }),
+        });
+
+        if (!emailResponse.ok) {
+          // Email sending failed, but account was created
+          // Still redirect to verify-email-sent page
+          console.warn('Failed to send verification email, but account was created');
+        }
+      } catch (emailErr) {
+        console.warn('Error sending verification email:', emailErr);
+      }
+
+      // Redirect to email verification page
+      router.push(`/verify-email-sent?email=${encodeURIComponent(email)}`);
     } catch (err) {
       setError('An unexpected error occurred');
     } finally {
