@@ -208,6 +208,93 @@ export default function DashboardPage() {
 
           {loadingData ? (
             <p className="text-gray-600">Loading...</p>
+          ) : pendingRentals.length > 0 ? (
+            <>
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">Pending Payment</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {pendingRentals.map((rental) => (
+                    <div key={rental.id} className="bg-white rounded-lg border border-yellow-200 overflow-hidden shadow-sm">
+                      <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 border-b border-yellow-200">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="text-lg font-semibold text-gray-900">{rental.tools?.name}</h3>
+                            <p className="text-gray-600 text-sm mt-1">Awaiting payment confirmation</p>
+                          </div>
+                          <span className="bg-yellow-100 text-yellow-800 text-xs px-3 py-1 rounded-full font-semibold">
+                            ⏳ Pending
+                          </span>
+                        </div>
+                      </div>
+                      <div className="p-6 space-y-4">
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <p className="text-gray-600">From</p>
+                            <p className="font-semibold text-gray-900">{rental.start_date}</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-600">Until</p>
+                            <p className="font-semibold text-gray-900">{rental.end_date}</p>
+                          </div>
+                        </div>
+                        {rental.rental_cost && (
+                          <div className="bg-blue-50 rounded p-3 text-sm">
+                            <p className="text-gray-600">Rental Cost</p>
+                            <p className="font-semibold text-blue-600">£{rental.rental_cost.toFixed(2)}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {activeRentals.length > 0 && (
+                <>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4">Active Rentals</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {activeRentals.map((rental) => (
+                      <div key={rental.id} className="bg-white rounded-lg border border-green-200 overflow-hidden shadow-sm">
+                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 border-b border-green-200">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="text-lg font-semibold text-gray-900">{rental.tools?.name}</h3>
+                              <p className="text-gray-600 text-sm mt-1">£{rental.daily_rental_rate || 0}/day</p>
+                            </div>
+                            <span className="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-semibold">
+                              ✓ Active
+                            </span>
+                          </div>
+                        </div>
+                        <div className="p-6 space-y-4">
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <p className="text-gray-600">From</p>
+                              <p className="font-semibold text-gray-900">{rental.start_date}</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-600">Until</p>
+                              <p className="font-semibold text-gray-900">{rental.end_date}</p>
+                            </div>
+                          </div>
+                          {rental.rental_cost && (
+                            <div className="bg-blue-50 rounded p-3 text-sm">
+                              <p className="text-gray-600">Rental Cost</p>
+                              <p className="font-semibold text-blue-600">£{rental.rental_cost.toFixed(2)}</p>
+                            </div>
+                          )}
+                          <button
+                            onClick={() => handleReturn(rental.id)}
+                            className="w-full bg-red-100 text-red-700 py-2 rounded-lg hover:bg-red-200 font-semibold transition"
+                          >
+                            Mark as Returned
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </>
           ) : activeRentals.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {activeRentals.map((rental) => (
