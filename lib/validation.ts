@@ -39,11 +39,11 @@ export const ResetPasswordConfirmSchema = z.object({
 
 // Tool Schemas
 export const CreateToolSchema = z.object({
-  name: z.string().min(3, 'Tool name must be at least 3 characters').max(100, 'Tool name must be less than 100 characters'),
-  description: z.string().min(10, 'Description must be at least 10 characters').max(1000, 'Description must be less than 1000 characters'),
+  name: z.string().min(2, 'Tool name must be at least 2 characters').max(100, 'Tool name must be less than 100 characters'),
+  description: z.string().min(3, 'Description must be at least 3 characters').max(1000, 'Description must be less than 1000 characters').optional().default(''),
   category: z.string().min(1, 'Category is required'),
-  condition: z.enum(['good', 'fair', 'poor']).catch('good'),
-  daily_rate: z.number().min(0.5, 'Daily rate must be at least $0.50').max(500, 'Daily rate must be less than $500'),
+  condition: z.enum(['good', 'fair', 'poor', 'Good', 'Fair', 'Poor']).transform(v => v.toLowerCase()).catch('good'),
+  daily_rate: z.number().min(0.5, 'Daily rate must be at least £0.50').max(500, 'Daily rate must be less than £500'),
   images: z.array(z.string().url()).optional().default([]),
   image_url: z.string().url().optional(),
 });
