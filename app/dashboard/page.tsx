@@ -64,7 +64,7 @@ export default function DashboardPage() {
       // Fetch user's rentals (tools they rented)
       const { data: rentalData } = await supabase
         .from('rental_transactions')
-        .select('*, tools(name, owner_id, users_ext(email, phone_number))')
+        .select('*, tools(name, owner_id)')
         .eq('renter_id', session.user.id)
         .order('start_date', { ascending: false });
 
