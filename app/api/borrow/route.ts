@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     const sb = getSupabase();
     const { data: userProfile } = await sb
       .from('users_ext')
-      .select('stripe_customer_id, email')
+      .select('id, email')
       .eq('user_id', session.user.id)
       .single();
 
