@@ -134,6 +134,7 @@ export async function PUT(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
+    console.error('Tool update error:', error);
     if (error instanceof Error && error.message.includes('validation')) {
       return NextResponse.json(
         { error: 'Validation failed', reason: error.message },
@@ -142,7 +143,7 @@ export async function PUT(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

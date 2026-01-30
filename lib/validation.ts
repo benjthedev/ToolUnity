@@ -49,7 +49,15 @@ export const CreateToolSchema = z.object({
   image_url: z.string().url().optional(),
 });
 
-export const UpdateToolSchema = CreateToolSchema.partial();
+export const UpdateToolSchema = z.object({
+  name: z.string().min(2).max(100).optional(),
+  description: z.string().min(3).max(1000).optional(),
+  category: z.string().min(1).optional(),
+  condition: z.string().transform(v => v.toLowerCase()).optional(),
+  daily_rate: z.number().min(0.5).max(500).optional(),
+  tool_value: z.number().min(1).max(10000).optional(),
+  image_url: z.string().url().optional(),
+});
 
 // Borrow Request Schemas
 export const BorrowRequestSchema = z.object({
