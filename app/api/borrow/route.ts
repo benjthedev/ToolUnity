@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
     const { data: rentalTransaction, error: createError } = await sb
       .from('rental_transactions')
       .insert({
-        borrower_id: session.user.id,
+        renter_id: session.user.id,
         tool_id: toolId,
         owner_id: tool.owner_id,
         start_date: startDate,

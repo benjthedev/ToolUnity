@@ -82,13 +82,37 @@ export async function POST(request: NextRequest) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
         
-        // Get the subscription details
+        // Check if this is a rental payment (one-time) or subscription
+        const metadata = session.metadata || {};
+        
+        if (metadata.type === 'rental_payment' && metadata.rental_transaction_id) {
+          // Handle rental payment completion
+          const rentalId = metadata.rental_transaction_id;
+          
+          const { error: updateError } = await getSupabase()
+            .from('rental_transactions')
+            .update({
+              status: 'active',
+              payment_completed_at: new Date().toISOString(),
+              stripe_payment_intent_id: session.payment_intent as string,
+            })
+            .eq('id', rentalId);
+          
+          if (updateError) {
+            serverLog.error('Error updating rental transaction:', updateError);
+          } else {
+            serverLog.info(`Rental ${rentalId} payment completed - status set to active`);
+          }
+          break;
+        }
+        
+        // Legacy: Handle subscription payments (for backwards compatibility)
         if (session.subscription) {
           const subscription = await getStripe().subscriptions.retrieve(
             session.subscription as string
           );
           
-          // Update user tier based on price ID
+          // Update user tier based on price ID (legacy subscription model)
           const priceId = subscription.items.data[0].price.id;
           let tier = 'none';
           
@@ -100,8 +124,8 @@ export async function POST(request: NextRequest) {
             tier = 'pro';
           }
           
-          // Update the user's subscription tier and mark trial as used
-          const { error } = await supabase
+          // Update the user's subscription tier
+          const { error } = await getSupabase()
             .from('users_ext')
             .update({
               subscription_tier: tier,
@@ -120,7 +144,6 @@ export async function POST(request: NextRequest) {
 
       case 'customer.subscription.updated': {
         // Subscription updates are handled via checkout.session.completed
-        // This event fires too early before we can link the subscription
         serverLog.debug('Subscription updated - handled via checkout.session.completed');
         break;
       }
@@ -145,7 +168,7 @@ export async function POST(request: NextRequest) {
           }
           
           if (data) {
-            const { error: updateError } = await supabase
+            const { error: updateError } = await getSupabase()
               .from('users_ext')
               .update({
                 subscription_tier: 'none',

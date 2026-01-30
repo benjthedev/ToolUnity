@@ -12,33 +12,38 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Fetch borrow requests for user's tools
+    // Fetch rental requests for owner's tools
     const { data: requests, error } = await supabase
-      .from('borrow_requests')
+      .from('rental_transactions')
       .select(
         `
         id,
-        user_id,
+        renter_id,
         tool_id,
         start_date,
         end_date,
+        duration_days,
+        daily_rate,
+        rental_cost,
+        total_cost,
         notes,
         status,
         created_at,
-        tools (
+        tools:tool_id (
           id,
           name,
           owner_id
         ),
-        users:user_id (
+        renter:renter_id (
           email
         )
       `
       )
-      .eq('tools.owner_id', session.user.id)
+      .eq('owner_id', session.user.id)
       .order('created_at', { ascending: false });
 
     if (error) {
+      serverLog.error('Error fetching owner requests:', error);
       return NextResponse.json({ error: 'Error fetching requests' }, { status: 500 });
     }
 
@@ -65,29 +70,28 @@ export async function PATCH(request: NextRequest) {
     const body = await request.json();
     const { requestId, status } = body;
 
-    if (!requestId || !['approved', 'rejected'].includes(status)) {
+    if (!requestId || !['approved', 'rejected', 'active', 'completed'].includes(status)) {
       return NextResponse.json({ error: 'Invalid request or status' }, { status: 400 });
     }
 
-    // Verify user owns the tool for this borrow request (CRITICAL: prevent unauthorized updates)
-    const { data: borrowRequest, error: fetchError } = await supabase
-      .from('borrow_requests')
-      .select('tool_id, tools(owner_id)')
+    // Verify user owns the tool for this rental request
+    const { data: rentalRequest, error: fetchError } = await supabase
+      .from('rental_transactions')
+      .select('tool_id, owner_id')
       .eq('id', requestId)
       .single();
 
-    if (fetchError || !borrowRequest) {
+    if (fetchError || !rentalRequest) {
       return NextResponse.json({ error: 'Request not found' }, { status: 404 });
     }
 
-    const tool = Array.isArray(borrowRequest.tools) ? borrowRequest.tools[0] : borrowRequest.tools;
-    if (!tool || tool.owner_id !== session.user.id) {
+    if (rentalRequest.owner_id !== session.user.id) {
       return NextResponse.json({ error: 'Unauthorized: You do not own this tool' }, { status: 403 });
     }
 
-    // Update borrow request status
+    // Update rental request status
     const { data: updatedRequest, error } = await supabase
-      .from('borrow_requests')
+      .from('rental_transactions')
       .update({ status })
       .eq('id', requestId)
       .select()

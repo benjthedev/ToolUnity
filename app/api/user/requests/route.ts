@@ -12,26 +12,31 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Fetch user's borrow requests
+    // Fetch user's rental transactions
     const { data: requests, error } = await supabase
-      .from('borrow_requests')
+      .from('rental_transactions')
       .select(
         `
         id,
         tool_id,
         start_date,
         end_date,
+        duration_days,
+        daily_rate,
+        rental_cost,
+        total_cost,
         notes,
         status,
         created_at,
-        tools (
+        tools:tool_id (
           name,
           category,
-          tool_value
+          tool_value,
+          daily_rate
         )
       `
       )
-      .eq('user_id', session.user.id)
+      .eq('renter_id', session.user.id)
       .order('created_at', { ascending: false });
 
     if (error) {
