@@ -132,7 +132,8 @@ export default function ToolsPage() {
         query = query.eq('category', filters.category);
       }
       if (filters.postcode) {
-        query = query.eq('postcode', filters.postcode);
+        // Use ilike for partial postcode matching (case-insensitive)
+        query = query.ilike('postcode', `${filters.postcode.toUpperCase()}%`);
       }
       if (filters.availability) {
         query = query.eq('available', true);
@@ -159,24 +160,17 @@ export default function ToolsPage() {
         // Calculate total pages
         const calculated = count ? Math.ceil(count / pageSize) : 1;
         setTotalPages(calculated);
-      } else if (currentPage === 1) {
-        // Only show demo on first page if no data
-        setTools(MOCK_TOOLS);
-        setUseMockData(true);
-        setTotalPages(1);
       } else {
+        // No tools found matching filters
         setTools([]);
+        setUseMockData(false);
         setTotalPages(1);
       }
     } catch (err) {
-      if (currentPage === 1) {
-        setTools(MOCK_TOOLS);
-        setUseMockData(true);
-        setTotalPages(1);
-      } else {
-        setTools([]);
-        setTotalPages(1);
-      }
+      // Database error - show empty state
+      setTools([]);
+      setUseMockData(false);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
