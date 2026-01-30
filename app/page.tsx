@@ -227,11 +227,11 @@ export default function Home() {
             {/* Step 2: Borrow */}
             <div className="bg-white rounded-lg border border-gray-200 p-8 shadow-sm hover:shadow-md transition">
               <div className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full font-bold mb-6">2</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Borrow with Confidence</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Rent with Confidence</h3>
               <p className="text-gray-700 text-sm mb-3">
-                Request a tool, meet the owner, and borrow it. If any damage happens, it's covered up to your protection tier (£100–£300).
+                Find a tool, pay the daily rate, and pick it up. Simple per-day pricing with no hidden fees.
               </p>
-              <p className="text-xs text-blue-600 font-semibold">✓ No damage surprises</p>
+              <p className="text-xs text-blue-600 font-semibold">✓ No membership required</p>
             </div>
 
             {/* Step 3: Return */}
@@ -287,10 +287,10 @@ export default function Home() {
       <section className="bg-gradient-to-r from-emerald-50 to-cyan-50 border-t-4 border-emerald-400 py-16 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <div className="text-5xl mb-4">🎁</div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">Share 3 Tools, Get Standard for Free</h2>
+            <div className="text-5xl mb-4">💰</div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">Earn Money From Your Tools</h2>
             <p className="text-xl text-gray-700 max-w-2xl mx-auto">
-              Tool owners who list 3 or more active tools automatically receive our Standard plan benefits at no cost.
+              Turn your idle tools into income. You keep 70% of every rental—we handle the rest.
             </p>
           </div>
 
@@ -300,19 +300,19 @@ export default function Home() {
               <ul className="space-y-3 text-gray-700">
                 <li className="flex items-start gap-3">
                   <span className="text-emerald-600 font-bold text-lg">✓</span>
-                  <span>Borrow 2 tools at once</span>
+                  <span>Keep 70% of every rental</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-emerald-600 font-bold text-lg">✓</span>
-                  <span>Borrow tools up to £300 value</span>
+                  <span>Set your own daily rates (£1-5+/day)</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-emerald-600 font-bold text-lg">✓</span>
-                  <span>Keep tools for 7 days</span>
+                  <span>Approve or decline any request</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-emerald-600 font-bold text-lg">✓</span>
-                  <span>£0 monthly charge</span>
+                  <span>No listing fees—pay nothing until you earn</span>
                 </li>
               </ul>
             </div>
@@ -322,19 +322,19 @@ export default function Home() {
               <ol className="space-y-3 text-gray-700">
                 <li className="flex items-start gap-3">
                   <span className="text-emerald-600 font-bold text-lg">1</span>
-                  <span>List your first tool</span>
+                  <span>List your tool with photos and daily rate</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-emerald-600 font-bold text-lg">2</span>
-                  <span>List your second tool</span>
+                  <span>Renters find and request your tool</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-emerald-600 font-bold text-lg">3</span>
-                  <span>List your third tool</span>
+                  <span>Approve the request and arrange pickup</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="text-emerald-600 font-bold text-lg">✨</span>
-                  <span><strong>Automatically upgraded</strong> — no action needed</span>
+                  <span className="text-emerald-600 font-bold text-lg">💵</span>
+                  <span><strong>Get paid</strong> — 70% goes directly to you</span>
                 </li>
               </ol>
             </div>
@@ -362,10 +362,10 @@ export default function Home() {
           <div>
             <h4 className="text-2xl font-semibold text-green-600 mb-4">💰 Save Hundreds</h4>
             <p className="text-gray-600 mb-4">
-              A power drill costs £50-200 new. Most homeowners use them once a year. Borrow instead for free or for a few pounds on premium plans.
+              A power drill costs £50-200 new. Most homeowners use them once a year. Rent instead for just £1-5 per day.
             </p>
             <p className="text-gray-600">
-              Premium tiers cost just £10-£25/month and unlock higher borrowing limits. No per-use fees.
+              No membership fees—just pay for what you need, when you need it.
             </p>
           </div>
           <div>
@@ -389,10 +389,10 @@ export default function Home() {
           <div>
             <h4 className="text-2xl font-semibold text-orange-600 mb-4">🤝 Trust & Safety</h4>
             <p className="text-gray-600 mb-4">
-              Every member is verified and reviewed. If a tool is damaged during a borrow, we guarantee the owner will be compensated in full.
+              Every member is verified and reviewed. You choose who rents your tools.
             </p>
             <p className="text-gray-600">
-              Both borrowers and lenders can have complete peace of mind with our comprehensive damage protection guarantee.
+              Both renters and owners communicate directly to ensure smooth handoffs.
             </p>
           </div>
         </div>

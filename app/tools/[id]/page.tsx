@@ -6,8 +6,6 @@ import { useParams } from 'next/navigation';
 import { useAuth } from '@/app/providers';
 import { getSupabase } from '@/lib/supabase';
 import { fetchWithCsrf } from '@/app/utils/csrf-client';
-import TierSummary from '@/app/components/TierSummary';
-import ToolOwnerBadge from '@/app/components/ToolOwnerBadge';
 import { showToast } from '@/app/utils/toast';
 import { sanitizeHtml } from '@/lib/sanitizer';
 
@@ -20,7 +18,6 @@ export default function ToolDetailPage() {
   const [loading, setLoading] = useState(true);
   const [ownerName, setOwnerName] = useState('');
   const [ownerToolsCount, setOwnerToolsCount] = useState(0);
-  const [ownerSubscriptionTier, setOwnerSubscriptionTier] = useState('none');
   const [showBorrowForm, setShowBorrowForm] = useState(false);
   const [borrowData, setBorrowData] = useState({
     startDate: '',
@@ -30,13 +27,6 @@ export default function ToolDetailPage() {
   const [borrowSuccess, setBorrowSuccess] = useState<any>(null);
   const [borrowError, setBorrowError] = useState<any>(null);
   const [submittingBorrow, setSubmittingBorrow] = useState(false);
-  const [userPaymentInfo, setUserPaymentInfo] = useState<any>(null);
-  const [loadingPaymentInfo, setLoadingPaymentInfo] = useState(false);
-  const [userTier, setUserTier] = useState<string | null>(null);
-  const [userToolsCount, setUserToolsCount] = useState(0);
-  const [userIsPaidTier, setUserIsPaidTier] = useState(false);
-  const [userActiveBorrows, setUserActiveBorrows] = useState(0);
-  const [loadingUserTier, setLoadingUserTier] = useState(true);
 
   useEffect(() => {
     const fetchTool = async () => {
@@ -61,14 +51,13 @@ export default function ToolDetailPage() {
         if (toolData.owner_id) {
           const { data: ownerData } = await sb
             .from('users_ext')
-            .select('user_id, username, email, tools_count, subscription_tier')
+            .select('user_id, username, email, tools_count')
             .eq('user_id', toolData.owner_id)
             .single();
           
           if (ownerData) {
             setOwnerName(ownerData.username || ownerData.email?.split('@')[0] || 'Unknown Owner');
             setOwnerToolsCount(ownerData.tools_count || 0);
-            setOwnerSubscriptionTier(ownerData.subscription_tier || 'none');
           }
         }
       } catch (err) {
@@ -80,54 +69,6 @@ export default function ToolDetailPage() {
 
     fetchTool();
   }, [toolId]);
-
-  // Fetch user's tier information when logged in
-  useEffect(() => {
-    if (session?.user?.id) {
-      const fetchUserTier = async () => {
-        try {
-          const sb = getSupabase();
-          const { data } = await sb
-            .from('users_ext')
-            .select('subscription_tier, tools_count')
-            .eq('user_id', session?.user?.id || '')
-            .single();
-          
-          // Fetch active borrow count
-          const { data: activeBorrows } = await sb
-            .from('borrow_requests')
-            .select('id')
-            .eq('user_id', session?.user?.id || '')
-            .eq('status', 'approved');
-          
-          if (data) {
-            const subTier = data.subscription_tier || 'none';
-            setUserToolsCount(data.tools_count || 0);
-            setUserActiveBorrows(activeBorrows?.length || 0);
-            
-            // Check if paid tier
-            const hasPaid = subTier && !['none', 'free'].includes(subTier);
-            setUserIsPaidTier(hasPaid);
-            
-            // Calculate effective tier
-            let effectiveTier = subTier;
-            if (data.tools_count >= 3) {
-              effectiveTier = 'standard';
-            } else if (data.tools_count >= 1 && (subTier === 'none' || subTier === 'free' || subTier === 'basic')) {
-              effectiveTier = 'basic';
-            }
-            setUserTier(effectiveTier);
-          }
-        } catch (err) {
-        } finally {
-          setLoadingUserTier(false);
-        }
-      };
-      fetchUserTier();
-    } else {
-      setLoadingUserTier(false);
-    }
-  }, [session?.user?.id]);
 
   if (loading) {
     return (
@@ -234,19 +175,20 @@ export default function ToolDetailPage() {
         return;
       }
 
-      // Show success state with tier info
+      // Show success state with rental info
+      const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+      const dailyRate = tool?.daily_rental_rate || 3;
+      const rentalCost = dailyRate * days;
+      
       setBorrowSuccess({
-        tier: userTier,
         toolValue: tool.tool_value,
-        tierLimits: {
-          basic: { maxValue: 100, maxBorrows: 1 },
-          standard: { maxValue: 300, maxBorrows: 2 },
-          pro: { maxValue: 1000, maxBorrows: 5 },
-        }[userTier || 'basic'],
         startDate: borrowData.startDate,
         endDate: borrowData.endDate,
+        rentalDays: days,
+        dailyRate: dailyRate,
+        rentalCost: rentalCost.toFixed(2),
       });
-      showToast('Borrow request submitted successfully!', 'success');
+      showToast('Rental request submitted successfully!', 'success');
       setShowBorrowForm(false);
     } catch (error) {
       setBorrowError({
@@ -296,11 +238,11 @@ export default function ToolDetailPage() {
                   <p className="text-gray-600 text-sm mb-2">Owner</p>
                   <div className="flex items-center gap-3">
                     <p className="text-lg font-semibold text-gray-900">{ownerName}</p>
-                    <ToolOwnerBadge 
-                      toolsCount={ownerToolsCount} 
-                      subscriptionTier={ownerSubscriptionTier}
-                      size="sm"
-                    />
+                    {ownerToolsCount >= 3 && (
+                      <span className="px-2 py-1 bg-amber-100 text-amber-800 text-xs font-semibold rounded-full">
+                        ⭐ Top Owner
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-lg">
@@ -336,75 +278,15 @@ export default function ToolDetailPage() {
                       <h3 className="font-bold text-gray-900 mb-3">Rental Price</h3>
                       <div className="bg-white rounded p-3 mb-3">
                         <p className="text-sm text-gray-700 mb-2">
-                          <strong>£{tool?.daily_rental_rate || '3.00'} per day</strong> + £2.99 damage protection
+                          <strong>£{tool?.daily_rental_rate || '3.00'} per day</strong>
                         </p>
                         <p className="text-xs text-gray-600">
-                          Select dates above to see your total rental cost
+                          Select dates below to see your total rental cost
                         </p>
                       </div>
                       <p className="text-sm text-gray-700">
                         ✓ No membership required—just pay for what you rent
                       </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Old Tier Section - Hide in Rental Model */}
-              {false && session && session.user?.id !== tool.owner_id && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-                  <div className="flex items-start gap-4">
-                    <div className="text-2xl">📋</div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-gray-900 mb-3">Your Borrowing Limits</h3>
-                      {!loadingUserTier && userTier && userTier !== 'none' ? (
-                        <div>
-                          <div className="bg-white rounded p-3 mb-3">
-                            <p className="text-sm text-gray-700 mb-2">
-                              <strong>Current tier:</strong> {userTier === 'basic' ? '🛠️ Basic' : userTier === 'standard' ? '⚙️ Standard' : '⭐ Pro'}
-                            </p>
-                            {userIsPaidTier ? (
-                              <p className="text-xs text-blue-700 font-semibold">✓ Paid subscription active</p>
-                            ) : (
-                              <p className="text-xs text-gray-600">Free tier from listing {userToolsCount} tool{userToolsCount !== 1 ? 's' : ''}</p>
-                            )}
-                          </div>
-                          <div className="grid grid-cols-3 gap-2 text-sm">
-                            <div className="bg-white rounded p-2">
-                              <p className="text-gray-600 text-xs">Active Borrows</p>
-                              <p className="font-bold text-gray-900">
-                                {userActiveBorrows}/{userTier === 'basic' ? '1' : userTier === 'standard' ? '2' : '5'}
-                              </p>
-                            </div>
-                            <div className="bg-white rounded p-2">
-                              <p className="text-gray-600 text-xs">Max Value</p>
-                              <p className="font-bold text-gray-900">
-                                £{userTier === 'basic' ? '100' : userTier === 'standard' ? '300' : '1000'}
-                              </p>
-                            </div>
-                            <div className="bg-white rounded p-2">
-                              <p className="text-gray-600 text-xs">Max Days</p>
-                              <p className="font-bold text-gray-900">
-                                {userTier === 'basic' ? '3' : userTier === 'standard' ? '7' : '14'}
-                              </p>
-                            </div>
-                          </div>
-                          {tool.tool_value && (
-                            <div className="mt-3 pt-3 border-t border-gray-200">
-                              <p className="text-sm text-gray-700">
-                                <strong>This tool:</strong> £{tool.tool_value}
-                                {tool.tool_value > (userTier === 'basic' ? 100 : userTier === 'standard' ? 300 : 1000) && (
-                                  <span className="text-red-600 ml-2">⚠️ Exceeds your limit</span>
-                                )}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <p className="text-sm text-gray-700">
-                          Join our community to borrow! Subscribe to a plan or list tools to unlock free membership.
-                        </p>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -447,20 +329,16 @@ export default function ToolDetailPage() {
                 <div className="bg-white p-4 rounded border border-green-300 mb-4">
                   <p className="text-sm text-gray-600 mb-2">Daily Rental Rate</p>
                   <p className="text-2xl font-bold text-green-600">£{tool?.daily_rental_rate || '3.00'}/day</p>
-                  <p className="text-xs text-gray-600 mt-1">Plus £2.99 damage protection per rental</p>
                 </div>
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
                   <p className="font-semibold text-gray-900 mb-2">✓ What's Included</p>
                   <ul className="space-y-2 text-sm text-gray-700">
                     <li>• No hidden fees—you see the total before paying</li>
-                    <li>• Damage protection covers accidental breakage</li>
                     <li>• Owner gets 70% of rental, ToolUnity keeps 30%</li>
                     <li>• Flexible rental periods—rent for 1 day or longer</li>
+                    <li>• Contact owner directly for questions</li>
                   </ul>
                 </div>
-                <p className="text-xs text-gray-600 mt-4">
-                  Learn more about our <Link href="/safety" className="text-blue-600 hover:text-blue-700 font-semibold">damage protection policy</Link>.
-                </p>
               </div>
             </div>
           </div>
@@ -473,108 +351,8 @@ export default function ToolDetailPage() {
                   <div className="flex items-start gap-4">
                     <div className="text-4xl">❌</div>
                     <div className="flex-1">
-                      <h2 className="text-2xl font-bold text-red-900 mb-2">{borrowError.error || 'Cannot Borrow This Tool'}</h2>
+                      <h2 className="text-2xl font-bold text-red-900 mb-2">{borrowError.error || 'Cannot Rent This Tool'}</h2>
                       <p className="text-red-800 mb-4 text-lg">{borrowError.message}</p>
-
-                      {/* Display detailed help based on error type */}
-                      {borrowError.reason === 'no_membership' && (
-                        <div className="bg-white rounded-lg p-4 mb-4">
-                          <p className="text-gray-700 font-semibold mb-3">You need membership to borrow. Here's your path forward:</p>
-                          
-                          {/* Show TierSummary if available */}
-                          {!loadingUserTier && userTier && userTier !== 'none' && (
-                            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                              <p className="text-sm text-gray-700 mb-3 font-semibold">📊 Your Current Status</p>
-                              <TierSummary
-                                effectiveTier={userTier as 'basic' | 'standard' | 'pro'}
-                                toolsCount={userToolsCount}
-                                isPaidTier={userIsPaidTier}
-                                showNextUnlock={true}
-                                compact={true}
-                              />
-                            </div>
-                          )}
-
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="border border-blue-300 rounded-lg p-4">
-                              <p className="font-semibold text-gray-900 mb-2">Option 1: Subscribe Now</p>
-                              <ul className="text-sm text-gray-700 space-y-1 mb-4">
-                                <li>• <strong>Basic (£2/mo)</strong>: 1 borrow, £100 value, 3 days</li>
-                                <li>• <strong>Standard (£10/mo)</strong>: 2 borrows, £300 value, 7 days</li>
-                                <li>• <strong>Pro (£25/mo - Coming Soon)</strong>: 5 borrows, £1,000 value, 14 days</li>
-                              </ul>
-                              <Link href="/pricing" className="inline-block bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700 transition">
-                                View Plans →
-                              </Link>
-                            </div>
-                            <div className="border border-green-300 rounded-lg p-4 bg-green-50">
-                              <p className="font-semibold text-gray-900 mb-2">Option 2: List Tools (Free!)</p>
-                              <ul className="text-sm text-gray-700 space-y-1 mb-4">
-                                <li>• <strong>1 tool</strong> = Basic free</li>
-                                <li>• <strong>3 tools</strong> = Standard free</li>
-                                <li>No monthly cost—as long as your tools are listed</li>
-                              </ul>
-                              <Link href="/tools/add" className="inline-block bg-green-600 text-white px-4 py-2 rounded font-semibold hover:bg-green-700 transition">
-                                List First Tool →
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {borrowError.reason === 'borrow_limit_reached' && (
-                        <div className="bg-white rounded-lg p-4 mb-4">
-                          <p className="text-gray-700 mb-3">
-                            You have <strong>{borrowError.currentBorrows} active borrow{borrowError.currentBorrows !== 1 ? 's' : ''}</strong> (limit: {borrowError.maxBorrows})
-                          </p>
-                          <p className="text-gray-700 mb-4">{borrowError.suggestedAction}</p>
-                          {borrowError.actionType === 'upgrade_to_standard' ? (
-                            <Link href="/pricing" className="inline-block bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700 transition">
-                              Upgrade to Standard →
-                            </Link>
-                          ) : borrowError.actionType === 'upgrade_to_pro' ? (
-                            <Link href="/pricing" className="inline-block bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700 transition">
-                              Upgrade to Pro →
-                            </Link>
-                          ) : null}
-                        </div>
-                      )}
-
-                      {borrowError.reason === 'value_limit_exceeded' && (
-                        <div className="bg-white rounded-lg p-4 mb-4">
-                          <p className="text-gray-700 mb-3">
-                            This tool is worth <strong>£{borrowError.toolValue}</strong>, but your limit is <strong>£{borrowError.userValueLimit}</strong>
-                          </p>
-                          <p className="text-gray-700 mb-4">{borrowError.suggestedAction}</p>
-                          {borrowError.actionType === 'upgrade_to_standard' ? (
-                            <Link href="/pricing" className="inline-block bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700 transition">
-                              Upgrade to Standard (£300 limit) →
-                            </Link>
-                          ) : borrowError.actionType === 'upgrade_to_pro' ? (
-                            <Link href="/pricing" className="inline-block bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700 transition">
-                              Upgrade to Pro (£1,000 limit) →
-                            </Link>
-                          ) : null}
-                        </div>
-                      )}
-
-                      {borrowError.reason === 'duration_exceeds_limit' && (
-                        <div className="bg-white rounded-lg p-4 mb-4">
-                          <p className="text-gray-700 mb-3">
-                            Your requested duration is <strong>{borrowError.requestedDays} days</strong>, but your limit is <strong>{borrowError.maxDays} days</strong>
-                          </p>
-                          <p className="text-gray-700 mb-4">{borrowError.suggestedAction}</p>
-                          {borrowError.actionType === 'upgrade_to_standard' ? (
-                            <Link href="/pricing" className="inline-block bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700 transition">
-                              Upgrade to Standard (7 days) →
-                            </Link>
-                          ) : borrowError.actionType === 'upgrade_to_pro' ? (
-                            <Link href="/pricing" className="inline-block bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700 transition">
-                              Upgrade to Pro (14 days) →
-                            </Link>
-                          ) : null}
-                        </div>
-                      )}
 
                       <button
                         onClick={() => {
@@ -669,8 +447,6 @@ export default function ToolDetailPage() {
                               const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
                               const dailyRate = tool?.daily_rental_rate || 3;
                               const rentalCost = (dailyRate * days).toFixed(2);
-                              const protection = 2.99;
-                              const total = (parseFloat(rentalCost) + protection).toFixed(2);
                               
                               return (
                                 <>
@@ -679,15 +455,12 @@ export default function ToolDetailPage() {
                                       <span className="text-gray-700">{days} day{days !== 1 ? 's' : ''} × £{dailyRate}/day</span>
                                       <span className="font-semibold">£{rentalCost}</span>
                                     </div>
-                                    <div className="flex justify-between">
-                                      <span className="text-gray-700">Damage protection</span>
-                                      <span className="font-semibold">£{protection.toFixed(2)}</span>
-                                    </div>
                                   </div>
                                   <div className="border-t border-gray-300 pt-2 flex justify-between">
-                                    <span className="font-bold text-gray-900">You'll pay:</span>
-                                    <span className="text-2xl font-bold text-green-600">£{total}</span>
+                                    <span className="font-bold text-gray-900">Total:</span>
+                                    <span className="text-2xl font-bold text-green-600">£{rentalCost}</span>
                                   </div>
+                                  <p className="text-xs text-gray-500 mt-2">Owner receives 70% (£{(parseFloat(rentalCost) * 0.7).toFixed(2)})</p>
                                 </>
                               );
                             })()
@@ -732,46 +505,29 @@ export default function ToolDetailPage() {
             </>
           )}
 
-          {/* Borrow Success State */}
+          {/* Rental Success State */}
           {borrowSuccess && (
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-400 rounded-lg p-8 mt-8">
               <div className="text-center mb-6">
                 <div className="text-6xl mb-4">✅</div>
-                <h2 className="text-3xl font-bold text-green-900 mb-3">Request Sent — Awaiting Approval</h2>
-                <p className="text-lg text-gray-700">Your borrow request has been submitted to the tool owner.</p>
+                <h2 className="text-3xl font-bold text-green-900 mb-3">Rental Request Sent!</h2>
+                <p className="text-lg text-gray-700">Your rental request has been submitted to the tool owner.</p>
               </div>
 
               <div className="bg-white rounded-lg p-6 mb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">✓ Confirmed Details</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-4">✓ Rental Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <p className="text-gray-600 text-sm mb-1">Tier Used</p>
-                    <p className="text-xl font-bold text-gray-900 capitalize">{borrowSuccess.tier}</p>
-                    <p className="text-xs text-gray-500 mt-1">Your active membership</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 text-sm mb-1">Coverage Limit</p>
-                    <p className="text-xl font-bold text-gray-900">Up to £{borrowSuccess.tierLimits?.maxValue}</p>
-                    <p className="text-xs text-green-600 mt-1">✓ Tool value £{borrowSuccess.toolValue} within limit</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 text-sm mb-1">Borrow Period</p>
+                    <p className="text-gray-600 text-sm mb-1">Rental Period</p>
                     <p className="font-semibold text-gray-900">{borrowSuccess.startDate} → {borrowSuccess.endDate}</p>
-                    <p className="text-xs text-gray-500 mt-1">Pending owner approval</p>
+                    <p className="text-xs text-gray-500 mt-1">{borrowSuccess.rentalDays} day{borrowSuccess.rentalDays !== 1 ? 's' : ''}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600 text-sm mb-1">Protection Status</p>
-                    <p className="font-semibold text-green-700">🛡️ Active</p>
-                    <p className="text-xs text-gray-500 mt-1">Damage protection applies</p>
+                    <p className="text-gray-600 text-sm mb-1">Rental Cost</p>
+                    <p className="text-xl font-bold text-green-600">£{borrowSuccess.rentalCost}</p>
+                    <p className="text-xs text-gray-500 mt-1">£{borrowSuccess.dailyRate}/day × {borrowSuccess.rentalDays} days</p>
                   </div>
                 </div>
-              </div>
-
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-lg p-5 mb-6">
-                <p className="font-semibold text-gray-900 mb-2">🛡️ You're Protected</p>
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  ToolUnity's damage protection covers you during this borrow. Normal wear and tear is expected—you'll only be charged if significant damage occurs, and even then, your liability is capped at the tool's value (£{borrowSuccess.toolValue}).
-                </p>
               </div>
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">

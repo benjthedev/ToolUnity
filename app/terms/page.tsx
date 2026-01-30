@@ -46,29 +46,21 @@ export default function TermsOfServicePage() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">4. Membership Tiers and Subscriptions</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">4. Rentals and Payments</h2>
             
-            <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">4.1 Tier Levels</h3>
-            <p className="text-gray-700 mb-2">ToolUnity offers three membership tiers:</p>
-            <ul className="list-disc pl-6 text-gray-700 space-y-1 mb-4">
-              <li><strong>Basic:</strong> £2/month or free when you list 1+ tools</li>
-              <li><strong>Standard:</strong> £10/month or free when you list 3+ tools</li>
-              <li><strong>Pro:</strong> £25/month (subscription only)</li>
-            </ul>
-
-            <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">4.2 Billing</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">4.1 Rental Fees</h3>
             <p className="text-gray-700 mb-4">
-              Subscriptions are billed monthly in advance. All fees are non-refundable except as required by law. You authorize us to charge your payment method on a recurring basis.
+              Tool owners set their own daily rental rates. Renters pay the daily rate multiplied by the number of rental days. ToolUnity retains 30% of the rental fee as a platform fee; owners receive 70%.
             </p>
 
-            <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">4.3 Cancellation</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">4.2 Payment Processing</h3>
             <p className="text-gray-700 mb-4">
-              You may cancel your subscription at any time through your account settings. Cancellation takes effect at the end of your current billing period.
+              All payments are processed through Stripe. By using our service, you agree to Stripe's terms of service. Rental fees are collected at the time of booking.
             </p>
 
-            <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">4.4 Tool-Based Tier Unlocks</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">4.3 Refunds</h3>
             <p className="text-gray-700">
-              Free tier access is contingent on maintaining the required number of active tool listings. If your tool count drops below the threshold, you may lose tier benefits unless you have an active paid subscription.
+              Refunds may be issued at ToolUnity's discretion for cancelled rentals or disputes. Contact support for refund requests.
             </p>
           </section>
 
@@ -97,38 +89,35 @@ export default function TermsOfServicePage() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">6. Borrowing Tools</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">6. Renting Tools</h2>
             
-            <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">6.1 Borrowing Limits</h3>
-            <p className="text-gray-700 mb-2">Your tier determines your borrowing limits:</p>
-            <ul className="list-disc pl-6 text-gray-700 space-y-1 mb-4">
-              <li><strong>Basic:</strong> 1 active borrow, up to £100 value, up to 3 days</li>
-              <li><strong>Standard:</strong> 2 active borrows, up to £300 value, up to 7 days</li>
-              <li><strong>Pro:</strong> 5 active borrows, up to £1,000 value, up to 14 days</li>
-            </ul>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">6.1 Rental Terms</h3>
+            <p className="text-gray-700 mb-4">
+              Renters pay the owner's daily rate for the duration of the rental. There are no borrowing limits—any registered user can rent any available tool by paying the rental fee.
+            </p>
 
-            <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">6.2 Borrower Responsibilities</h3>
-            <p className="text-gray-700 mb-2">As a Borrower, you agree to:</p>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">6.2 Renter Responsibilities</h3>
+            <p className="text-gray-700 mb-2">As a Renter, you agree to:</p>
             <ul className="list-disc pl-6 text-gray-700 space-y-1 mb-4">
               <li>Use tools safely and for their intended purpose</li>
               <li>Return tools on time and in the same condition as received</li>
               <li>Report any damage immediately</li>
-              <li>Not lend borrowed tools to others</li>
+              <li>Not lend rented tools to others</li>
               <li>Follow all manufacturer instructions and safety guidelines</li>
             </ul>
 
-            <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">6.3 Subscription Requirement</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">6.3 Account Requirements</h3>
             <p className="text-gray-700">
-              You must have an active subscription tier (Basic, Standard, or Pro) or qualify for a free tier by listing tools to borrow. Borrowing privileges are subject to your tier's limits. Accounts may be suspended for misuse or repeated violations of borrowing terms.
+              You must have a verified account to rent tools. Accounts may be suspended for misuse or repeated violations of rental terms.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">7. Damage Protection Coverage</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">7. Damage Liability</h2>
             
-            <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">7.1 Coverage Limits</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">7.1 Liability Limits</h3>
             <p className="text-gray-700 mb-4">
-              ToolUnity administers a discretionary damage protection programme, subject to these Terms, up to the applicable tier coverage limit. Borrowers are liable for damage or loss up to the tool's stated value, capped at the tier limit.
+              Renters are liable for damage or loss up to the tool's listed value. This is the maximum amount a renter may be charged for any single incident.
             </p>
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">7.2 Claims Process</h3>
@@ -137,7 +126,7 @@ export default function TermsOfServicePage() {
             </p>
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">7.3 Exclusions</h3>
-            <p className="text-gray-700 mb-2">Coverage does not include:</p>
+            <p className="text-gray-700 mb-2">Liability coverage does not include:</p>
             <ul className="list-disc pl-6 text-gray-700 space-y-1">
               <li>Normal wear and tear</li>
               <li>Pre-existing damage not disclosed in the listing</li>

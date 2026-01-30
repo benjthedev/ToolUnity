@@ -292,30 +292,8 @@ export default function AddToolPage() {
           if (updateError) {
             // Silently continue - tools_count update is not critical
           }
-
-          const response = await fetch('/api/subscriptions/check-tool-count', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: session.user.id }),
-          });
-
-          if (response.ok) {
-            const result = await response.json();
-            
-            // Determine if user unlocked a new tier
-            let unlockParam = '';
-            if (newToolCount === 1) {
-              unlockParam = '?unlocked=basic';
-            } else if (newToolCount === 3) {
-              unlockParam = '?unlocked=standard';
-            }
-            
-            // Redirect to dashboard with unlock celebration
-            router.push('/dashboard' + unlockParam);
-            return;
-          }
         } catch (err) {
-          // Don't fail the flow if subscription check fails
+          // Don't fail the flow if update fails
         }
       }
 
@@ -357,9 +335,9 @@ export default function AddToolPage() {
               </p>
             </div>
             <div>
-              <p className="font-semibold text-green-900 mb-2">✓ Unlock Free Membership</p>
+              <p className="font-semibold text-green-900 mb-2">✓ Earn 70% of Every Rental</p>
               <p className="text-sm text-green-800">
-                List 1+ tools → Basic free tier. List 3+ tools → Standard free tier. No monthly fees.
+                Set your own daily rate and earn money when others rent your tools. No upfront fees.
               </p>
             </div>
           </div>

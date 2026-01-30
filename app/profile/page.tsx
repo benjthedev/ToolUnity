@@ -6,24 +6,19 @@ import { useAuth } from '@/app/providers';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import ToolOwnerBadge from '@/app/components/ToolOwnerBadge';
 import { showToast } from '@/app/utils/toast';
 
 export default function ProfilePage() {
   const { session, loading } = useAuth();
   const [username, setUsername] = useState('');
-  const [subscriptionTier, setSubscriptionTier] = useState('none');
   const [email, setEmail] = useState('');
   const [phone_number, setPhoneNumber] = useState('');
   const [postcode, setPostcode] = useState('');
   const [toolsCount, setToolsCount] = useState(0);
-  const [effectiveTier, setEffectiveTier] = useState('none');
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
   const [error, setError] = useState('');
-  const [portalLoading, setPortalLoading] = useState(false);
-  const [isPaidTier, setIsPaidTier] = useState(false);
 
   useEffect(() => {
     if (session?.user?.id && !loading) {
@@ -35,15 +30,6 @@ export default function ProfilePage() {
 
   const fetchProfile = async () => {
     try {
-      // Sync subscription with Stripe to get latest status
-      try {
-        await fetch('/api/sync-subscription', {
-          method: 'POST',
-        });
-      } catch (err) {
-        // Silently continue on sync error
-      }
-      
       const { data, error: fetchError } = await supabase
         .from('users_ext')
         .select('*')
@@ -57,22 +43,7 @@ export default function ProfilePage() {
         setEmail(data.email || '');
         setPhoneNumber(data.phone_number || '');
         setPostcode(data.postcode || '');
-        setSubscriptionTier(data.subscription_tier || 'none');
         setToolsCount(data.tools_count || 0);
-        
-        // Calculate effective tier
-        let tier = data.subscription_tier || 'none';
-        const hasPaidTier = data.subscription_tier === 'basic' || data.subscription_tier === 'standard' || data.subscription_tier === 'pro';
-        setIsPaidTier(hasPaidTier);
-        
-        if (hasPaidTier) {
-          tier = data.subscription_tier;
-        } else if (data.tools_count >= 3) {
-          tier = 'standard';
-        } else if (data.tools_count >= 1 && (tier === 'none' || tier === 'basic')) {
-          tier = 'basic';
-        }
-        setEffectiveTier(tier);
       }
     } catch (err) {
       setError('An error occurred while loading your profile');
@@ -127,28 +98,6 @@ export default function ProfilePage() {
     }
   };
 
-  const handleManageSubscription = async () => {
-    setPortalLoading(true);
-    try {
-      const response = await fetch('/api/create-portal-session', {
-        method: 'POST',
-      });
-      const data = await response.json();
-      
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        setError(data.error || 'Failed to open subscription portal');
-        showToast('Failed to open subscription portal', 'error');
-      }
-    } catch (err) {
-      setError('Failed to open subscription portal');
-      showToast('Failed to open subscription portal', 'error');
-    } finally {
-      setPortalLoading(false);
-    }
-  };
-
   if (loading || loadingProfile) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
@@ -193,12 +142,10 @@ export default function ProfilePage() {
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">Account Information</h2>
-                {toolsCount > 0 && (
-                  <ToolOwnerBadge 
-                    toolsCount={toolsCount}
-                    subscriptionTier={subscriptionTier}
-                    size="md"
-                  />
+                {toolsCount >= 3 && (
+                  <span className="px-3 py-1 bg-amber-100 text-amber-800 text-sm font-semibold rounded-full">
+                    ⭐ Top Owner
+                  </span>
                 )}
               </div>
 
@@ -287,64 +234,38 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Subscription Info Sidebar */}
+          {/* Account Status Sidebar */}
           <div className="md:col-span-1">
             <div className="bg-white rounded-lg shadow-md p-6 space-y-6">
               <div>
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Tier Status</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Your Activity</h3>
                 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                  <p className="text-sm text-gray-600 mb-1">Current Tier</p>
-                  <p className="text-2xl font-bold text-gray-900 capitalize">
-                    {effectiveTier === 'basic' && '✨ Basic'}
-                    {effectiveTier === 'standard' && '⭐ Standard'}
-                    {effectiveTier === 'pro' && '👑 Pro'}
-                    {effectiveTier === 'none' && '🔍 Browse Only'}
+                  <p className="text-sm text-gray-600 mb-1">Tools Listed</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {toolsCount} tool{toolsCount !== 1 ? 's' : ''}
                   </p>
                 </div>
 
                 <div className="space-y-3 text-sm">
-                  <div>
-                    <p className="text-gray-600 mb-1">Your Tools Listed</p>
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg font-semibold">{toolsCount}</span>
-                      <span className="text-gray-500">tool{toolsCount !== 1 ? 's' : ''}</span>
-                    </div>
-                  </div>
-
-                  <div className="border-t border-gray-200 pt-3">
-                    <p className="text-gray-600 mb-2">Unlock Status</p>
-                    <div className="space-y-2">
-                      <div className={`p-2 rounded ${toolsCount >= 1 ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200'}`}>
-                        <p className={`text-xs font-semibold ${toolsCount >= 1 ? 'text-green-700' : 'text-gray-600'}`}>
-                          {toolsCount >= 1 ? '✓' : '○'} 1 tool → Basic
-                        </p>
-                      </div>
-                      <div className={`p-2 rounded ${toolsCount >= 3 ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200'}`}>
-                        <p className={`text-xs font-semibold ${toolsCount >= 3 ? 'text-green-700' : 'text-gray-600'}`}>
-                          {toolsCount >= 3 ? '✓' : '○'} 3 tools → Standard
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                  <p className="text-gray-600">
+                    List tools to earn 70% of each rental. No fees until you make money!
+                  </p>
                 </div>
               </div>
 
               <div className="border-t border-gray-200 pt-4 space-y-3">
-                {isPaidTier && (
-                  <button
-                    onClick={handleManageSubscription}
-                    disabled={portalLoading}
-                    className="block w-full text-center bg-gray-100 text-gray-700 hover:bg-gray-200 py-2 px-4 rounded-lg font-semibold transition-colors disabled:opacity-50"
-                  >
-                    {portalLoading ? 'Loading...' : 'Manage Subscription'}
-                  </button>
-                )}
                 <Link
-                  href="/pricing"
-                  className="block w-full text-center bg-blue-50 text-blue-600 hover:bg-blue-100 py-2 px-4 rounded-lg font-semibold transition-colors"
+                  href="/tools/add"
+                  className="block w-full text-center bg-blue-600 text-white hover:bg-blue-700 py-2 px-4 rounded-lg font-semibold transition-colors"
                 >
-                  View All Plans
+                  List a Tool
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="block w-full text-center bg-gray-100 text-gray-700 hover:bg-gray-200 py-2 px-4 rounded-lg font-semibold transition-colors"
+                >
+                  View Dashboard
                 </Link>
               </div>
             </div>

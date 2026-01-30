@@ -4,7 +4,6 @@ import "./globals.css";
 import { AuthProvider } from "./providers";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import ToolOwnerPromo from "./components/ToolOwnerPromo";
 import CsrfInitializer from "./components/CsrfInitializer";
 
 const geistSans = Geist({
@@ -36,7 +35,6 @@ export default function RootLayout({
           <CsrfInitializer />
           <div className="flex flex-col min-h-screen">
             <Header />
-            <ToolOwnerPromo />
             <main className="flex-grow">
               {children}
             </main>
