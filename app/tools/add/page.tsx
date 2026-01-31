@@ -35,14 +35,35 @@ export default function AddToolPage() {
       return;
     }
 
-    // Check if email is verified from session
-    if (!session.user?.emailVerified) {
-      setIsVerified(false);
-      router.push(`/verify-email?email=${encodeURIComponent(session.user?.email || '')}`);
-      return;
-    }
-    
-    setIsVerified(true);
+    // Check verification status from database directly (don't rely on session)
+    const checkVerification = async () => {
+      try {
+        const sb = getSupabase();
+        const { data, error } = await sb
+          .from('users_ext')
+          .select('email_verified')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (error || !data?.email_verified) {
+          setIsVerified(false);
+          router.push(`/verify-email?email=${encodeURIComponent(session.user?.email || '')}`);
+          return;
+        }
+        
+        setIsVerified(true);
+      } catch (err) {
+        // If query fails, still check session as fallback
+        if (!session.user?.emailVerified) {
+          setIsVerified(false);
+          router.push(`/verify-email?email=${encodeURIComponent(session.user?.email || '')}`);
+          return;
+        }
+        setIsVerified(true);
+      }
+    };
+
+    checkVerification();
   }, [session, loading, router]);
 
   if (loading) {
