@@ -95,9 +95,18 @@ export async function POST(request: NextRequest) {
       return ApiErrors.BAD_REQUEST(profileError.message);
     }
 
-    // Note: Supabase will automatically send a confirmation email
-    // based on the "Confirm email" provider setting
-    // Do not manually trigger email_confirm here to avoid duplicate emails
+    // Force email as unverified - Supabase auto-confirms but we want users to verify
+    const sbAdmin = getSupabaseAdmin();
+    if (sbAdmin && user_id) {
+      try {
+        await sbAdmin.auth.admin.updateUserById(user_id, {
+          email_confirm: false,
+        });
+      } catch (e) {
+        // If this fails, continue anyway - verification will still be enforced at action level
+        console.error('Failed to set email as unverified:', e);
+      }
+    }
 
     return apiSuccess(
       { id: user_id, email: email, username: username },
