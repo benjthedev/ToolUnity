@@ -81,10 +81,10 @@ function VerifyEmailContent() {
 
     if (!email) return;
 
-    // Auto-check every 2 seconds while waiting
+    // Auto-check every 10 seconds while waiting
     const interval = setInterval(() => {
       checkVerification();
-    }, 2000);
+    }, 10000);
     
     return () => clearInterval(interval);
   }, [success, error, email, checkVerification, status]);
@@ -105,7 +105,7 @@ function VerifyEmailContent() {
                 We've sent a verification link to <strong>{email}</strong>
               </p>
               <p className="mt-3 text-sm text-gray-500">
-                Click the link in the email to verify your account. We're automatically checking every 3 seconds...
+                Click the link in the email to verify your account. We're automatically checking every 10 seconds...
               </p>
               <button
                 onClick={checkVerification}
