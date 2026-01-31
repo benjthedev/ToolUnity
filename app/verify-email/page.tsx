@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getSupabase } from '@/lib/supabase';
 
 export default function VerifyEmailPage() {
@@ -17,7 +17,9 @@ export default function VerifyEmailPage() {
   const [isChecking, setIsChecking] = useState(false);
 
   // Check verification status
-  const checkVerification = async () => {
+  const checkVerification = useCallback(async () => {
+    if (!email) return;
+    
     setIsChecking(true);
     try {
       const sb = getSupabase();
@@ -27,21 +29,29 @@ export default function VerifyEmailPage() {
         .eq('email', email)
         .single();
 
-      if (queryError || !data?.email_verified) {
+      if (queryError) {
+        console.error('Query error:', queryError);
         setStatus('waiting');
-      } else {
+        setIsChecking(false);
+        return;
+      }
+
+      if (data?.email_verified) {
         setStatus('success');
         // Redirect after showing success for 1 second
         setTimeout(() => {
           window.location.href = '/dashboard';
         }, 1000);
+      } else {
+        setStatus('waiting');
+        setIsChecking(false);
       }
     } catch (err) {
+      console.error('Check error:', err);
       setStatus('waiting');
-    } finally {
       setIsChecking(false);
     }
-  };
+  }, [email]);
 
   useEffect(() => {
     // Handle redirect from successful verification link
@@ -54,15 +64,15 @@ export default function VerifyEmailPage() {
       setStatus('expired');
     } else if (error) {
       setStatus('error');
-    } else {
-      // Auto-check every 3 seconds while waiting
+    } else if (email) {
+      // Auto-check every 2 seconds while waiting
       const interval = setInterval(() => {
         checkVerification();
-      }, 3000);
+      }, 2000);
       
       return () => clearInterval(interval);
     }
-  }, [success, error]);
+  }, [success, error, email, checkVerification]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
