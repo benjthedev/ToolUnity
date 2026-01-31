@@ -87,6 +87,7 @@ export async function POST(request: NextRequest) {
       username: username,
       phone_number: phone_number || null,
       subscription_tier: subscription_tier || 'free',
+      email_verified: false,
       tools_count: 0,
       created_at: new Date().toISOString(),
     });
