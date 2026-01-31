@@ -57,6 +57,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const [activeRentals, setActiveRentals] = useState<Rental[]>([]);
   const [pendingRentals, setPendingRentals] = useState<Rental[]>([]);
+  const [pendingApprovalRentals, setPendingApprovalRentals] = useState<Rental[]>([]);
   const [ownerRentals, setOwnerRentals] = useState<Rental[]>([]);
   const [tools, setTools] = useState<Tool[]>([]);
   const [loadingData, setLoadingData] = useState(true);
@@ -94,6 +95,7 @@ export default function DashboardPage() {
       if (rentalData) {
         setActiveRentals(rentalData.filter((r: Rental) => r.status === 'active') || []);
         setPendingRentals(rentalData.filter((r: Rental) => r.status === 'pending_payment') || []);
+        setPendingApprovalRentals(rentalData.filter((r: Rental) => r.status === 'pending_approval') || []);
       }
 
       // Fetch owner's tools
@@ -399,7 +401,7 @@ export default function DashboardPage() {
 
           {loadingData ? (
             <p className="text-gray-600">Loading...</p>
-          ) : pendingRentals.length > 0 ? (
+          ) : pendingRentals.length > 0 || pendingApprovalRentals.length > 0 || activeRentals.length > 0 ? (
             <>
               <div className="mb-8">
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">Pending Payment</h3>
@@ -439,6 +441,49 @@ export default function DashboardPage() {
                   ))}
                 </div>
               </div>
+              {pendingApprovalRentals.length > 0 && (
+                <div className="mb-8">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4">Awaiting Owner Acceptance</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {pendingApprovalRentals.map((rental) => (
+                      <div key={rental.id} className="bg-white rounded-lg border border-blue-200 overflow-hidden shadow-sm">
+                        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 border-b border-blue-200">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="text-lg font-semibold text-gray-900">{rental.tools?.name}</h3>
+                              <p className="text-gray-600 text-sm mt-1">Payment confirmed ✓</p>
+                            </div>
+                            <span className="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full font-semibold">
+                              ⏳ Awaiting Approval
+                            </span>
+                          </div>
+                        </div>
+                        <div className="p-6 space-y-4">
+                          <p className="text-sm text-gray-700 bg-blue-50 p-3 rounded">
+                            The tool owner is reviewing your rental request. You'll get a notification once they accept or decline.
+                          </p>
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <p className="text-gray-600">From</p>
+                              <p className="font-semibold text-gray-900">{rental.start_date}</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-600">Until</p>
+                              <p className="font-semibold text-gray-900">{rental.end_date}</p>
+                            </div>
+                          </div>
+                          {rental.rental_cost && (
+                            <div className="bg-green-50 rounded p-3 text-sm">
+                              <p className="text-gray-600">Rental Cost (Paid)</p>
+                              <p className="font-semibold text-green-600">£{rental.rental_cost.toFixed(2)}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               {activeRentals.length > 0 && (
                 <>
                   <h3 className="text-xl font-semibold text-gray-900 mb-4">Active Rentals</h3>
