@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
           const { error: updateError } = await getSupabase()
             .from('rental_transactions')
             .update({
-              status: 'active',
+              status: 'pending_approval',
               payment_completed_at: new Date().toISOString(),
               stripe_payment_intent_id: session.payment_intent as string,
             })
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
           if (updateError) {
             serverLog.error('Error updating rental transaction:', updateError);
           } else {
-            serverLog.info(`Rental ${rentalId} payment completed - status set to active`);
+            serverLog.info(`Rental ${rentalId} payment completed - status set to pending_approval (awaiting owner approval)`);
           }
           break;
         }
