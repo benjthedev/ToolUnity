@@ -128,7 +128,17 @@ export default function ToolDetailPage() {
     setShowBorrowForm(!showBorrowForm);
     if (!showBorrowForm) {
       setBorrowError(null);
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
     }
+  };
+
+  const handleCloseModal = () => {
+    setShowBorrowForm(false);
+    setBorrowError(null);
+    document.body.style.overflow = 'unset';
   };
 
   const handleBorrowSubmit = async (e: React.FormEvent) => {
@@ -356,7 +366,7 @@ export default function ToolDetailPage() {
                   onClick={handleShowBorrowForm}
                   className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors mb-8"
                 >
-                  {showBorrowForm ? 'Close' : 'Rent This Tool'}
+                  Rent This Tool
                 </button>
               ) : !session ? (
                 <Link
@@ -418,78 +428,71 @@ export default function ToolDetailPage() {
             </div>
           </div>
 
-          {/* Borrow Form with Error Handling */}
+          {/* Borrow Form Modal */}
           {showBorrowForm && session?.user?.id !== tool.owner_id && (
-            <>
-              {borrowError ? (
-                <div className="bg-red-50 border-2 border-red-300 rounded-lg p-8 mt-8">
-                  <div className="flex items-start gap-4">
-                    <div className="text-4xl">❌</div>
-                    <div className="flex-1">
-                      <h2 className="text-2xl font-bold text-red-900 mb-2">{borrowError.error || 'Cannot Rent This Tool'}</h2>
-                      <p className="text-red-800 mb-4 text-lg">{borrowError.message}</p>
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              {/* Backdrop */}
+              <div 
+                className="absolute inset-0 bg-black bg-opacity-50"
+                onClick={handleCloseModal}
+              />
+              
+              {/* Modal Content */}
+              <div className="relative bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+                {/* Close Button */}
+                <button
+                  onClick={handleCloseModal}
+                  className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
 
-                      <button
-                        onClick={() => {
-                          setBorrowError(null);
-                          setBorrowData({ startDate: '', endDate: '', notes: '' });
-                        }}
-                        className="mt-4 text-red-600 hover:text-red-700 font-semibold underline"
-                      >
-                        Try Different Dates
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  {/* How Borrowing Works */}
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-400 rounded-lg p-6 mb-6 mt-8">
+                {borrowError ? (
+                  <div className="p-8">
                     <div className="flex items-start gap-4">
-                      <div className="text-4xl">🤝</div>
+                      <div className="text-4xl">❌</div>
                       <div className="flex-1">
-                        <h3 className="font-bold text-gray-900 text-xl mb-3">How Renting Works</h3>
-                        <p className="text-gray-700 mb-4 leading-relaxed">
-                          Renting builds trust in our community. You're responsible for normal use, and both parties work together to resolve any disputes fairly.
-                        </p>
-                        <div className="bg-white rounded-lg p-5 mb-4 border-2 border-gray-200">
-                          <p className="font-bold text-gray-900 mb-3 text-lg">Your responsibilities:</p>
-                          <ul className="space-y-2 text-gray-700">
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 font-bold">✓</span>
-                              <span><strong>Use as intended:</strong> Normal wear is expected. Scratches, dust, and minor wear are part of tool life.</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 font-bold">✓</span>
-                              <span><strong>Return on time:</strong> Return by the agreed date in working condition.</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 font-bold">✓</span>
-                              <span><strong>Report damage:</strong> If something happens, report it immediately so we can work it out fairly.</span>
-                            </li>
-                          </ul>
-                        </div>
-                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-lg p-4">
-                          <p className="font-bold text-green-900 mb-2">🛡️ Your Maximum Liability</p>
-                          <p className="text-gray-700 text-sm">
-                            If significant damage occurs, you're liable for repair costs, capped at the tool's listed value (£{tool.tool_value} for this tool). That's your absolute cap—no surprise fees, no hidden costs.
-                          </p>
-                        </div>
+                        <h2 className="text-2xl font-bold text-red-900 mb-2">{borrowError.error || 'Cannot Rent This Tool'}</h2>
+                        <p className="text-red-800 mb-4 text-lg">{borrowError.message}</p>
+                        <button
+                          onClick={() => {
+                            setBorrowError(null);
+                            setBorrowData({ startDate: '', endDate: '', notes: '' });
+                          }}
+                          className="mt-4 text-red-600 hover:text-red-700 font-semibold underline"
+                        >
+                          Try Different Dates
+                        </button>
                       </div>
                     </div>
                   </div>
+                ) : (
+                  <div className="p-6">
+                    {/* Modal Header */}
+                    <div className="mb-6 pr-8">
+                      <h2 className="text-2xl font-bold text-gray-900">Rent This Tool</h2>
+                      <p className="text-gray-600 mt-1">{tool.name}</p>
+                    </div>
 
-                  <form onSubmit={handleBorrowSubmit} className="bg-blue-50 border border-blue-200 rounded-lg p-8 mt-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Rent This Tool</h2>
-                    <div className="space-y-4">
+                    {/* Quick Info */}
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Daily Rate</span>
+                        <span className="text-xl font-bold text-green-600">£{tool?.daily_rate || '3.00'}/day</span>
+                      </div>
+                    </div>
+
+                    <form onSubmit={handleBorrowSubmit} className="space-y-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-900 mb-2">
-                          Rental Start Date *
+                          Start Date *
                         </label>
                         <input
                           type="date"
                           required
-                          className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           value={borrowData.startDate}
                           onChange={(e) =>
                             setBorrowData({ ...borrowData, startDate: e.target.value })
@@ -498,12 +501,12 @@ export default function ToolDetailPage() {
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-900 mb-2">
-                          Rental End Date *
+                          End Date *
                         </label>
                         <input
                           type="date"
                           required
-                          className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           value={borrowData.endDate}
                           onChange={(e) =>
                             setBorrowData({ ...borrowData, endDate: e.target.value })
@@ -513,8 +516,7 @@ export default function ToolDetailPage() {
 
                       {/* Show rental cost if dates are selected */}
                       {borrowData.startDate && borrowData.endDate && (
-                        <div className="bg-white p-4 rounded-lg border-2 border-green-300 mt-6">
-                          <p className="text-sm text-gray-600 mb-2">Rental Cost Summary</p>
+                        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                           {
                             (() => {
                               const start = new Date(borrowData.startDate);
@@ -523,20 +525,15 @@ export default function ToolDetailPage() {
                               const dailyRate = tool?.daily_rate || 3;
                               const rentalCost = (dailyRate * days).toFixed(2);
                               
+                              if (days <= 0) {
+                                return <p className="text-red-600 text-sm">End date must be after start date</p>;
+                              }
+                              
                               return (
-                                <>
-                                  <div className="space-y-2 mb-4">
-                                    <div className="flex justify-between">
-                                      <span className="text-gray-700">{days} day{days !== 1 ? 's' : ''} × £{dailyRate}/day</span>
-                                      <span className="font-semibold">£{rentalCost}</span>
-                                    </div>
-                                  </div>
-                                  <div className="border-t border-gray-300 pt-2 flex justify-between">
-                                    <span className="font-bold text-gray-900">Total:</span>
-                                    <span className="text-2xl font-bold text-green-600">£{rentalCost}</span>
-                                  </div>
-                                  <p className="text-xs text-gray-500 mt-2">Owner receives 85% (£{(parseFloat(rentalCost) * 0.85).toFixed(2)})</p>
-                                </>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-gray-700">{days} day{days !== 1 ? 's' : ''} × £{dailyRate}</span>
+                                  <span className="text-2xl font-bold text-blue-600">£{rentalCost}</span>
+                                </div>
                               );
                             })()
                           }
@@ -548,16 +545,22 @@ export default function ToolDetailPage() {
                           Message to Owner (optional)
                         </label>
                         <textarea
-                          className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          rows={3}
+                          className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          rows={2}
                           value={borrowData.notes}
                           onChange={(e) =>
                             setBorrowData({ ...borrowData, notes: e.target.value })
                           }
-                          placeholder="Any questions or special instructions..."
+                          placeholder="Any questions or pickup preferences..."
                         />
                       </div>
-                      <div className="flex gap-4">
+
+                      {/* Responsibility Note */}
+                      <div className="bg-gray-50 p-3 rounded-lg text-sm text-gray-600">
+                        <p>🛡️ Max liability: £{tool.tool_value} (tool value). You're responsible for returning the tool in working condition.</p>
+                      </div>
+
+                      <div className="flex gap-3 pt-2">
                         <button
                           type="submit"
                           disabled={submittingBorrow}
@@ -567,17 +570,17 @@ export default function ToolDetailPage() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => setShowBorrowForm(false)}
-                          className="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition-colors"
+                          onClick={handleCloseModal}
+                          className="px-6 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
                         >
                           Cancel
                         </button>
                       </div>
-                    </div>
-                  </form>
-                </>
-              )}
-            </>
+                    </form>
+                  </div>
+                )}
+              </div>
+            </div>
           )}
 
           {/* Rental Success State */}
