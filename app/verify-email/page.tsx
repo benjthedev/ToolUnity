@@ -23,11 +23,14 @@ function VerifyEmailContent() {
     setIsChecking(true);
     try {
       const sb = getSupabase();
+      // Use ilike for case-insensitive matching
       const { data, error: queryError } = await sb
         .from('users_ext')
         .select('email_verified')
-        .eq('email', email)
+        .ilike('email', email) // case-insensitive
         .single();
+
+      console.log('Verification check:', { email, data, error: queryError });
 
       if (queryError) {
         console.error('Query error:', queryError);
@@ -37,12 +40,14 @@ function VerifyEmailContent() {
       }
 
       if (data?.email_verified) {
+        console.log('Email verified! Redirecting...');
         setStatus('success');
         // Redirect after showing success for 1 second
         setTimeout(() => {
           window.location.href = '/dashboard';
         }, 1000);
       } else {
+        console.log('Email not yet verified');
         setStatus('waiting');
         setIsChecking(false);
       }

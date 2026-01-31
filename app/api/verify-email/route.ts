@@ -11,11 +11,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/verify-email?error=invalid', request.url));
     }
 
-    // Simple: just mark this email as verified
+    serverLog.info('Verifying email:', { email });
+
+    // Update email_verified to true for this email (case-insensitive search)
     const { error } = await supabase
       .from('users_ext')
       .update({ email_verified: true })
-      .eq('email', email);
+      .ilike('email', email); // case-insensitive match
 
     if (error) {
       serverLog.error('Email verification error:', error);
