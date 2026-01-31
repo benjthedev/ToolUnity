@@ -67,110 +67,31 @@ export default function OwnerDashboard() {
         .order('created_at', { ascending: false });
 
       if (toolsError) {
-
-        // Demo tools
-        const demoTools: Tool[] = [
-          {
-            id: '1',
-            name: 'Power Drill - DeWalt 20V',
-            category: 'Power Tools',
-            available: true,
-            tool_value: 10,
-          },
-          {
-            id: '3',
-            name: 'Complete Hand Tool Set',
-            category: 'Hand Tools',
-            available: true,
-            tool_value: 5,
-          },
-        ];
-        setTools(demoTools);
-        
-        // Demo requests
-        const demoRequests: BorrowRequest[] = [
-          {
-            id: 'demo-req-1',
-            tool_id: '1',
-            start_date: '2024-01-22',
-            end_date: '2024-01-25',
-            status: 'pending',
-            tools: { name: 'Power Drill - DeWalt 20V' },
-            users: { email: 'customer@example.com' },
-          },
-        ];
-        setRequests(demoRequests);
-        throw toolsError;
+        console.error('Error fetching tools:', toolsError);
+        setTools([]);
       }
-
-
 
       setTools(toolsData || []);
 
-      // Fetch borrow requests for owner's tools
-      if (toolsData && toolsData.length > 0) {
-        const toolIds = toolsData.map((t: any) => t.id);
-
-        
-        // First check: get ALL borrow requests to see what exists
-        const { data: allReqs } = await supabase
-          .from('borrow_requests')
-          .select('id, tool_id, user_id, status');
-        
-
-        
-        // Now do the filtered query
-        const { data: requestsData, error: requestsError } = await supabase
-          .from('borrow_requests')
-          .select('*,tools:tool_id(name),users:user_id(email,phone_number)')
-          .in('tool_id', toolIds)
-          .order('created_at', { ascending: false });
-
-        if (requestsError) {
-
-          setRequests([]);
-        } else {
-
-          
-          // Transform the data to match BorrowRequest interface
-          if (requestsData && requestsData.length > 0) {
-            // Get the tool names from toolsData
-            const toolsMap = new Map(toolsData.map((t: any) => [t.id, t.name]));
-            
-            // Get unique user IDs from requests
-            const userIds = [...new Set(requestsData.map((r: any) => r.user_id))];
-            
-            // Fetch user emails
-            const { data: usersData } = await supabase
-              .from('users_ext')
-              .select('user_id, email')
-              .in('user_id', userIds);
-            
-            const usersMap = new Map(usersData?.map((u: any) => [u.user_id, u.email]) || []);
-            
-            const transformedRequests: BorrowRequest[] = requestsData.map((req: any) => ({
-              id: req.id,
-              tool_id: req.tool_id,
-              start_date: req.start_date,
-              end_date: req.end_date,
-              notes: req.notes,
-              status: req.status,
-              tools: { name: toolsMap.get(req.tool_id) || 'Unknown Tool' },
-              users: { email: usersMap.get(req.user_id) || 'Unknown User' },
-            }));
-            
-
-            setRequests(transformedRequests);
-          } else {
-
-            setRequests([]);
-          }
-        }
-      } else {
+      // Fetch rental requests from API
+      const requestsResponse = await fetch('/api/owner/requests');
+      
+      if (!requestsResponse.ok) {
+        console.error('Failed to fetch rental requests');
         setRequests([]);
+      } else {
+        const requestsJson = await requestsResponse.json();
+        setRequests(requestsJson.requests || []);
+      }
+      
+      // Fetch CSRF token
+      const csrfResponse = await fetch('/api/auth/csrf');
+      if (csrfResponse.ok) {
+        const csrfData = await csrfResponse.json();
+        setCsrfToken(csrfData.csrfToken);
       }
     } catch (err) {
-
+      console.error('Error fetching dashboard data:', err);
     } finally {
       setLoadingData(false);
     }

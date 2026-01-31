@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/auth';
 import { supabase } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/supabase';
 import { serverLog } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
@@ -28,15 +29,7 @@ export async function GET(request: NextRequest) {
         total_cost,
         notes,
         status,
-        created_at,
-        tools:tool_id (
-          id,
-          name,
-          owner_id
-        ),
-        renter:renter_id (
-          email
-        )
+        created_at
       `
       )
       .eq('owner_id', session.user.id)
@@ -47,9 +40,35 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Error fetching requests' }, { status: 500 });
     }
 
+    // Enrich with tool and renter information
+    const supabaseAdmin = getSupabaseAdmin();
+    const enrichedRequests = await Promise.all(
+      (requests || []).map(async (request: any) => {
+        // Fetch tool info
+        const { data: tool } = await supabase
+          .from('tools')
+          .select('name')
+          .eq('id', request.tool_id)
+          .single();
+
+        // Fetch renter info from auth.users via service role
+        const { data: { user: renter } } = await supabaseAdmin.auth.admin.getUserById(request.renter_id);
+
+        return {
+          ...request,
+          tools: { name: tool?.name || 'Unknown Tool' },
+          renter: {
+            email: renter?.email || 'Unknown',
+            phone_number: renter?.phone || null,
+            full_name: renter?.user_metadata?.full_name || null,
+          },
+        };
+      })
+    );
+
     return NextResponse.json(
       {
-        requests: requests || [],
+        requests: enrichedRequests || [],
       },
       { status: 200 }
     );
