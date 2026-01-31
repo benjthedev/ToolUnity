@@ -112,8 +112,8 @@ export default function SignupPage() {
       // Note: Supabase sends verification email automatically if "Confirm email" is enabled
       // No need to send a second one from our code
 
-      // Redirect to dashboard - user can verify email later
-      router.push('/dashboard');
+      // Redirect to success page showing email verification message
+      router.push(`/signup-success?email=${encodeURIComponent(email)}`);
     } catch (err) {
       setError('An unexpected error occurred');
     } finally {
