@@ -34,30 +34,11 @@ export default function AddToolPage() {
       return;
     }
 
-    const checkEmailVerification = async () => {
-      try {
-        const { supabase } = await getSupabase();
-        const { data, error } = await supabase
-          .from('users_ext')
-          .select('email_verified')
-          .eq('user_id', session.user.id)
-          .single();
-
-        if (error) {
-          console.error('Error checking email verification:', error);
-          return;
-        }
-
-        // Redirect to verify email page if not verified
-        if (!data?.email_verified) {
-          router.push(`/verify-email?email=${encodeURIComponent(session.user.email || '')}`);
-        }
-      } catch (err) {
-        console.error('Error:', err);
-      }
-    };
-
-    checkEmailVerification();
+    // Check if email is verified from session first
+    if (!session.user?.emailVerified) {
+      router.push(`/verify-email?email=${encodeURIComponent(session.user?.email || '')}`);
+      return;
+    }
   }, [session, loading, router]);
 
   if (loading) {

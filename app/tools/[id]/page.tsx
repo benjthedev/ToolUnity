@@ -105,6 +105,16 @@ export default function ToolDetailPage() {
     setSubmittingBorrow(true);
     setBorrowError(null);
 
+    // Check if user is verified
+    if (!session?.user?.emailVerified) {
+      setBorrowError({
+        message: 'Please verify your email before renting tools',
+        reason: 'email_not_verified',
+      });
+      setSubmittingBorrow(false);
+      return;
+    }
+
     // Validate dates client-side before submission
     const start = new Date(borrowData.startDate);
     const end = new Date(borrowData.endDate);
