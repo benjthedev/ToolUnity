@@ -109,25 +109,11 @@ export default function SignupPage() {
         return;
       }
 
-      // Send verification email
-      try {
-        const emailResponse = await fetchWithCsrf('/api/send-verification-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email }),
-        });
+      // Note: Supabase sends verification email automatically if "Confirm email" is enabled
+      // No need to send a second one from our code
 
-        if (!emailResponse.ok) {
-          // Email sending failed, but account was created
-          // Still redirect to verify-email-sent page
-          console.warn('Failed to send verification email, but account was created');
-        }
-      } catch (emailErr) {
-        console.warn('Error sending verification email:', emailErr);
-      }
-
-      // Redirect to email verification page
-      router.push(`/verify-email-sent?email=${encodeURIComponent(email)}`);
+      // Redirect to dashboard - user can verify email later
+      router.push('/dashboard');
     } catch (err) {
       setError('An unexpected error occurred');
     } finally {
