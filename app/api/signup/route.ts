@@ -95,23 +95,9 @@ export async function POST(request: NextRequest) {
       return ApiErrors.BAD_REQUEST(profileError.message);
     }
 
-    // Mark user as email confirmed using service role
-    const sbAdmin = getSupabaseAdmin();
-    if (sbAdmin) {
-      try {
-        const { data, error: confirmError } = await sbAdmin.auth.admin.updateUserById(user_id, {
-          email_confirm: true,
-        });
-        if (confirmError) {
-          // Email confirmation failed but account created
-        } else {
-        }
-      } catch (e) {
-        // Log suppressed - development only
-      }
-    } else {
-      // Service role key not configured
-    }
+    // Note: Supabase will automatically send a confirmation email
+    // based on the "Confirm email" provider setting
+    // Do not manually trigger email_confirm here to avoid duplicate emails
 
     return apiSuccess(
       { id: user_id, email: email, username: username },
