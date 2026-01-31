@@ -79,39 +79,56 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // TODO: Send email with reset link via Resend or SendGrid
-    // This requires RESEND_API_KEY environment variable
-    // Email should contain: ${APP_URL}/reset-password?token=${resetToken}&email=${email}
-    if (process.env.RESEND_API_KEY) {
-      try {
-        const resetLink = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}`;
-        
-        // Use generic fetch to send email (avoids importing resend which may not be installed)
-        await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-          },
-          body: JSON.stringify({
-            from: 'ToolUnity <noreply@toolunity.co.uk>',
-            to: email,
-            subject: 'ToolUnity Password Reset',
-            html: `
-              <h2>Password Reset Request</h2>
-              <p>Click the link below to reset your password (expires in 15 minutes):</p>
-              <a href="${resetLink}" style="background-color: #3b82f6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+    // Send email with reset link via Resend
+    if (!process.env.RESEND_API_KEY) {
+      console.error('RESEND_API_KEY not configured - cannot send password reset email');
+      return NextResponse.json({
+        success: true,
+        message: 'If email exists, password reset link has been sent',
+      });
+    }
+
+    try {
+      const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://www.toolunity.co.uk';
+      const resetLink = `${baseUrl}/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}`;
+      
+      console.log('Sending password reset email to:', email);
+      console.log('Reset link:', resetLink);
+      
+      const emailResponse = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+        },
+        body: JSON.stringify({
+          from: process.env.RESEND_FROM_EMAIL || 'ToolUnity <noreply@toolunity.co.uk>',
+          to: email,
+          subject: 'Reset Your ToolUnity Password',
+          html: `
+            <h2>Password Reset Request</h2>
+            <p>You requested to reset your password for ToolUnity.</p>
+            <p>Click the button below to reset your password. This link expires in 15 minutes.</p>
+            <p style="margin: 20px 0;">
+              <a href="${resetLink}" style="display: inline-block; background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
                 Reset Password
               </a>
-              <p>Or copy this link: ${resetLink}</p>
-              <p>If you didn't request this, ignore this email.</p>
-            `,
-          }),
-        });
-      } catch (emailError) {
-        console.error('Error sending password reset email:', emailError);
-        // Don't fail the request, token is stored even if email fails
+            </p>
+            <p style="color: #666; font-size: 14px;">Or copy this link: ${resetLink}</p>
+            <p style="color: #666; font-size: 14px;">If you didn't request this, you can safely ignore this email.</p>
+          `,
+        }),
+      });
+
+      const emailData = await emailResponse.json();
+      
+      if (!emailResponse.ok) {
+        console.error('Resend API error:', emailData);
+      } else {
+        console.log('Password reset email sent successfully:', emailData.id);
       }
+    } catch (emailError) {
+      console.error('Error sending password reset email:', emailError);
     }
 
     return NextResponse.json({
