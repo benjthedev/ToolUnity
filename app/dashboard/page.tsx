@@ -91,7 +91,7 @@ export default function DashboardPage() {
             .from('rental_transactions')
             .select('*, tools(name)')
             .in('tool_id', toolIds)
-            .in('status', ['active', 'pending_payment'])
+            .in('status', ['active', 'pending_approval', 'pending_payment'])
             .order('start_date', { ascending: false });
 
           if (ownerRentalsData) {
@@ -385,16 +385,42 @@ export default function DashboardPage() {
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Tools Being Rented</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {ownerRentals.map((rental) => (
-                    <div key={rental.id} className="bg-white rounded-lg border border-green-200 overflow-hidden shadow-sm">
-                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 border-b border-green-200">
+                    <div key={rental.id} className={`bg-white rounded-lg border overflow-hidden shadow-sm ${
+                      rental.status === 'active' ? 'border-green-200' : 'border-yellow-200'
+                    }`}>
+                      <div className={`p-6 border-b ${
+                        rental.status === 'active' 
+                          ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' 
+                          : 'bg-gradient-to-r from-yellow-50 to-amber-50 border-yellow-200'
+                      }`}>
                         <div className="flex justify-between items-start">
                           <h3 className="text-lg font-semibold text-gray-900">{rental.tools?.name}</h3>
-                          <span className="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-semibold">
-                            ✓ Rented
+                          <span className={`text-xs px-3 py-1 rounded-full font-semibold ${
+                            rental.status === 'active' 
+                              ? 'bg-green-100 text-green-800' 
+                              : rental.status === 'pending_approval'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {rental.status === 'active' ? '✓ Rented' : 
+                             rental.status === 'pending_approval' ? '⏳ Awaiting Your Approval' : 
+                             rental.status === 'pending_payment' ? '💳 Payment Pending' : rental.status}
                           </span>
                         </div>
                       </div>
                       <div className="p-6 space-y-4">
+                        {rental.status === 'pending_approval' && (
+                          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm">
+                            <p className="font-semibold text-yellow-900 mb-1">⚠️ Action Required</p>
+                            <p className="text-yellow-800 text-xs">
+                              Go to{' '}
+                              <Link href="/owner-dashboard" className="underline font-semibold hover:text-yellow-900">
+                                Owner Dashboard
+                              </Link>
+                              {' '}to accept or reject this request.
+                            </p>
+                          </div>
+                        )}
                         <div className="grid grid-cols-2 gap-4 text-sm">
                           <div>
                             <p className="text-gray-600">From</p>
@@ -406,9 +432,13 @@ export default function DashboardPage() {
                           </div>
                         </div>
                         {rental.rental_cost && (
-                          <div className="bg-green-50 rounded p-3 text-sm border border-green-200">
+                          <div className={`rounded p-3 text-sm border ${
+                            rental.status === 'active' ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'
+                          }`}>
                             <p className="text-gray-600">You Earn (85%)</p>
-                            <p className="font-semibold text-green-600">£{(rental.rental_cost * 0.85).toFixed(2)}</p>
+                            <p className={`font-semibold ${rental.status === 'active' ? 'text-green-600' : 'text-yellow-600'}`}>
+                              £{(rental.rental_cost * 0.85).toFixed(2)}
+                            </p>
                           </div>
                         )}
                       </div>
