@@ -112,6 +112,12 @@ export default function AddToolPage() {
     e.preventDefault();
     setError('');
 
+    // Block unverified users
+    if (!session?.user?.emailVerified) {
+      setError('Please verify your email before listing tools');
+      return;
+    }
+
     // Validate image is required
     if (!imageFile) {
       setError('Tool photo is required');
