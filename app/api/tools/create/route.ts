@@ -42,24 +42,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check Stripe Connect is set up for payouts
-    const { data: userData, error: userError } = await getSupabase()
-      .from('users_ext')
-      .select('stripe_connect_account_id')
-      .eq('user_id', session.user.id)
-      .single();
-
-    if (userError || !userData?.stripe_connect_account_id) {
-      return NextResponse.json(
-        { 
-          error: 'Stripe Connect account required to list tools', 
-          code: 'stripe_connect_required',
-          message: 'You must set up a Stripe Connect account to receive payments from tool rentals. Go to your dashboard to set this up.'
-        },
-        { status: 403 }
-      );
-    }
-
     // Rate limit: 5 tools per hour per user
     const rateLimitCheck = checkRateLimitByUserId(
       session.user.id,

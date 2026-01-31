@@ -143,12 +143,6 @@ export default function AddToolPage() {
       return;
     }
 
-    // Check if Stripe Connect is set up
-    if (!session?.user?.stripeConnectId) {
-      setError('You must set up Stripe Connect payouts before listing tools. Go to your dashboard to set this up.');
-      return;
-    }
-
     // Validate image is required
     if (!imageFile) {
       setError('Tool photo is required');

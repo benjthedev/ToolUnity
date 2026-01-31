@@ -316,14 +316,16 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
 
         {/* Stripe Connect Setup Banner */}
-        {tools.length > 0 && connectStatus && !connectStatus.detailsSubmitted && (
+        {connectStatus && !connectStatus.detailsSubmitted && (
           <div className="bg-gradient-to-r from-orange-50 to-amber-50 border-l-4 border-orange-500 p-6 rounded-lg shadow-sm">
             <div className="flex items-start gap-4">
               <div className="text-3xl">💳</div>
               <div className="flex-1">
                 <h3 className="text-lg font-bold text-gray-900 mb-2">Set Up Payouts to Earn Money</h3>
                 <p className="text-gray-700 mb-4">
-                  You've listed tools, but you need to connect your bank account to receive payouts (85% of each rental). This takes 2 minutes with Stripe.
+                  {tools.length > 0 
+                    ? `You've listed ${tools.length} tool${tools.length === 1 ? '' : 's'}, but you need to connect your bank account to receive payouts (85% of each rental). This takes 2 minutes with Stripe.`
+                    : 'Set up your bank account to receive payouts when you list tools (85% of each rental). This takes 2 minutes with Stripe.'}
                 </p>
                 <button
                   onClick={handleConnectOnboarding}
