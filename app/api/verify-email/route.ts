@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/supabase';
 import { serverLog } from '@/lib/logger';
 import { checkRateLimitByIp } from '@/lib/rate-limit';
 
@@ -105,6 +106,19 @@ export async function GET(request: NextRequest) {
         })
         .eq('email_verification_token', token);
       updateError = result.error;
+
+      // Also update Supabase auth.users.email_confirmed_at so session reflects verified status
+      if (!updateError && users.user_id) {
+        try {
+          const supabaseAdmin = getSupabaseAdmin();
+          await supabaseAdmin.auth.admin.updateUserById(users.user_id, {
+            email_confirm: true,
+          });
+        } catch (authError) {
+          serverLog.error('Error updating auth user email_confirmed_at:', authError);
+          // Don't fail the verification if this fails - the custom verified flag is what matters
+        }
+      }
     } catch (err) {
       // If columns don't exist, still consider it verified
       updateError = null;

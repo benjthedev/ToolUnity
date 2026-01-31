@@ -17,7 +17,11 @@ export default function VerifyEmailPage() {
 
       if (success === 'true') {
         setStatus('success');
-        setTimeout(() => router.push('/login'), 3000);
+        // Force session refresh before redirect
+        setTimeout(() => {
+          // Refresh the page to get new session with emailVerified=true
+          window.location.href = '/dashboard';
+        }, 2000);
       } else if (success === 'already') {
         setStatus('success');
         setTimeout(() => router.push('/login'), 3000);
