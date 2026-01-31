@@ -35,6 +35,23 @@ interface Tool {
   owner_id: string;
 }
 
+interface RentalRequest {
+  id: string;
+  tool_id: string;
+  renter_id: string;
+  start_date: string;
+  end_date: string;
+  duration_days: number;
+  daily_rate: number;
+  rental_cost: number;
+  total_cost: number;
+  notes?: string | null;
+  status: string;
+  created_at: string;
+  tools?: { name: string } | null;
+  renter?: { email: string; phone_number?: string | null; full_name?: string | null } | null;
+}
+
 export default function DashboardPage() {
   const { session, loading } = useAuth();
   const router = useRouter();
@@ -43,6 +60,9 @@ export default function DashboardPage() {
   const [ownerRentals, setOwnerRentals] = useState<Rental[]>([]);
   const [tools, setTools] = useState<Tool[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+  const [rentalRequests, setRentalRequests] = useState<RentalRequest[]>([]);
+  const [csrfToken, setCsrfToken] = useState<string>('');
+  const [processingRequest, setProcessingRequest] = useState<string | null>(null);
 
   useEffect(() => {
     if (loading) return;
@@ -99,6 +119,20 @@ export default function DashboardPage() {
           }
         }
       }
+
+      // Fetch rental requests for owner's tools
+      const requestsResponse = await fetch('/api/owner/requests');
+      if (requestsResponse.ok) {
+        const requestsJson = await requestsResponse.json();
+        setRentalRequests(requestsJson.requests || []);
+      }
+
+      // Fetch CSRF token
+      const csrfResponse = await fetch('/api/auth/csrf');
+      if (csrfResponse.ok) {
+        const csrfData = await csrfResponse.json();
+        setCsrfToken(csrfData.csrfToken);
+      }
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
     } finally {
@@ -139,6 +173,80 @@ export default function DashboardPage() {
     } catch (err) {
       console.error('Error deleting tool:', err);
       showToast('Failed to delete tool', 'error');
+    }
+  };
+
+  const handleApprove = async (requestId: string) => {
+    if (!csrfToken) {
+      showToast('Security token missing. Please refresh the page.', 'error');
+      return;
+    }
+
+    setProcessingRequest(requestId);
+    try {
+      const response = await fetch('/api/owner/requests/accept', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          rental_id: requestId,
+          csrf_token: csrfToken,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to accept request');
+      }
+
+      showToast('Rental request accepted! Contact info is now shared with the renter.', 'success');
+      await fetchData();
+    } catch (err: any) {
+      console.error('Error accepting request:', err);
+      showToast(err.message || 'Failed to accept request', 'error');
+    } finally {
+      setProcessingRequest(null);
+    }
+  };
+
+  const handleReject = async (requestId: string) => {
+    if (!csrfToken) {
+      showToast('Security token missing. Please refresh the page.', 'error');
+      return;
+    }
+
+    const reason = prompt('Please provide a reason for rejection (optional):');
+    if (reason === null) return; // User cancelled
+
+    setProcessingRequest(requestId);
+    try {
+      const response = await fetch('/api/owner/requests/reject', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          rental_id: requestId,
+          reason: reason || 'Tool owner declined request',
+          csrf_token: csrfToken,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to reject request');
+      }
+
+      showToast('Rental request rejected. Refund has been issued to the renter.', 'success');
+      await fetchData();
+    } catch (err: any) {
+      console.error('Error rejecting request:', err);
+      showToast(err.message || 'Failed to reject request', 'error');
+    } finally {
+      setProcessingRequest(null);
     }
   };
 
@@ -411,13 +519,9 @@ export default function DashboardPage() {
                       <div className="p-6 space-y-4">
                         {rental.status === 'pending_approval' && (
                           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm">
-                            <p className="font-semibold text-yellow-900 mb-1">⚠️ Action Required</p>
+                            <p className="font-semibold text-yellow-900 mb-1">⚠️ Action Required Below</p>
                             <p className="text-yellow-800 text-xs">
-                              Go to{' '}
-                              <Link href="/owner-dashboard" className="underline font-semibold hover:text-yellow-900">
-                                Owner Dashboard
-                              </Link>
-                              {' '}to accept or reject this request.
+                              Scroll down to approve or reject this rental request.
                             </p>
                           </div>
                         )}
@@ -442,6 +546,106 @@ export default function DashboardPage() {
                           </div>
                         )}
                       </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Rental Requests Section */}
+            {rentalRequests.length > 0 && (
+              <section className="border-t pt-12">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Rental Requests - Awaiting Your Response</h2>
+                <div className="space-y-4">
+                  {rentalRequests.map((request) => (
+                    <div key={request.id} className="bg-white rounded-lg shadow p-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900">{request.tools?.name}</h3>
+                          <p className="text-gray-600 text-sm">Requested by: {request.renter?.email}</p>
+                          {request.status === 'active' && (
+                            <div className="mt-2 space-y-1">
+                              {request.renter?.phone_number && (
+                                <p className="text-blue-600 text-sm font-semibold">
+                                  <a href={`tel:${request.renter.phone_number}`} className="hover:underline">
+                                    📞 {request.renter.phone_number}
+                                  </a>
+                                </p>
+                              )}
+                              {request.renter?.full_name && (
+                                <p className="text-gray-700 text-sm">👤 {request.renter.full_name}</p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <span
+                          className={`text-xs px-3 py-1 rounded-full font-semibold ${
+                            request.status === 'pending_approval'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : request.status === 'active'
+                                ? 'bg-green-100 text-green-800'
+                                : request.status === 'rejected'
+                                  ? 'bg-red-100 text-red-800'
+                                  : 'bg-gray-100 text-gray-800'
+                          }`}
+                        >
+                          {request.status === 'pending_approval' ? 'Pending Approval' : request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                        </span>
+                      </div>
+
+                      {request.notes && (
+                        <div className="bg-gray-50 rounded p-4 mb-4">
+                          <p className="text-gray-700 text-sm">{request.notes}</p>
+                        </div>
+                      )}
+
+                      <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+                        <div>
+                          <p className="text-gray-600">Start Date</p>
+                          <p className="font-semibold text-gray-900">{new Date(request.start_date).toLocaleDateString()}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-600">End Date</p>
+                          <p className="font-semibold text-gray-900">{new Date(request.end_date).toLocaleDateString()}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-600">Duration</p>
+                          <p className="font-semibold text-gray-900">{request.duration_days} {request.duration_days === 1 ? 'day' : 'days'}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-600">Your Earnings (85%)</p>
+                          <p className="font-semibold text-green-600">£{request.rental_cost.toFixed(2)}</p>
+                        </div>
+                      </div>
+
+                      {request.status === 'pending_approval' && (
+                        <div className="flex gap-4">
+                          <button
+                            onClick={() => handleApprove(request.id)}
+                            disabled={processingRequest === request.id}
+                            className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {processingRequest === request.id ? 'Processing...' : 'Accept'}
+                          </button>
+                          <button
+                            onClick={() => handleReject(request.id)}
+                            disabled={processingRequest === request.id}
+                            className="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {processingRequest === request.id ? 'Processing...' : 'Reject & Refund'}
+                          </button>
+                        </div>
+                      )}
+                      {request.status === 'active' && (
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-800">
+                          ✓ Rental active - Contact information shared with renter
+                        </div>
+                      )}
+                      {request.status === 'rejected' && (
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-800">
+                          ✗ Request rejected - Refund issued
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
