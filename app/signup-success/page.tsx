@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Mail } from 'lucide-react';
 
 export default function SignupSuccessPage() {
   const router = useRouter();
@@ -23,7 +22,7 @@ export default function SignupSuccessPage() {
       <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8 text-center">
         <div className="flex justify-center mb-6">
           <div className="bg-green-100 rounded-full p-4">
-            <Mail className="w-8 h-8 text-green-600" />
+            <span className="text-4xl">✉️</span>
           </div>
         </div>
         
