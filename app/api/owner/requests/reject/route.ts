@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/auth';
 import { supabase } from '@/lib/supabase';
-import { checkRateLimitByUserId, RATE_LIMIT_CONFIGS } from '@/lib/rate-limit';
-import { validateCsrfTokenString } from '@/lib/csrf';
+import { checkRateLimitByUserId } from '@/lib/rate-limit';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
@@ -16,7 +15,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
  * 
  * Protected by:
  * - Authentication
- * - CSRF token validation
  * - Rate limiting (20/hour per user)
  * - Ownership verification
  */
@@ -31,18 +29,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 2: Validate CSRF token
-    const body = await request.json();
-    const csrfToken = body.csrf_token;
-    
-    if (!csrfToken || !validateCsrfTokenString(csrfToken, request)) {
-      return NextResponse.json(
-        { error: 'CSRF token validation failed' },
-        { status: 403 }
-      );
-    }
-
-    // Step 3: Rate limiting
+    // Step 2: Rate limiting
     const rateLimitCheck = checkRateLimitByUserId(
       session.user.id,
       20,
@@ -56,6 +43,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const body = await request.json();
     const { rental_id, reason } = body;
 
     if (!rental_id) {
