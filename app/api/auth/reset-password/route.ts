@@ -171,7 +171,7 @@ export async function PUT(request: NextRequest) {
     // Find user and verify token
     const { data: user, error: selectError } = await supabase
       .from('users_ext')
-      .select('id, password_reset_token, password_reset_expires_at')
+      .select('id, user_id, password_reset_token, password_reset_expires_at')
       .eq('email', email)
       .single();
 
@@ -202,30 +202,22 @@ export async function PUT(request: NextRequest) {
     // Get the admin client for auth operations
     const supabaseAdmin = getSupabaseAdmin();
     
-    // Get the auth user ID from email
-    const { data: authData, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+    // The user_id in users_ext is the Supabase Auth user ID
+    const authUserId = user.user_id;
     
-    if (listError) {
-      console.error('Error listing users:', listError);
+    if (!authUserId) {
+      console.error('No user_id found in users_ext for email:', email);
       return NextResponse.json(
-        { error: 'Failed to verify user' },
-        { status: 500 }
-      );
-    }
-    
-    const authUser = authData?.users?.find((u: any) => u.email === email);
-
-    if (!authUser) {
-      console.error('Auth user not found for email:', email);
-      return NextResponse.json(
-        { error: 'User not found' },
+        { error: 'User account not properly configured' },
         { status: 400 }
       );
     }
+    
+    console.log('Updating password for auth user ID:', authUserId);
 
     // Update password via Supabase Auth
     const { error: updateAuthError } = await supabaseAdmin.auth.admin.updateUserById(
-      authUser.id,
+      authUserId,
       { password: newPassword }
     );
 
