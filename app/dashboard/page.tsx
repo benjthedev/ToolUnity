@@ -282,6 +282,27 @@ export default function DashboardPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
 
+        {/* Setup Payouts Banner */}
+        {tools.length > 0 && (
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 p-6 rounded-lg shadow-sm">
+            <div className="flex items-start gap-4">
+              <div className="text-3xl">💰</div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Ready to Earn Money?</h3>
+                <p className="text-gray-700 mb-4">
+                  Add your bank details to receive payouts from tool rentals. You'll get 85% of each rental to your account.
+                </p>
+                <Link
+                  href="/setup-payouts"
+                  className="inline-block bg-green-600 text-white px-6 py-2.5 rounded-lg hover:bg-green-700 font-semibold transition-colors"
+                >
+                  → Set Up Payouts
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Quick Stats */}
         {(activeRentals.length > 0 || tools.length > 0) && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
