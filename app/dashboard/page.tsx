@@ -17,12 +17,15 @@ interface Rental {
   status: string;
   rental_cost: number;
   daily_rate?: number;
+  owner_id?: string;
   tools?: { 
     name: string;
-    owner: {
-      email: string;
-      phone_number: string | null;
-    } | null;
+    owner_id: string;
+  } | null;
+  owner?: {
+    email: string;
+    phone_number: string | null;
+    username: string | null;
   } | null;
 }
 
@@ -82,10 +85,14 @@ export default function DashboardPage() {
     try {
       setLoadingData(true);
 
-      // Fetch user's rentals (tools they rented)
+      // Fetch user's rentals (tools they rented) with owner details
       const { data: rentalData } = await supabase
         .from('rental_transactions')
-        .select('*, tools(name, owner_id)')
+        .select(`
+          *,
+          tools(name, owner_id),
+          owner:owner_id(email, phone_number, username)
+        `)
         .eq('renter_id', session.user.id)
         .order('start_date', { ascending: false });
 
@@ -442,6 +449,23 @@ export default function DashboardPage() {
                           </div>
                         </div>
                         <div className="p-6 space-y-4">
+                          {/* Owner Contact Details */}
+                          {rental.owner && (
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                              <h4 className="font-semibold text-blue-900 mb-2">📞 Owner Contact Details</h4>
+                              {rental.owner.username && (
+                                <p className="text-gray-700 text-sm">👤 {rental.owner.username}</p>
+                              )}
+                              <p className="text-gray-700 text-sm">
+                                ✉️ <a href={`mailto:${rental.owner.email}`} className="text-blue-600 hover:underline">{rental.owner.email}</a>
+                              </p>
+                              {rental.owner.phone_number && (
+                                <p className="text-gray-700 text-sm">
+                                  📱 <a href={`tel:${rental.owner.phone_number}`} className="text-blue-600 hover:underline">{rental.owner.phone_number}</a>
+                                </p>
+                              )}
+                            </div>
+                          )}
                           <div className="grid grid-cols-2 gap-4 text-sm">
                             <div>
                               <p className="text-gray-600">From</p>
@@ -487,6 +511,23 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   <div className="p-6 space-y-4">
+                    {/* Owner Contact Details */}
+                    {rental.owner && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h4 className="font-semibold text-blue-900 mb-2">📞 Owner Contact Details</h4>
+                        {rental.owner.username && (
+                          <p className="text-gray-700 text-sm">👤 {rental.owner.username}</p>
+                        )}
+                        <p className="text-gray-700 text-sm">
+                          ✉️ <a href={`mailto:${rental.owner.email}`} className="text-blue-600 hover:underline">{rental.owner.email}</a>
+                        </p>
+                        {rental.owner.phone_number && (
+                          <p className="text-gray-700 text-sm">
+                            📱 <a href={`tel:${rental.owner.phone_number}`} className="text-blue-600 hover:underline">{rental.owner.phone_number}</a>
+                          </p>
+                        )}
+                      </div>
+                    )}
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <p className="text-gray-600">From</p>
