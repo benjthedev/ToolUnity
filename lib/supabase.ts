@@ -34,7 +34,13 @@ export function getSupabaseAdmin(): SupabaseClient {
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
   if (!supabaseUrl || !supabaseServiceKey) {
-    throw new Error('Missing Supabase admin credentials');
+    // During build time, return a stub that won't crash
+    return createClient('https://stub.supabase.co', 'stub-key', {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    });
   }
   
   supabaseAdminInstance = createClient(supabaseUrl, supabaseServiceKey, {
