@@ -120,7 +120,6 @@ export async function GET(request: NextRequest) {
           // Don't fail the verification - the custom verified flag in users_ext is what matters
         }
       }
-      }
     } catch (err) {
       // If columns don't exist, still consider it verified
       updateError = null;
