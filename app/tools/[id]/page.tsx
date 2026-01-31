@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/app/providers';
 import { getSupabase } from '@/lib/supabase';
 import { fetchWithCsrf } from '@/app/utils/csrf-client';
@@ -12,6 +12,7 @@ import { sanitizeHtml } from '@/lib/sanitizer';
 export default function ToolDetailPage() {
   const { session } = useAuth();
   const params = useParams();
+  const router = useRouter();
   const toolId = params.id as string;
 
   const [tool, setTool] = useState<any>(null);
@@ -86,17 +87,19 @@ export default function ToolDetailPage() {
 
         if (error || !data?.email_verified) {
           setIsVerified(false);
+          router.push(`/verify-email?email=${encodeURIComponent(session.user?.email || '')}`);
           return;
         }
         
         setIsVerified(true);
       } catch (err) {
         setIsVerified(false);
+        router.push(`/verify-email?email=${encodeURIComponent(session.user?.email || '')}`);
       }
     };
 
     checkVerification();
-  }, [session]);
+  }, [session, router]);
 
   if (loading) {
     return (
