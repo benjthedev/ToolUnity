@@ -64,8 +64,6 @@ export default function DashboardPage() {
   const [rentalRequests, setRentalRequests] = useState<RentalRequest[]>([]);
   const [csrfToken, setCsrfToken] = useState<string>('');
   const [processingRequest, setProcessingRequest] = useState<string | null>(null);
-  const [connectStatus, setConnectStatus] = useState<any>(null);
-  const [loadingConnect, setLoadingConnect] = useState(false);
 
   useEffect(() => {
     if (loading) return;
@@ -76,7 +74,6 @@ export default function DashboardPage() {
     }
 
     fetchData();
-    fetchConnectStatus();
   }, [session?.user?.id, loading, router]);
 
   const fetchData = async () => {
@@ -144,56 +141,7 @@ export default function DashboardPage() {
       setLoadingData(false);
     }
   };
-  const fetchConnectStatus = async () => {
-    try {
-      console.log('Fetching Stripe Connect status...');
-      const response = await fetch('/api/stripe/connect/status');
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Connect status:', data);
-        setConnectStatus(data);
-      } else {
-        console.error('Status response not ok:', response.status);
-      }
-    } catch (err) {
-      console.error('Error fetching Connect status:', err);
-    }
-  };
 
-  const handleConnectOnboarding = async () => {
-    setLoadingConnect(true);
-    try {
-      console.log('Starting Stripe Connect onboarding...');
-      const response = await fetch('/api/stripe/connect/onboarding', {
-        method: 'POST',
-      });
-      console.log('Onboarding response status:', response.status);
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Onboarding error response:', errorData);
-        showToast(errorData.error || 'Failed to start onboarding. Please try again.', 'error');
-        setLoadingConnect(false);
-        return;
-      }
-      
-      const data = await response.json();
-      console.log('Onboarding URL:', data.url);
-      
-      if (data.url) {
-        // Don't set loading to false here - we're redirecting
-        window.location.href = data.url;
-      } else {
-        console.error('No URL in response:', data);
-        showToast('Failed to get onboarding URL. Please try again.', 'error');
-        setLoadingConnect(false);
-      }
-    } catch (err) {
-      console.error('Error starting onboarding:', err);
-      showToast('Something went wrong. Please try again.', 'error');
-      setLoadingConnect(false);
-    }
-  };
   const handleReturn = async (rentalId: string) => {
     try {
       const { error } = await supabase
@@ -333,34 +281,6 @@ export default function DashboardPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
-
-        {/* Stripe Connect Setup Banner */}
-        {connectStatus && !connectStatus.detailsSubmitted && (
-          <div className="bg-gradient-to-r from-orange-50 to-amber-50 border-l-4 border-orange-500 p-6 rounded-lg shadow-sm">
-            <div className="flex items-start gap-4">
-              <div className="text-3xl">💳</div>
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Set Up Payouts to Earn Money</h3>
-                <p className="text-gray-700 mb-2">
-                  {tools.length > 0 
-                    ? `You've listed ${tools.length} tool${tools.length === 1 ? '' : 's'}, but you need to connect your bank account to receive payouts (85% of each rental). This takes 2 minutes with Stripe.`
-                    : 'Set up your bank account to receive payouts when you list tools (85% of each rental). This takes 2 minutes with Stripe.'}
-                </p>
-                <p className="text-sm text-gray-600 mb-4">🔒 Your bank details are secure with Stripe. We never see your banking information.</p>
-                <button
-                  onClick={() => {
-                    console.log('Button clicked! connectStatus:', connectStatus, 'loadingConnect:', loadingConnect);
-                    handleConnectOnboarding();
-                  }}
-                  disabled={loadingConnect}
-                  className="bg-orange-600 text-white px-6 py-2.5 rounded-lg hover:bg-orange-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {loadingConnect ? 'Loading...' : '→ Set Up Payouts Now'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Quick Stats */}
         {(activeRentals.length > 0 || tools.length > 0) && (
