@@ -77,20 +77,42 @@ export async function POST(request: NextRequest) {
     }
 
     // For development/testing: Create a verification link that auto-verifies
-    // Use Supabase's native email confirmation link instead of custom token
-    const verificationLink = `${process.env.NEXTAUTH_URL}/auth/callback`;
+    // In production, this should use the token stored in database
+    const verificationLink = `${process.env.NEXTAUTH_URL}/api/verify-email?token=${verificationToken}&email=${encodeURIComponent(email)}`;
 
     // Send verification email using Resend (if configured)
     if (process.env.RESEND_API_KEY) {
       try {
-        // Get the user to trigger Supabase to send an email confirmation
-        const { data: resendData, error: resendError } = await supabase.auth.resend({
-          type: 'signup',
-          email: email,
+        const response = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+          },
+          body: JSON.stringify({
+            from: process.env.RESEND_FROM_EMAIL || 'noreply@toolunity.app',
+            to: email,
+            subject: 'Verify your ToolUnity email address',
+            html: `
+              <h2>Welcome to ToolUnity!</h2>
+              <p>Thank you for signing up. Please verify your email address to activate your account.</p>
+              <p>
+                <a href="${verificationLink}" style="display: inline-block; padding: 10px 20px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 4px;">
+                  Verify Email Address
+                </a>
+              </p>
+              <p>Or copy and paste this link in your browser:</p>
+              <p><code>${verificationLink}</code></p>
+              <p>This link will expire in 24 hours.</p>
+              <p>If you didn't sign up for ToolUnity, you can ignore this email.</p>
+            `,
+          }),
         });
-
-        if (resendError) {
-          throw new Error(`Supabase resend error: ${resendError.message}`);
+        
+        const responseData = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(`Resend API error: ${response.status} ${JSON.stringify(responseData)}`);
         }
 
         return NextResponse.json(
@@ -98,54 +120,15 @@ export async function POST(request: NextRequest) {
           { status: 200 }
         );
       } catch (emailError) {
-        serverLog.error('Email sending error:', emailError);
-        // Fallback: send via Resend directly
-        try {
-          const manualLink = `${process.env.NEXTAUTH_URL}/auth/callback`;
-          const response = await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-            },
-            body: JSON.stringify({
-              from: process.env.RESEND_FROM_EMAIL || 'noreply@toolunity.app',
-              to: email,
-              subject: 'Verify your ToolUnity email address',
-              html: `
-                <h2>Welcome to ToolUnity!</h2>
-                <p>Thank you for signing up. Please verify your email address to activate your account.</p>
-                <p>
-                  <a href="${manualLink}" style="display: inline-block; padding: 10px 20px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 4px;">
-                    Verify Email Address
-                  </a>
-                </p>
-                <p>This link will expire in 24 hours.</p>
-                <p>If you didn't sign up for ToolUnity, you can ignore this email.</p>
-              `,
-            }),
-          });
-          
-          const responseData = await response.json();
-          
-          if (!response.ok) {
-            throw new Error(`Resend API error: ${response.status} ${JSON.stringify(responseData)}`);
-          }
-
-          return NextResponse.json(
-            { message: 'Verification email sent' },
-            { status: 200 }
-          );
-        } catch (fallbackError) {
-          serverLog.error('Resend fallback error:', fallbackError);
-          return NextResponse.json(
-            { 
-              error: 'Failed to send verification email. Please check that email service is configured.',
-              requiresEmailService: true
-            },
-            { status: 500 }
-          );
-        }
+        serverLog.error('Resend email error:', emailError);
+        // Don't auto-verify - require actual email
+        return NextResponse.json(
+          { 
+            error: 'Failed to send verification email. Please check that email service is configured.',
+            requiresEmailService: true
+          },
+          { status: 500 }
+        );
       }
     } else {
       // No email service configured - don't auto-verify

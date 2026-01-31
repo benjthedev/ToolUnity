@@ -27,11 +27,31 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        // Check email verification status from auth.users.email_confirmed_at
+        let emailVerified = data.user.email_confirmed_at ? true : false;
+        
+        // Also check our custom email_verified field in users_ext as fallback
+        if (!emailVerified) {
+          try {
+            const { data: userExt } = await supabase
+              .from('users_ext')
+              .select('email_verified')
+              .eq('user_id', data.user.id)
+              .single();
+            
+            if (userExt?.email_verified) {
+              emailVerified = true;
+            }
+          } catch (err) {
+            // Silently fail - just use the Supabase auth status
+          }
+        }
+
         return {
           id: data.user.id,
           email: data.user.email,
           name: data.user.user_metadata?.name || data.user.email,
-          emailVerified: data.user.email_confirmed_at ? true : false,
+          emailVerified: emailVerified,
         };
       },
     }),

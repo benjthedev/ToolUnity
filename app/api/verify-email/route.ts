@@ -107,17 +107,19 @@ export async function GET(request: NextRequest) {
         .eq('email_verification_token', token);
       updateError = result.error;
 
-      // Also update Supabase auth.users.email_confirmed_at so session reflects verified status
+      // Also update Supabase auth to mark email as confirmed
       if (!updateError && users.user_id) {
         try {
           const supabaseAdmin = getSupabaseAdmin();
+          // Use the admin API to update user metadata to track verification
           await supabaseAdmin.auth.admin.updateUserById(users.user_id, {
-            email_confirm: true,
+            user_metadata: { email_verified: true },
           });
         } catch (authError) {
-          serverLog.error('Error updating auth user email_confirmed_at:', authError);
-          // Don't fail the verification if this fails - the custom verified flag is what matters
+          serverLog.error('Error updating auth user metadata:', authError);
+          // Don't fail the verification - the custom verified flag in users_ext is what matters
         }
+      }
       }
     } catch (err) {
       // If columns don't exist, still consider it verified
