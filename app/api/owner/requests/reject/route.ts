@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
           body: JSON.stringify({
             from: 'ToolUnity <noreply@toolunity.co.uk>',
             to: renterData.email,
-            subject: `Rental request for ${toolName} was declined`,
+            subject: `Your rental request for ${toolName} was declined`,
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                 <h2 style="color: #dc2626;">Unfortunately, your rental request was declined</h2>

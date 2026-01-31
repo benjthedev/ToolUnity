@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
                     body: JSON.stringify({
                       from: 'ToolUnity <noreply@toolunity.co.uk>',
                       to: ownerData.email,
-                      subject: `🔧 New Rental Request for ${toolName}`,
+                      subject: `New Rental Request for ${toolName}`,
                       html: `
                         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                           <h2 style="color: #2563eb;">Someone wants to rent your tool!</h2>
