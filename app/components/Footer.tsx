@@ -29,11 +29,6 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/pricing" className="hover:text-white transition">
-                  Pricing
-                </Link>
-              </li>
-              <li>
                 <Link href="/for-owners" className="hover:text-white transition">
                   For Tool Owners
                 </Link>
@@ -66,7 +61,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/pricing#faq" className="hover:text-white transition">
+                <Link href="/safety" className="hover:text-white transition">
                   FAQ
                 </Link>
               </li>

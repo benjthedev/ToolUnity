@@ -325,12 +325,12 @@ export default function ForOwnersPage() {
 
         {/* Learn More */}
         <section className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-          <h3 className="text-xl font-bold text-gray-900 mb-3">Learn More</h3>
+          <h3 className="text-xl font-bold text-gray-900 mb-3">Have Questions?</h3>
           <p className="text-gray-700 mb-4">
-            Check out our <Link href="/pricing" className="text-green-600 hover:text-green-700 font-semibold">pricing & earnings page</Link> to see earning examples and find answers to more questions.
+            Check out our <Link href="/safety" className="text-green-600 hover:text-green-700 font-semibold">Safety & FAQs page</Link> for answers to common questions.
           </p>
           <p className="text-sm text-gray-600">
-            Questions? <Link href="/contact" className="text-green-600 hover:text-green-700 font-semibold">Contact us</Link>
+            Still have questions? <Link href="/contact" className="text-green-600 hover:text-green-700 font-semibold">Contact us</Link>
           </p>
         </section>
 

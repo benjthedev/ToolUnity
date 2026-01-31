@@ -148,6 +148,62 @@ export default function SafetyPage() {
             </p>
           </div>
         </section>
+
+        {/* FAQs */}
+        <section>
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h2>
+          
+          <div className="space-y-6">
+            <div className="bg-white border border-gray-200 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Is there a cost to list tools?</h3>
+              <p className="text-gray-700">
+                No. Listing is completely free. There are no fees or hidden charges. You only pay the platform fee (15%) when someone rents your tool.
+              </p>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">How much does it cost to rent?</h3>
+              <p className="text-gray-700">
+                Owners set their own prices, typically £1-5 per day. You pay per day with no membership or subscription required.
+              </p>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">When do owners get paid?</h3>
+              <p className="text-gray-700">
+                We process payouts monthly to your bank account. Owners receive 85% of each rental.
+              </p>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">What if a tool gets damaged?</h3>
+              <p className="text-gray-700">
+                Renters are responsible for damage up to the tool's listed value. We investigate disputes and ensure owners are compensated fairly.
+              </p>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">What if a tool doesn't get returned?</h3>
+              <p className="text-gray-700">
+                We investigate immediately. The renter's account is reviewed, and the owner is compensated for the tool's value. We handle it.
+              </p>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Can I see who's renting my tools?</h3>
+              <p className="text-gray-700">
+                Yes. You review and approve every rental request before it happens. You see the renter's name and contact details. You're in complete control.
+              </p>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Is my personal info shared?</h3>
+              <p className="text-gray-700">
+                Your location and personal details stay private until you both agree to a rental. Then you coordinate directly for pickup/dropoff.
+              </p>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );
