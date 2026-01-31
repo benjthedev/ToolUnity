@@ -95,18 +95,8 @@ export async function POST(request: NextRequest) {
       return ApiErrors.BAD_REQUEST(profileError.message);
     }
 
-    // Force email as unverified - Supabase auto-confirms but we want users to verify
-    const sbAdmin = getSupabaseAdmin();
-    if (sbAdmin && user_id) {
-      try {
-        await sbAdmin.auth.admin.updateUserById(user_id, {
-          email_confirm: false,
-        });
-      } catch (e) {
-        // If this fails, continue anyway - verification will still be enforced at action level
-        console.error('Failed to set email as unverified:', e);
-      }
-    }
+    // Supabase will automatically send verification email and keep email unverified
+    // until user clicks the verification link
 
     return apiSuccess(
       { id: user_id, email: email, username: username },
