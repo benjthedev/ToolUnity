@@ -132,7 +132,7 @@ export default function ForOwnersPage() {
               <div className="flex-shrink-0 w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">Sign Up & Verify</h3>
-                <p className="text-gray-700">Create your account and verify your email and bank details via Stripe (for payouts).</p>
+                <p className="text-gray-700">Create your account, verify your email, and add your bank details for payouts.</p>
               </div>
             </div>
 
@@ -148,15 +148,15 @@ export default function ForOwnersPage() {
               <div className="flex-shrink-0 w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">Approve Rental Requests</h3>
-                <p className="text-gray-700">Review and approve rental requests from verified renters. You decide who rents what and when.</p>
+                <p className="text-gray-700">Review and approve rental requests. You decide who rents what and when—you're always in control.</p>
               </div>
             </div>
 
             <div className="flex gap-4">
               <div className="flex-shrink-0 w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-bold">4</div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Receive Payouts</h3>
-                <p className="text-gray-700">Get paid 85% of every rental automatically. Monthly payouts go straight to your bank account.</p>
+                <h3 className="text-lg font-semibold text-gray-900">Get Paid</h3>
+                <p className="text-gray-700">Earn 85% of every rental. We process payouts monthly straight to your bank account.</p>
               </div>
             </div>
           </div>
@@ -234,7 +234,7 @@ export default function ForOwnersPage() {
 
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <h3 className="font-semibold text-gray-900 mb-2">✓ Bank Account for Payouts</h3>
-              <p className="text-gray-700 text-sm">Connect your bank via Stripe (2 minutes). Secure payouts, we never see your details.</p>
+              <p className="text-gray-700 text-sm">Add your bank details (2 minutes). We'll transfer your earnings monthly.</p>
             </div>
           </div>
 
@@ -296,7 +296,7 @@ export default function ForOwnersPage() {
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Can I see who's renting my tools?</h3>
               <p className="text-gray-700">
-                Yes. You review and approve every rental request before it happens. You see the renter's name, verification status, and their reviews. You're in complete control.
+                Yes. You review and approve every rental request before it happens. You see the renter's name and contact details. You're in complete control.
               </p>
             </div>
 

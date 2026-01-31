@@ -389,10 +389,10 @@ export default function Home() {
           <div>
             <h4 className="text-2xl font-semibold text-orange-600 mb-4">🤝 Trust & Safety</h4>
             <p className="text-gray-600 mb-4">
-              Every member is verified and reviewed. You choose who rents your tools.
+              All members verify their email. You choose who rents your tools and can decline any request.
             </p>
             <p className="text-gray-600">
-              Both renters and owners communicate directly to ensure smooth handoffs.
+              Owners are fully protected—renters pay for any damage up to the tool's value. You never lose money.
             </p>
           </div>
         </div>

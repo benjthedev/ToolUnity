@@ -16,7 +16,7 @@ export default function SafetyPage() {
         {/* Trust Summary */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-8">
           <p className="text-lg text-gray-900 leading-relaxed">
-            Renters are responsible for any damage beyond normal wear, capped at the tool's listed value. Owners have full control over who rents their tools and can approve or decline any request. Clear rules, no surprises.
+            <strong>Owners are fully protected.</strong> Renters are responsible for any damage beyond normal wear, up to the tool's listed value. Owners have full control over who rents their tools and can approve or decline any request. If something goes wrong, we ensure owners are compensated.
           </p>
         </div>
 
@@ -115,6 +115,13 @@ export default function SafetyPage() {
         <section>
           <h2 className="text-3xl font-bold text-gray-900 mb-6">For Tool Owners</h2>
           
+          <div className="bg-green-50 border-2 border-green-400 rounded-lg p-6 mb-6">
+            <p className="text-xl font-bold text-green-900 mb-2">🛡️ You're Fully Protected</p>
+            <p className="text-gray-700">
+              As a tool owner, <strong>you will never lose money</strong>. If a renter damages or loses your tool, they are liable for the full value. We handle the dispute and ensure you're compensated.
+            </p>
+          </div>
+          
           <div className="bg-white border border-gray-200 rounded-lg p-6">
             <p className="text-gray-700 mb-4">
               <strong>You're in control.</strong> Here's how we protect your tools:
@@ -122,8 +129,9 @@ export default function SafetyPage() {
             <ul className="space-y-3 text-gray-700">
               <li>✓ <strong>Approve each request</strong> — You choose who rents your tools</li>
               <li>✓ <strong>Set your own rates</strong> — Charge what you think is fair (£1-5+/day)</li>
-              <li>✓ <strong>Damage liability on renter</strong> — If damage occurs, the renter pays</li>
+              <li>✓ <strong>Renter pays for damage</strong> — If damage occurs, the renter pays up to the tool's full value</li>
               <li>✓ <strong>Keep 85%</strong> — You earn 85% of every rental</li>
+              <li>✓ <strong>We handle disputes</strong> — If there's a problem, we investigate and ensure you're compensated</li>
             </ul>
           </div>
         </section>
