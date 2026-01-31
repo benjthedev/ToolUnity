@@ -34,6 +34,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check email verification
+    if (!session.user.emailVerified) {
+      return NextResponse.json(
+        { error: 'Email verification required', code: 'email_not_verified' },
+        { status: 403 }
+      );
+    }
+
     // Rate limit: 5 tools per hour per user
     const rateLimitCheck = checkRateLimitByUserId(
       session.user.id,

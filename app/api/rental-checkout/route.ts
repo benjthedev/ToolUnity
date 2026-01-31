@@ -52,6 +52,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Check email verification
+    if (!session.user.emailVerified) {
+      return NextResponse.json(
+        { error: 'Email verification required to rent tools' },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const { rentalTransactionId } = body;
 
