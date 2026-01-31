@@ -16,6 +16,7 @@ interface Tool {
   postcode: string;
   available: boolean;
   tool_value: number;
+  daily_rate?: number;
   image_url?: string;
 }
 
@@ -176,7 +177,14 @@ export default function ToolsPage() {
     }
   };
 
-  const filteredTools = tools; // Filtering is now done server-side with pagination
+  const filteredTools = tools.filter((tool) => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      tool.name.toLowerCase().includes(query) ||
+      tool.category.toLowerCase().includes(query)
+    );
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -286,9 +294,9 @@ export default function ToolsPage() {
                     <span className="text-xs text-gray-500 flex items-center gap-1">
                       📍 {tool.postcode}
                     </span>
-                    <span className="text-lg font-bold text-blue-600">
-                      £{tool.tool_value}
-                      <span className="text-xs text-gray-600"> value</span>
+                    <span className="text-lg font-bold text-green-600">
+                      £{tool.daily_rate || 3}
+                      <span className="text-xs text-gray-600">/day</span>
                     </span>
                   </div>
                 </div>

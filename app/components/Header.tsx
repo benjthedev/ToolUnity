@@ -51,9 +51,6 @@ export default function Header() {
             <Link href="/safety" className="text-gray-700 hover:text-blue-600 transition font-medium">
               Safety
             </Link>
-            <Link href="/safety" className="text-gray-700 hover:text-blue-600 transition font-medium">
-              Safety
-            </Link>
             <Link href="/for-owners" className="text-gray-700 hover:text-blue-600 transition font-medium">
               For Owners
             </Link>
