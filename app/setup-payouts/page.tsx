@@ -181,7 +181,7 @@ export default function SetupPayoutsPage() {
                 onChange={(e) => setSortCode(formatSortCode(e.target.value))}
                 placeholder="XX-XX-XX"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono"
-                maxLength="8"
+                maxLength={8}
                 required
               />
               <p className="text-xs text-gray-500 mt-1">6 digits (find on your bank card or statement)</p>
@@ -198,7 +198,7 @@ export default function SetupPayoutsPage() {
                 onChange={(e) => setAccountNumber(formatAccountNumber(e.target.value))}
                 placeholder="12345678"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono"
-                maxLength="8"
+                maxLength={8}
                 required
               />
               <p className="text-xs text-gray-500 mt-1">8 digits (find on your cheque book or bank app)</p>

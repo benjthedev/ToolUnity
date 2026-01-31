@@ -14,7 +14,7 @@ let supabase: any = null;
 function getStripe(): Stripe {
   if (!stripe) {
     stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-      apiVersion: '2025-12-15.clover',
+      apiVersion: '2024-12-18.acacia' as any,
     });
   }
   return stripe;
