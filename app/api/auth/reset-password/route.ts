@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabase, getSupabaseAdmin } from '@/lib/supabase';
 import { checkRateLimitByEmail, RATE_LIMIT_CONFIGS } from '@/lib/rate-limit';
 import crypto from 'crypto';
 
@@ -199,11 +199,24 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    // Get the admin client for auth operations
+    const supabaseAdmin = getSupabaseAdmin();
+    
     // Get the auth user ID from email
-    const { data: authData } = await supabase.auth.admin.listUsers();
-    const authUser = authData.users.find((u: any) => u.email === email);
+    const { data: authData, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+    
+    if (listError) {
+      console.error('Error listing users:', listError);
+      return NextResponse.json(
+        { error: 'Failed to verify user' },
+        { status: 500 }
+      );
+    }
+    
+    const authUser = authData?.users?.find((u: any) => u.email === email);
 
     if (!authUser) {
+      console.error('Auth user not found for email:', email);
       return NextResponse.json(
         { error: 'User not found' },
         { status: 400 }
@@ -211,7 +224,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update password via Supabase Auth
-    const { error: updateAuthError } = await supabase.auth.admin.updateUserById(
+    const { error: updateAuthError } = await supabaseAdmin.auth.admin.updateUserById(
       authUser.id,
       { password: newPassword }
     );
