@@ -9,6 +9,7 @@ import { getSupabase } from '@/lib/supabase';
 export default function AddToolPage() {
   const { session, loading } = useAuth();
   const router = useRouter();
+  const [isVerified, setIsVerified] = useState<boolean | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>('');
   const [conditionPhotos, setConditionPhotos] = useState<File[]>([]);
@@ -34,11 +35,14 @@ export default function AddToolPage() {
       return;
     }
 
-    // Check if email is verified from session first
+    // Check if email is verified from session
     if (!session.user?.emailVerified) {
+      setIsVerified(false);
       router.push(`/verify-email?email=${encodeURIComponent(session.user?.email || '')}`);
       return;
     }
+    
+    setIsVerified(true);
   }, [session, loading, router]);
 
   if (loading) {
@@ -307,6 +311,18 @@ export default function AddToolPage() {
       setSubmitting(false);
     }
   };
+
+  if (loading || isVerified === null) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!isVerified) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
