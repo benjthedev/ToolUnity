@@ -60,19 +60,29 @@ function VerifyEmailContent() {
       setTimeout(() => {
         window.location.href = '/dashboard';
       }, 1000);
+      return; // Stop here, don't set up interval
     } else if (error === 'expired') {
       setStatus('expired');
+      return; // Stop here, don't set up interval
     } else if (error) {
       setStatus('error');
-    } else if (email) {
-      // Auto-check every 2 seconds while waiting
-      const interval = setInterval(() => {
-        checkVerification();
-      }, 2000);
-      
-      return () => clearInterval(interval);
+      return; // Stop here, don't set up interval
     }
-  }, [success, error, email, checkVerification]);
+
+    // If already success, don't set up interval
+    if (status === 'success') {
+      return;
+    }
+
+    if (!email) return;
+
+    // Auto-check every 2 seconds while waiting
+    const interval = setInterval(() => {
+      checkVerification();
+    }, 2000);
+    
+    return () => clearInterval(interval);
+  }, [success, error, email, checkVerification, status]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
