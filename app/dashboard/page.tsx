@@ -303,24 +303,6 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Email Verification Banner - Only show if not verified */}
-      {!session.user?.emailVerified && (
-        <div className="bg-red-500 text-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-lg">⚠️</span>
-              <div>
-                <p className="font-semibold">Email verification required</p>
-                <p className="text-sm text-red-100">Verify your email to list and rent tools</p>
-              </div>
-            </div>
-            <Link href="/verify-email-sent" className="bg-white text-red-600 px-4 py-2 rounded font-semibold hover:bg-red-50 whitespace-nowrap">
-              Verify Email
-            </Link>
-          </div>
-        </div>
-      )}
-
       {/* Hero Header */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
