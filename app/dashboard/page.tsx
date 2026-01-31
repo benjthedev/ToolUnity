@@ -322,11 +322,12 @@ export default function DashboardPage() {
               <div className="text-3xl">💳</div>
               <div className="flex-1">
                 <h3 className="text-lg font-bold text-gray-900 mb-2">Set Up Payouts to Earn Money</h3>
-                <p className="text-gray-700 mb-4">
+                <p className="text-gray-700 mb-2">
                   {tools.length > 0 
                     ? `You've listed ${tools.length} tool${tools.length === 1 ? '' : 's'}, but you need to connect your bank account to receive payouts (85% of each rental). This takes 2 minutes with Stripe.`
                     : 'Set up your bank account to receive payouts when you list tools (85% of each rental). This takes 2 minutes with Stripe.'}
                 </p>
+                <p className="text-sm text-gray-600 mb-4">🔒 Your bank details are secure with Stripe. We never see your banking information.</p>
                 <button
                   onClick={handleConnectOnboarding}
                   disabled={loadingConnect}
