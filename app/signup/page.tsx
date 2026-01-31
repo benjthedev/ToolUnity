@@ -109,8 +109,28 @@ export default function SignupPage() {
         return;
       }
 
-      // Note: Supabase sends verification email automatically if "Confirm email" is enabled
-      // No need to send a second one from our code
+      // Send verification email using Resend (our email service)
+      try {
+        const emailResponse = await fetchWithCsrf('/api/send-verification-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: authData.user.id,
+            email: email,
+          }),
+        });
+
+        if (!emailResponse.ok) {
+          const emailError = await emailResponse.json();
+          setError(emailError.error || 'Failed to send verification email');
+          setLoading(false);
+          return;
+        }
+      } catch (emailErr) {
+        setError('Failed to send verification email. Please try again.');
+        setLoading(false);
+        return;
+      }
 
       // Redirect to success page showing email verification message
       router.push(`/signup-success?email=${encodeURIComponent(email)}`);
