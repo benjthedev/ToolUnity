@@ -37,6 +37,18 @@ export async function POST(request: NextRequest) {
       return ApiErrors.UNAUTHORIZED();
     }
 
+    // Check email verification
+    if (!session.user.emailVerified) {
+      return NextResponse.json(
+        {
+          error: 'Email verification required',
+          reason: 'email_not_verified',
+          message: 'You must verify your email address before renting tools.',
+        },
+        { status: 403 }
+      );
+    }
+
     // Rate limit rental requests (20 per hour per user - more permissive than before)
     const rateLimitCheck = checkRateLimitByUserId(
       session.user.id,

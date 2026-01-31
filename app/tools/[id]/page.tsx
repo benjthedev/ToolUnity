@@ -324,6 +324,22 @@ export default function ToolDetailPage() {
                 >
                   Sign in to Rent
                 </Link>
+              ) : !session.user?.emailVerified ? (
+                <div className="mb-8">
+                  <button
+                    disabled
+                    className="w-full bg-yellow-500 text-white py-3 rounded-lg font-semibold cursor-not-allowed mb-3"
+                  >
+                    Email Verification Required
+                  </button>
+                  <p className="text-sm text-gray-600 text-center">
+                    Please{' '}
+                    <Link href="/verify-email" className="text-blue-600 hover:text-blue-700 font-semibold underline">
+                      verify your email
+                    </Link>
+                    {' '}before renting tools.
+                  </p>
+                </div>
               ) : (
                 <button
                   disabled

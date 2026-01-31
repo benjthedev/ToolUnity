@@ -163,8 +163,36 @@ export default function DashboardPage() {
       {/* Hero Header */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          <h1 className="text-3xl font-bold text-white">Your Dashboard</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-white">Your Dashboard</h1>
+            {session.user?.emailVerified ? (
+              <span className="inline-flex items-center gap-1.5 bg-green-500 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                Email Verified
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 bg-yellow-500 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                Email Not Verified
+              </span>
+            )}
+          </div>
           <p className="text-blue-100 mt-2">Manage your rentals and tools</p>
+          {!session.user?.emailVerified && (
+            <div className="mt-4 bg-yellow-500 bg-opacity-20 border border-yellow-300 rounded-lg p-4">
+              <p className="text-white font-semibold">⚠️ Email verification required</p>
+              <p className="text-blue-100 text-sm mt-1">
+                You must verify your email before renting tools.{' '}
+                <Link href="/verify-email" className="underline font-semibold hover:text-white">
+                  Resend verification email
+                </Link>
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
