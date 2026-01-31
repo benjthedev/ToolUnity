@@ -173,12 +173,12 @@ export default function ForOwnersPage() {
             </div>
             <div>
               <p className="text-gray-600 mb-2">You Earn (85%)</p>
-              <p className="text-3xl font-bold text-green-600">£X × 0.7</p>
+              <p className="text-3xl font-bold text-green-600">£X × 0.85</p>
               <p className="text-sm text-gray-600 mt-2">Per rental day</p>
             </div>
             <div>
-              <p className="text-gray-600 mb-2">Platform Fee (30%)</p>
-              <p className="text-3xl font-bold text-orange-600">£X × 0.3</p>
+              <p className="text-gray-600 mb-2">Platform Fee (15%)</p>
+              <p className="text-3xl font-bold text-orange-600">£X × 0.15</p>
               <p className="text-sm text-gray-600 mt-2">Operations & security</p>
             </div>
           </div>
@@ -275,7 +275,7 @@ export default function ForOwnersPage() {
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Is there a cost to list tools?</h3>
               <p className="text-gray-700">
-                No. Listing is completely free. There are no fees or hidden charges. You only pay the platform fee (30%) when someone rents your tool.
+                No. Listing is completely free. There are no fees or hidden charges. You only pay the platform fee (15%) when someone rents your tool.
               </p>
             </div>
 

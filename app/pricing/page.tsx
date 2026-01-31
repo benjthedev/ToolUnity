@@ -170,7 +170,7 @@ export default function PricingPage() {
               <p className="text-gray-600 text-sm mb-4">Pressure washer at £4/day</p>
               <div className="bg-green-50 rounded-lg p-4 mb-4">
                 <p className="text-sm text-gray-600">Your daily rate: £4</p>
-                <p className="text-2xl font-bold text-green-600">You get 70%</p>
+                <p className="text-2xl font-bold text-green-600">You get 85%</p>
                 <p className="text-xs text-gray-600 mt-2">Per rental day</p>
               </div>
               <p className="text-xs text-gray-600">Earnings depend on rental frequency</p>
@@ -182,7 +182,7 @@ export default function PricingPage() {
               <p className="text-gray-600 text-sm mb-4">Electric drill at £3/day</p>
               <div className="bg-green-50 rounded-lg p-4 mb-4">
                 <p className="text-sm text-gray-600">Your daily rate: £3</p>
-                <p className="text-2xl font-bold text-green-600">You get 70%</p>
+                <p className="text-2xl font-bold text-green-600">You get 85%</p>
                 <p className="text-xs text-gray-600 mt-2">Per rental day</p>
               </div>
               <p className="text-xs text-gray-600">Earnings depend on rental frequency</p>
@@ -194,7 +194,7 @@ export default function PricingPage() {
               <p className="text-gray-600 text-sm mb-4">Ladder at £1.50/day</p>
               <div className="bg-green-50 rounded-lg p-4 mb-4">
                 <p className="text-sm text-gray-600">Your daily rate: £1.50</p>
-                <p className="text-2xl font-bold text-green-600">You get 70%</p>
+                <p className="text-2xl font-bold text-green-600">You get 85%</p>
                 <p className="text-xs text-gray-600 mt-2">Per rental day</p>
               </div>
               <p className="text-xs text-gray-600">Earnings depend on rental frequency</p>
@@ -279,7 +279,7 @@ export default function PricingPage() {
 
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">How do I get paid as an owner?</h3>
-              <p className="text-gray-600">We pay out directly to your bank account monthly. It's automatic—no invoices, no paperwork. Just list tools, get rented, earn. We keep 30% (to cover protection, platform costs, and payment processing).</p>
+              <p className="text-gray-600">We pay out directly to your bank account monthly. It's automatic—no invoices, no paperwork. Just list tools, get rented, earn. We keep 15% (to cover protection, platform costs, and payment processing).</p>
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Can I cancel a rental request as an owner?</h3>
