@@ -1,23 +1,22 @@
-import DOMPurify from 'isomorphic-dompurify';
-
 /**
  * Sanitization utilities for XSS prevention
+ * Lightweight implementation for serverless environments
  */
-
-// Configuration for DOMPurify
-const PURIFY_CONFIG = {
-  ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'p', 'br', 'ul', 'ol', 'li', 'a'],
-  ALLOWED_ATTR: ['href', 'target', 'rel'],
-  KEEP_CONTENT: true,
-};
 
 /**
  * Sanitize user-generated content to prevent XSS
  * Used for tool descriptions, reviews, messages, etc.
+ * This escapes all HTML to prevent XSS attacks
  */
 export function sanitizeHtml(dirty: string): string {
   if (!dirty) return '';
-  return DOMPurify.sanitize(dirty, PURIFY_CONFIG);
+  return dirty
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;');
 }
 
 /**
@@ -25,10 +24,12 @@ export function sanitizeHtml(dirty: string): string {
  */
 export function sanitizeText(text: string): string {
   if (!text) return '';
-  return DOMPurify.sanitize(text, {
-    ALLOWED_TAGS: [],
-    ALLOWED_ATTR: [],
-  });
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
 }
 
 /**

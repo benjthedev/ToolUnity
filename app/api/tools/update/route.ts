@@ -5,7 +5,16 @@ import { supabase } from '@/lib/supabase';
 import { UpdateToolSchema } from '@/lib/validation';
 import { checkRateLimitByUserId, RATE_LIMIT_CONFIGS } from '@/lib/rate-limit';
 import { validateCsrfTokenString } from '@/lib/csrf';
-import DOMPurify from 'isomorphic-dompurify';
+
+// Simple HTML sanitization for serverless environments
+function sanitizeHtml(text: string): string {
+  return text
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;');
+}
 
 /**
  * PUT /api/tools/update
@@ -78,7 +87,7 @@ export async function PUT(request: NextRequest) {
 
     // Step 5: Sanitize description for XSS protection
     const sanitizedDescription = updateData.description 
-      ? DOMPurify.sanitize(updateData.description)
+      ? sanitizeHtml(updateData.description)
       : undefined;
 
     // Step 6: Check ownership
