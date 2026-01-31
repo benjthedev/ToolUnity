@@ -1,11 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
-
-export default function SignupSuccessPage() {
+function SignupSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get('email') || '';
@@ -55,5 +53,17 @@ export default function SignupSuccessPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function SignupSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    }>
+      <SignupSuccessContent />
+    </Suspense>
   );
 }
