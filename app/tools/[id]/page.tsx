@@ -16,6 +16,7 @@ export default function ToolDetailPage() {
 
   const [tool, setTool] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isVerified, setIsVerified] = useState<boolean | null>(null);
   const [ownerName, setOwnerName] = useState('');
   const [ownerToolsCount, setOwnerToolsCount] = useState(0);
   const [showBorrowForm, setShowBorrowForm] = useState(false);
@@ -70,6 +71,33 @@ export default function ToolDetailPage() {
     fetchTool();
   }, [toolId]);
 
+  // Check email verification status when session changes
+  useEffect(() => {
+    if (!session?.user?.id) return;
+
+    const checkVerification = async () => {
+      try {
+        const sb = getSupabase();
+        const { data, error } = await sb
+          .from('users_ext')
+          .select('email_verified')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (error || !data?.email_verified) {
+          setIsVerified(false);
+          return;
+        }
+        
+        setIsVerified(true);
+      } catch (err) {
+        setIsVerified(false);
+      }
+    };
+
+    checkVerification();
+  }, [session]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 pt-32 flex items-center justify-center">
@@ -105,8 +133,8 @@ export default function ToolDetailPage() {
     setSubmittingBorrow(true);
     setBorrowError(null);
 
-    // Check if user is verified
-    if (!session?.user?.emailVerified) {
+    // Check if user is verified (from database check)
+    if (!isVerified) {
       setBorrowError({
         message: 'Please verify your email before renting tools',
         reason: 'email_not_verified',
