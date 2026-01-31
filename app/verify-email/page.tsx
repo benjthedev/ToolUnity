@@ -2,49 +2,105 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { getSupabase } from '@/lib/supabase';
 
 export default function VerifyEmailPage() {
   const router = useRouter();
-  const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'expired'>('loading');
+  const searchParams = useSearchParams();
+  const email = searchParams.get('email') || '';
+  const success = searchParams.get('success');
+  const error = searchParams.get('error');
+  
+  const [status, setStatus] = useState<'checking' | 'waiting' | 'success' | 'error' | 'expired'>('waiting');
+  const [isChecking, setIsChecking] = useState(false);
+
+  // Check verification status
+  const checkVerification = async () => {
+    setIsChecking(true);
+    try {
+      const sb = getSupabase();
+      const { data, error: queryError } = await sb
+        .from('users_ext')
+        .select('email_verified')
+        .eq('email', email)
+        .single();
+
+      if (queryError || !data?.email_verified) {
+        setStatus('waiting');
+      } else {
+        setStatus('success');
+        // Redirect after showing success for 1 second
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 1000);
+      }
+    } catch (err) {
+      setStatus('waiting');
+    } finally {
+      setIsChecking(false);
+    }
+  };
 
   useEffect(() => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const success = params.get('success');
-      const error = params.get('error');
-
-      if (success === 'true') {
-        setStatus('success');
-        // Force session refresh before redirect
-        setTimeout(() => {
-          // Refresh the page to get new session with emailVerified=true
-          window.location.href = '/dashboard';
-        }, 2000);
-      } else if (success === 'already') {
-        setStatus('success');
-        setTimeout(() => router.push('/login'), 3000);
-      } else if (error === 'expired') {
-        setStatus('expired');
-      } else if (error) {
-        setStatus('error');
-      }
-    } catch (e) {
-      // Silently handle errors
+    // Handle redirect from successful verification link
+    if (success === 'true') {
+      setStatus('success');
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 1000);
+    } else if (error === 'expired') {
+      setStatus('expired');
+    } else if (error) {
+      setStatus('error');
+    } else {
+      // Auto-check every 3 seconds while waiting
+      const interval = setInterval(() => {
+        checkVerification();
+      }, 3000);
+      
+      return () => clearInterval(interval);
     }
-  }, [router]);
+  }, [success, error]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          {status === 'loading' && (
+          {status === 'waiting' && (
             <>
-              <h2 className="mt-6 text-2xl font-bold text-gray-900">Verifying your email...</h2>
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full">
+                <svg className="w-6 h-6 text-blue-600 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h2 className="mt-6 text-2xl font-bold text-gray-900">Verify your email</h2>
+              <p className="mt-4 text-gray-600">
+                We've sent a verification link to <strong>{email}</strong>
+              </p>
+              <p className="mt-3 text-sm text-gray-500">
+                Click the link in the email to verify your account. We're automatically checking every 3 seconds...
+              </p>
+              <button
+                onClick={checkVerification}
+                disabled={isChecking}
+                className="mt-6 w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold py-2 px-4 rounded"
+              >
+                {isChecking ? 'Checking...' : 'Check verification'}
+              </button>
+              <p className="mt-3 text-xs text-gray-400">
+                Click above if you've already verified in your email
+              </p>
+            </>
+          )}
+
+          {status === 'checking' && (
+            <>
               <div className="mt-6 flex justify-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
               </div>
+              <h2 className="mt-6 text-2xl font-bold text-gray-900">Checking verification...</h2>
             </>
           )}
 
@@ -59,7 +115,7 @@ export default function VerifyEmailPage() {
               <p className="mt-4 text-gray-600">
                 Your email has been successfully verified. You can now use all ToolUnity features.
               </p>
-              <p className="mt-2 text-sm text-gray-500">Redirecting to login in a moment...</p>
+              <p className="mt-2 text-sm text-gray-500">Redirecting to dashboard...</p>
             </>
           )}
 
