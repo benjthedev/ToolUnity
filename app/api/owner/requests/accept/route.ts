@@ -66,12 +66,18 @@ export async function POST(request: NextRequest) {
       .select(`
         id,
         owner_id,
+        renter_id,
         status,
         tool_id,
+        start_date,
+        end_date,
+        duration_days,
+        rental_cost,
         owner_payout,
         stripe_payment_intent_id,
         tools:tool_id (
-          owner_id
+          owner_id,
+          name
         )
       `)
       .eq('id', rental_id)
@@ -115,6 +121,75 @@ export async function POST(request: NextRequest) {
         { error: 'Failed to accept rental request' },
         { status: 500 }
       );
+    }
+
+    // Step 6: Send email notification to renter
+    try {
+      // Get renter and owner details
+      const { data: renterData } = await supabase
+        .from('users_ext')
+        .select('email, username')
+        .eq('user_id', rental.renter_id)
+        .single();
+
+      const { data: ownerData } = await supabase
+        .from('users_ext')
+        .select('email, phone_number, username')
+        .eq('user_id', rental.owner_id)
+        .single();
+
+      if (renterData?.email) {
+        const toolName = rental.tools?.name || 'the tool';
+        const startDate = new Date(rental.start_date).toLocaleDateString('en-GB');
+        const endDate = new Date(rental.end_date).toLocaleDateString('en-GB');
+
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: 'ToolUnity <noreply@toolunity.co.uk>',
+            to: renterData.email,
+            subject: `✅ Your rental request for ${toolName} has been accepted!`,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #16a34a;">Good news! Your rental has been approved 🎉</h2>
+                <p>The owner has accepted your request to rent <strong>${toolName}</strong>.</p>
+                
+                <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #bbf7d0;">
+                  <h3 style="margin-top: 0; color: #166534;">Rental Details:</h3>
+                  <p><strong>Tool:</strong> ${toolName}</p>
+                  <p><strong>Dates:</strong> ${startDate} to ${endDate}</p>
+                  <p><strong>Duration:</strong> ${rental.duration_days} day${rental.duration_days > 1 ? 's' : ''}</p>
+                </div>
+                
+                <div style="background: #eff6ff; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #bfdbfe;">
+                  <h3 style="margin-top: 0; color: #1e40af;">Owner Contact Details:</h3>
+                  ${ownerData?.username ? `<p><strong>Name:</strong> ${ownerData.username}</p>` : ''}
+                  <p><strong>Email:</strong> <a href="mailto:${ownerData?.email}">${ownerData?.email}</a></p>
+                  ${ownerData?.phone_number ? `<p><strong>Phone:</strong> <a href="tel:${ownerData.phone_number}">${ownerData.phone_number}</a></p>` : ''}
+                </div>
+                
+                <p><strong>Next step:</strong> Contact the owner to arrange pickup of the tool.</p>
+                
+                <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" 
+                   style="display: inline-block; background: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 20px 0;">
+                  View in Dashboard →
+                </a>
+                
+                <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+                <p style="color: #9ca3af; font-size: 12px;">ToolUnity - Share tools, build community</p>
+              </div>
+            `,
+          }),
+        });
+        console.log(`Sent acceptance email to renter: ${renterData.email}`);
+      }
+    } catch (emailError) {
+      console.error('Error sending acceptance email:', emailError);
+      // Don't fail the request if email fails
     }
 
     return NextResponse.json(

@@ -71,8 +71,11 @@ export async function POST(request: NextRequest) {
       .select(`
         id,
         owner_id,
+        renter_id,
         status,
         tool_id,
+        start_date,
+        end_date,
         stripe_payment_intent_id,
         total_cost,
         tools:tool_id (
@@ -150,6 +153,65 @@ export async function POST(request: NextRequest) {
         { error: 'Failed to reject rental request' },
         { status: 500 }
       );
+    }
+
+    // Step 7: Send email notification to renter
+    try {
+      const { data: renterData } = await supabase
+        .from('users_ext')
+        .select('email')
+        .eq('user_id', rental.renter_id)
+        .single();
+
+      if (renterData?.email) {
+        const toolName = rental.tools?.name || 'the tool';
+        const startDate = new Date(rental.start_date).toLocaleDateString('en-GB');
+        const endDate = new Date(rental.end_date).toLocaleDateString('en-GB');
+
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: 'ToolUnity <noreply@toolunity.co.uk>',
+            to: renterData.email,
+            subject: `Rental request for ${toolName} was declined`,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #dc2626;">Unfortunately, your rental request was declined</h2>
+                <p>The owner was unable to accept your request to rent <strong>${toolName}</strong> for ${startDate} to ${endDate}.</p>
+                
+                ${reason ? `
+                <div style="background: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #fecaca;">
+                  <p style="margin: 0;"><strong>Reason:</strong> ${reason}</p>
+                </div>
+                ` : ''}
+                
+                <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #bbf7d0;">
+                  <h3 style="margin-top: 0; color: #166534;">💳 Full Refund Issued</h3>
+                  <p style="margin-bottom: 0;">Don't worry - we've issued a full refund of <strong>£${rental.total_cost.toFixed(2)}</strong> to your original payment method. It should appear within 5-10 business days.</p>
+                </div>
+                
+                <p>Don't give up! There are plenty of other tools available on ToolUnity.</p>
+                
+                <a href="${process.env.NEXT_PUBLIC_APP_URL}/tools" 
+                   style="display: inline-block; background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 20px 0;">
+                  Browse More Tools →
+                </a>
+                
+                <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+                <p style="color: #9ca3af; font-size: 12px;">ToolUnity - Share tools, build community</p>
+              </div>
+            `,
+          }),
+        });
+        console.log(`Sent rejection email to renter: ${renterData.email}`);
+      }
+    } catch (emailError) {
+      console.error('Error sending rejection email:', emailError);
+      // Don't fail the request if email fails
     }
 
     return NextResponse.json(
