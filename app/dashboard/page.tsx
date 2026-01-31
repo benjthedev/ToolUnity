@@ -146,10 +146,14 @@ export default function DashboardPage() {
   };
   const fetchConnectStatus = async () => {
     try {
+      console.log('Fetching Stripe Connect status...');
       const response = await fetch('/api/stripe/connect/status');
       if (response.ok) {
         const data = await response.json();
+        console.log('Connect status:', data);
         setConnectStatus(data);
+      } else {
+        console.error('Status response not ok:', response.status);
       }
     } catch (err) {
       console.error('Error fetching Connect status:', err);
@@ -159,19 +163,34 @@ export default function DashboardPage() {
   const handleConnectOnboarding = async () => {
     setLoadingConnect(true);
     try {
+      console.log('Starting Stripe Connect onboarding...');
       const response = await fetch('/api/stripe/connect/onboarding', {
         method: 'POST',
       });
-      if (response.ok) {
-        const data = await response.json();
-        window.location.href = data.url; // Redirect to Stripe onboarding
+      console.log('Onboarding response status:', response.status);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Onboarding error response:', errorData);
+        showToast(errorData.error || 'Failed to start onboarding. Please try again.', 'error');
+        setLoadingConnect(false);
+        return;
+      }
+      
+      const data = await response.json();
+      console.log('Onboarding URL:', data.url);
+      
+      if (data.url) {
+        // Don't set loading to false here - we're redirecting
+        window.location.href = data.url;
       } else {
-        showToast('Failed to start onboarding. Please try again.', 'error');
+        console.error('No URL in response:', data);
+        showToast('Failed to get onboarding URL. Please try again.', 'error');
+        setLoadingConnect(false);
       }
     } catch (err) {
       console.error('Error starting onboarding:', err);
       showToast('Something went wrong. Please try again.', 'error');
-    } finally {
       setLoadingConnect(false);
     }
   };
@@ -329,7 +348,10 @@ export default function DashboardPage() {
                 </p>
                 <p className="text-sm text-gray-600 mb-4">🔒 Your bank details are secure with Stripe. We never see your banking information.</p>
                 <button
-                  onClick={handleConnectOnboarding}
+                  onClick={() => {
+                    console.log('Button clicked! connectStatus:', connectStatus, 'loadingConnect:', loadingConnect);
+                    handleConnectOnboarding();
+                  }}
                   disabled={loadingConnect}
                   className="bg-orange-600 text-white px-6 py-2.5 rounded-lg hover:bg-orange-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
