@@ -102,6 +102,91 @@ export async function POST(request: NextRequest) {
             serverLog.error('Error updating rental transaction:', updateError);
           } else {
             serverLog.info(`Rental ${rentalId} payment completed - status set to pending_approval (awaiting owner approval)`);
+            
+            // Send email notification to tool owner
+            try {
+              // Get rental details including owner and tool info
+              const { data: rentalData } = await getSupabase()
+                .from('rental_transactions')
+                .select(`
+                  id,
+                  start_date,
+                  end_date,
+                  duration_days,
+                  rental_cost,
+                  owner_id,
+                  tools:tool_id(name),
+                  renter:renter_id(email, username)
+                `)
+                .eq('id', rentalId)
+                .single();
+              
+              if (rentalData) {
+                // Get owner's email
+                const { data: ownerData } = await getSupabase()
+                  .from('users_ext')
+                  .select('email, username')
+                  .eq('user_id', rentalData.owner_id)
+                  .single();
+                
+                if (ownerData?.email) {
+                  const toolName = rentalData.tools?.name || 'your tool';
+                  const renterEmail = rentalData.renter?.email || 'A user';
+                  const startDate = new Date(rentalData.start_date).toLocaleDateString('en-GB');
+                  const endDate = new Date(rentalData.end_date).toLocaleDateString('en-GB');
+                  const ownerEarning = (rentalData.rental_cost * 0.85).toFixed(2);
+                  
+                  // Send email via Resend
+                  const emailResponse = await fetch('https://api.resend.com/emails', {
+                    method: 'POST',
+                    headers: {
+                      'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      from: 'ToolUnity <noreply@toolunity.co.uk>',
+                      to: ownerData.email,
+                      subject: `🔧 New Rental Request for ${toolName}`,
+                      html: `
+                        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                          <h2 style="color: #2563eb;">Someone wants to rent your tool!</h2>
+                          <p>Good news! You've received a rental request for <strong>${toolName}</strong>.</p>
+                          
+                          <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                            <h3 style="margin-top: 0;">Rental Details:</h3>
+                            <p><strong>Tool:</strong> ${toolName}</p>
+                            <p><strong>Dates:</strong> ${startDate} to ${endDate}</p>
+                            <p><strong>Duration:</strong> ${rentalData.duration_days} day${rentalData.duration_days > 1 ? 's' : ''}</p>
+                            <p><strong>You'll earn:</strong> £${ownerEarning} (85% of rental)</p>
+                          </div>
+                          
+                          <p><strong>Action required:</strong> Log in to your dashboard to accept or decline this request.</p>
+                          
+                          <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" 
+                             style="display: inline-block; background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 20px 0;">
+                            View Request →
+                          </a>
+                          
+                          <p style="color: #6b7280; font-size: 14px;">If you don't respond, the rental will be automatically declined and the renter will be refunded.</p>
+                          
+                          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+                          <p style="color: #9ca3af; font-size: 12px;">ToolUnity - Share tools, build community</p>
+                        </div>
+                      `,
+                    }),
+                  });
+                  
+                  if (emailResponse.ok) {
+                    serverLog.info(`Sent rental notification email to owner: ${ownerData.email}`);
+                  } else {
+                    serverLog.error('Failed to send owner notification email:', await emailResponse.text());
+                  }
+                }
+              }
+            } catch (emailError) {
+              serverLog.error('Error sending owner notification email:', emailError);
+              // Don't fail the webhook if email fails
+            }
           }
           break;
         }
