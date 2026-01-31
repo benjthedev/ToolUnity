@@ -492,162 +492,111 @@ export default function DashboardPage() {
               <section className="border-t pt-12">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Tools Being Rented</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {ownerRentals.map((rental) => (
-                    <div key={rental.id} className={`bg-white rounded-lg border overflow-hidden shadow-sm ${
-                      rental.status === 'active' ? 'border-green-200' : 'border-yellow-200'
-                    }`}>
-                      <div className={`p-6 border-b ${
-                        rental.status === 'active' 
-                          ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' 
-                          : 'bg-gradient-to-r from-yellow-50 to-amber-50 border-yellow-200'
+                  {ownerRentals.map((rental) => {
+                    // Find matching rental request for more details
+                    const matchingRequest = rentalRequests.find(r => r.id === rental.id);
+                    const displayData = matchingRequest || rental;
+                    
+                    return (
+                      <div key={rental.id} className={`bg-white rounded-lg border overflow-hidden shadow-sm ${
+                        rental.status === 'active' ? 'border-green-200' : 
+                        rental.status === 'pending_approval' ? 'border-yellow-200' : 'border-gray-200'
                       }`}>
-                        <div className="flex justify-between items-start">
-                          <h3 className="text-lg font-semibold text-gray-900">{rental.tools?.name}</h3>
-                          <span className={`text-xs px-3 py-1 rounded-full font-semibold ${
-                            rental.status === 'active' 
-                              ? 'bg-green-100 text-green-800' 
-                              : rental.status === 'pending_approval'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-gray-100 text-gray-800'
-                          }`}>
-                            {rental.status === 'active' ? '✓ Rented' : 
-                             rental.status === 'pending_approval' ? '⏳ Awaiting Your Approval' : 
-                             rental.status === 'pending_payment' ? '💳 Payment Pending' : rental.status}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="p-6 space-y-4">
-                        {rental.status === 'pending_approval' && (
-                          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm">
-                            <p className="font-semibold text-yellow-900 mb-1">⚠️ Action Required Below</p>
-                            <p className="text-yellow-800 text-xs">
-                              Scroll down to approve or reject this rental request.
-                            </p>
+                        <div className={`p-6 border-b ${
+                          rental.status === 'active' 
+                            ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' 
+                            : rental.status === 'pending_approval'
+                              ? 'bg-gradient-to-r from-yellow-50 to-amber-50 border-yellow-200'
+                              : 'bg-gray-50 border-gray-200'
+                        }`}>
+                          <div className="flex justify-between items-start mb-2">
+                            <h3 className="text-lg font-semibold text-gray-900">{rental.tools?.name}</h3>
+                            <span className={`text-xs px-3 py-1 rounded-full font-semibold ${
+                              rental.status === 'active' 
+                                ? 'bg-green-100 text-green-800' 
+                                : rental.status === 'pending_approval'
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-gray-100 text-gray-800'
+                            }`}>
+                              {rental.status === 'active' ? '✓ Rented' : 
+                               rental.status === 'pending_approval' ? '⏳ Awaiting Approval' : 
+                               rental.status === 'pending_payment' ? '💳 Payment Pending' : rental.status}
+                            </span>
                           </div>
-                        )}
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <p className="text-gray-600">From</p>
-                            <p className="font-semibold text-gray-900">{rental.start_date}</p>
-                          </div>
-                          <div>
-                            <p className="text-gray-600">Until</p>
-                            <p className="font-semibold text-gray-900">{rental.end_date}</p>
-                          </div>
-                        </div>
-                        {rental.rental_cost && (
-                          <div className={`rounded p-3 text-sm border ${
-                            rental.status === 'active' ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'
-                          }`}>
-                            <p className="text-gray-600">You Earn (85%)</p>
-                            <p className={`font-semibold ${rental.status === 'active' ? 'text-green-600' : 'text-yellow-600'}`}>
-                              £{(rental.rental_cost * 0.85).toFixed(2)}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* Rental Requests Section */}
-            {rentalRequests.length > 0 && (
-              <section className="border-t pt-12">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Rental Requests - Awaiting Your Response</h2>
-                <div className="space-y-4">
-                  {rentalRequests.map((request) => (
-                    <div key={request.id} className="bg-white rounded-lg shadow p-6">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-900">{request.tools?.name}</h3>
-                          <p className="text-gray-600 text-sm">Requested by: {request.renter?.email}</p>
-                          {request.status === 'active' && (
+                          {matchingRequest?.renter?.email && (
+                            <p className="text-gray-600 text-sm">Requested by: {matchingRequest.renter.email}</p>
+                          )}
+                          {rental.status === 'active' && matchingRequest?.renter && (
                             <div className="mt-2 space-y-1">
-                              {request.renter?.phone_number && (
+                              {matchingRequest.renter.phone_number && (
                                 <p className="text-blue-600 text-sm font-semibold">
-                                  <a href={`tel:${request.renter.phone_number}`} className="hover:underline">
-                                    📞 {request.renter.phone_number}
+                                  <a href={`tel:${matchingRequest.renter.phone_number}`} className="hover:underline">
+                                    📞 {matchingRequest.renter.phone_number}
                                   </a>
                                 </p>
                               )}
-                              {request.renter?.full_name && (
-                                <p className="text-gray-700 text-sm">👤 {request.renter.full_name}</p>
+                              {matchingRequest.renter.full_name && (
+                                <p className="text-gray-700 text-sm">👤 {matchingRequest.renter.full_name}</p>
                               )}
                             </div>
                           )}
                         </div>
-                        <span
-                          className={`text-xs px-3 py-1 rounded-full font-semibold ${
-                            request.status === 'pending_approval'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : request.status === 'active'
-                                ? 'bg-green-100 text-green-800'
-                                : request.status === 'rejected'
-                                  ? 'bg-red-100 text-red-800'
-                                  : 'bg-gray-100 text-gray-800'
-                          }`}
-                        >
-                          {request.status === 'pending_approval' ? 'Pending Approval' : request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                        </span>
+                        <div className="p-6 space-y-4">
+                          {matchingRequest?.notes && (
+                            <div className="bg-gray-50 rounded p-3 text-sm">
+                              <p className="text-gray-700">{matchingRequest.notes}</p>
+                            </div>
+                          )}
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <p className="text-gray-600">From</p>
+                              <p className="font-semibold text-gray-900">{new Date(rental.start_date).toLocaleDateString()}</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-600">Until</p>
+                              <p className="font-semibold text-gray-900">{new Date(rental.end_date).toLocaleDateString()}</p>
+                            </div>
+                            {matchingRequest?.duration_days && (
+                              <div>
+                                <p className="text-gray-600">Duration</p>
+                                <p className="font-semibold text-gray-900">{matchingRequest.duration_days} {matchingRequest.duration_days === 1 ? 'day' : 'days'}</p>
+                              </div>
+                            )}
+                            <div>
+                              <p className="text-gray-600">You Earn (85%)</p>
+                              <p className={`font-semibold ${rental.status === 'active' ? 'text-green-600' : 'text-yellow-600'}`}>
+                                £{((matchingRequest?.rental_cost || rental.rental_cost || 0) * 0.85).toFixed(2)}
+                              </p>
+                            </div>
+                          </div>
+
+                          {rental.status === 'pending_approval' && (
+                            <div className="flex gap-3 mt-4">
+                              <button
+                                onClick={() => handleApprove(rental.id)}
+                                disabled={processingRequest === rental.id}
+                                className="flex-1 bg-green-600 text-white py-2.5 rounded-lg hover:bg-green-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                              >
+                                {processingRequest === rental.id ? 'Processing...' : '✓ Accept'}
+                              </button>
+                              <button
+                                onClick={() => handleReject(rental.id)}
+                                disabled={processingRequest === rental.id}
+                                className="flex-1 bg-red-600 text-white py-2.5 rounded-lg hover:bg-red-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                              >
+                                {processingRequest === rental.id ? 'Processing...' : '✗ Reject & Refund'}
+                              </button>
+                            </div>
+                          )}
+                          {rental.status === 'active' && (
+                            <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-800">
+                              ✓ Rental active - Contact information shared with renter
+                            </div>
+                          )}
+                        </div>
                       </div>
-
-                      {request.notes && (
-                        <div className="bg-gray-50 rounded p-4 mb-4">
-                          <p className="text-gray-700 text-sm">{request.notes}</p>
-                        </div>
-                      )}
-
-                      <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
-                        <div>
-                          <p className="text-gray-600">Start Date</p>
-                          <p className="font-semibold text-gray-900">{new Date(request.start_date).toLocaleDateString()}</p>
-                        </div>
-                        <div>
-                          <p className="text-gray-600">End Date</p>
-                          <p className="font-semibold text-gray-900">{new Date(request.end_date).toLocaleDateString()}</p>
-                        </div>
-                        <div>
-                          <p className="text-gray-600">Duration</p>
-                          <p className="font-semibold text-gray-900">{request.duration_days} {request.duration_days === 1 ? 'day' : 'days'}</p>
-                        </div>
-                        <div>
-                          <p className="text-gray-600">Your Earnings (85%)</p>
-                          <p className="font-semibold text-green-600">£{request.rental_cost.toFixed(2)}</p>
-                        </div>
-                      </div>
-
-                      {request.status === 'pending_approval' && (
-                        <div className="flex gap-4">
-                          <button
-                            onClick={() => handleApprove(request.id)}
-                            disabled={processingRequest === request.id}
-                            className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            {processingRequest === request.id ? 'Processing...' : 'Accept'}
-                          </button>
-                          <button
-                            onClick={() => handleReject(request.id)}
-                            disabled={processingRequest === request.id}
-                            className="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            {processingRequest === request.id ? 'Processing...' : 'Reject & Refund'}
-                          </button>
-                        </div>
-                      )}
-                      {request.status === 'active' && (
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-800">
-                          ✓ Rental active - Contact information shared with renter
-                        </div>
-                      )}
-                      {request.status === 'rejected' && (
-                        <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-800">
-                          ✗ Request rejected - Refund issued
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </section>
             )}
