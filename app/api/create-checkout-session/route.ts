@@ -56,8 +56,8 @@ export async function POST(request: NextRequest) {
         (priceId === prices.STANDARD || priceId === prices.PRO)
           ? { trial_period_days: 14 }
           : {},
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard?upgrade=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/pricing?upgrade=cancelled`,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://www.toolunity.co.uk'}/dashboard?upgrade=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://www.toolunity.co.uk'}/dashboard?upgrade=cancelled`,
       client_reference_id: userId,
     };
 

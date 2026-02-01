@@ -173,7 +173,6 @@ export async function POST(request: NextRequest) {
             `,
           }),
         });
-        console.log(`Sent acceptance email to renter: ${renterData.email}`);
       }
     } catch (emailError) {
       console.error('Error sending acceptance email:', emailError);

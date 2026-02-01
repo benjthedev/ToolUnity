@@ -110,7 +110,6 @@ export async function POST(request: NextRequest) {
           },
         });
         refundId = refund.id;
-        console.log(`Refund issued: ${refundId} for rental ${rental_id}`);
       } catch (stripeError: any) {
         console.error('Stripe refund failed:', stripeError);
         // Continue with rejection even if refund fails - log for manual processing
@@ -195,7 +194,6 @@ export async function POST(request: NextRequest) {
             `,
           }),
         });
-        console.log(`Sent rejection email to renter: ${renterData.email}`);
       }
     } catch (emailError) {
       console.error('Error sending rejection email:', emailError);

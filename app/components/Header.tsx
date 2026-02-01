@@ -106,9 +106,6 @@ export default function Header() {
             <Link href="/safety" onClick={closeMenu} className="block py-2 text-gray-700 hover:text-blue-600 font-medium">
               Safety
             </Link>
-            <Link href="/safety" onClick={closeMenu} className="block py-2 text-gray-700 hover:text-blue-600 font-medium">
-              Safety
-            </Link>
             <Link href="/for-owners" onClick={closeMenu} className="block py-2 text-gray-700 hover:text-blue-600 font-medium">
               For Owners
             </Link>

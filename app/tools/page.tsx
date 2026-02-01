@@ -20,87 +20,10 @@ interface Tool {
   image_url?: string;
 }
 
-// Mock data for demonstration
-const MOCK_TOOLS: Tool[] = [
-  {
-    id: '1',
-    name: 'Power Drill - DeWalt 20V',
-    category: 'Power Tools',
-    owner_id: 'demo-owner-1',
-    postcode: '10001',
-    available: true,
-    tool_value: 150,
-  },
-  {
-    id: '2',
-    name: 'Circular Saw - Makita',
-    category: 'Power Tools',
-    owner_id: 'demo-owner-2',
-    postcode: '10002',
-    available: true,
-    tool_value: 200,
-  },
-  {
-    id: '3',
-    name: 'Complete Hand Tool Set',
-    category: 'Hand Tools',
-    owner_id: 'demo-owner-1',
-    postcode: '10001',
-    available: true,
-    tool_value: 85,
-  },
-  {
-    id: '4',
-    name: 'Garden Hose - 50ft Retractable',
-    category: 'Garden',
-    owner_id: 'demo-owner-3',
-    postcode: '10003',
-    available: true,
-    tool_value: 35,
-  },
-  {
-    id: '5',
-    name: 'Extension Ladder - 20ft Aluminum',
-    category: 'Ladders',
-    owner_id: 'demo-owner-2',
-    postcode: '10002',
-    available: true,
-    tool_value: 120,
-  },
-  {
-    id: '6',
-    name: 'Pressure Washer - 2500 PSI',
-    category: 'Cleaning',
-    owner_id: 'demo-owner-1',
-    postcode: '10001',
-    available: true,
-    tool_value: 250,
-  },
-  {
-    id: '7',
-    name: 'Tile Saw - Wet Saw',
-    category: 'Power Tools',
-    owner_id: 'demo-owner-4',
-    postcode: '10004',
-    available: true,
-    tool_value: 300,
-  },
-  {
-    id: '8',
-    name: 'Impact Driver Set',
-    category: 'Power Tools',
-    owner_id: 'demo-owner-3',
-    postcode: '10003',
-    available: true,
-    tool_value: 110,
-  },
-];
-
 export default function ToolsPage() {
   const { session } = useAuth();
   const [tools, setTools] = useState<Tool[]>([]);
   const [loading, setLoading] = useState(true);
-  const [useMockData, setUseMockData] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -148,29 +71,25 @@ export default function ToolsPage() {
       const { data, error, count } = await query;
 
       if (error) {
-        // Supabase temporarily unavailable, using demo data
-        setTools(MOCK_TOOLS);
-        setUseMockData(true);
+        // Database error - show empty state
+        setTools([]);
         setTotalPages(1);
         throw error;
       }
       
       if (data && data.length > 0) {
         setTools(data);
-        setUseMockData(false);
         // Calculate total pages
         const calculated = count ? Math.ceil(count / pageSize) : 1;
         setTotalPages(calculated);
       } else {
         // No tools found matching filters
         setTools([]);
-        setUseMockData(false);
         setTotalPages(1);
       }
     } catch (err) {
       // Database error - show empty state
       setTools([]);
-      setUseMockData(false);
       setTotalPages(1);
     } finally {
       setLoading(false);
@@ -248,15 +167,6 @@ export default function ToolsPage() {
             </div>
           </div>
         </div>
-
-        {/* Demo Banner */}
-        {useMockData && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 mb-8">
-            <p className="text-sm text-blue-800">
-              📌 Currently showing demo data. Check SUPABASE_SETUP.md to connect your real database.
-            </p>
-          </div>
-        )}
 
         {/* Tools Grid */}
         {loading ? (

@@ -92,9 +92,6 @@ export async function POST(request: NextRequest) {
       const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://www.toolunity.co.uk';
       const resetLink = `${baseUrl}/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}`;
       
-      console.log('Sending password reset email to:', email);
-      console.log('Reset link:', resetLink);
-      
       const emailResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -124,8 +121,6 @@ export async function POST(request: NextRequest) {
       
       if (!emailResponse.ok) {
         console.error('Resend API error:', emailData);
-      } else {
-        console.log('Password reset email sent successfully:', emailData.id);
       }
     } catch (emailError) {
       console.error('Error sending password reset email:', emailError);
@@ -213,8 +208,6 @@ export async function PUT(request: NextRequest) {
       );
     }
     
-    console.log('Updating password for auth user ID:', authUserId);
-
     // Update password via Supabase Auth
     const { error: updateAuthError } = await supabaseAdmin.auth.admin.updateUserById(
       authUserId,
