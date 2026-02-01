@@ -149,7 +149,7 @@ export default function SetupPayoutsPage() {
           <div className="mb-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
             <p className="text-sm text-gray-700">
               💳 <strong>How it works:</strong> When someone rents your tool, you'll receive 85% of the rental cost. 
-              We'll manually transfer funds to the bank account you provide here within 5 business days.
+              We'll transfer funds to the bank account you provide here within 5 business days.
             </p>
           </div>
 
