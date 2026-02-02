@@ -33,9 +33,9 @@ export default function OwnerProtectionPage() {
             {/* Renter Liability */}
             <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
               <div className="text-3xl font-bold text-blue-600 mb-3">Renter Pays</div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Damage Liability</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">You Never Lose Money</h3>
               <p className="text-gray-700 text-sm">
-                If a renter damages your tool, they're liable for repair or replacement up to the tool's value.
+                If a renter damages your tool, they're liable for repair or replacement up to the tool's value. You're fully protected.
               </p>
             </div>
 

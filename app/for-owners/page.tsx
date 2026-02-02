@@ -43,10 +43,10 @@ export default function ForOwnersPage() {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white border border-gray-200 rounded-lg p-6">
-              <div className="text-4xl mb-3">�</div>
+              <div className="text-4xl mb-3">💰</div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Earn Money</h3>
               <p className="text-gray-700">
-                Keep your tools in use and earn 85% of every rental. Passive income from tools sitting in your shed.
+                Keep your tools in use and earn 85% of every rental. You never lose money—renters pay for any damage.
               </p>
             </div>
 
