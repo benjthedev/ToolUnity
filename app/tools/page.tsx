@@ -183,12 +183,12 @@ export default function ToolsPage() {
                 href={`/tools/${tool.id}`}
                 className="group bg-white rounded-lg border border-gray-200 overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all duration-300"
               >
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-8 h-48 flex items-center justify-center text-5xl group-hover:scale-110 transition-transform">
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 h-48 flex items-center justify-center text-5xl overflow-hidden">
                   {tool.image_url ? (
                     <img
                       src={tool.image_url}
                       alt={tool.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain group-hover:scale-110 transition-transform"
                     />
                   ) : (
                     '🔧'
