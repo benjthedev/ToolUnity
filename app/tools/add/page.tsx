@@ -470,7 +470,7 @@ export default function AddToolPage() {
               <label className="block text-sm font-semibold text-gray-900 mb-2">
                 Tool Value (£) <span className="text-red-600">*</span>
               </label>
-              <p className="text-xs text-gray-600 mb-2">Approximate retail value, maximum £300 (helps set borrowing limits)</p>
+              <p className="text-xs text-gray-600 mb-2">Approximate retail value, maximum £300</p>
                 <input
                   type="number"
                   name="toolValue"
