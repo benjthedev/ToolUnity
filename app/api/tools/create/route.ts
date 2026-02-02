@@ -70,6 +70,7 @@ export async function POST(request: NextRequest) {
       description: body.description,
       condition: body.condition,
       daily_rate: body.daily_rate,
+      tool_value: body.tool_value,
       images: body.images,
     });
 
