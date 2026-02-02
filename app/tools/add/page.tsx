@@ -370,7 +370,7 @@ export default function AddToolPage() {
             <div>
               <p className="font-semibold text-green-900 mb-2">✓ Damage Protection</p>
               <p className="text-sm text-green-800">
-                Renters are liable for damage up to your tool's listed value. Report damage within 48 hours and we'll investigate.
+                Renters are liable for damage up to your tool's listed value. Report any damage and we'll investigate.
               </p>
             </div>
             <div>

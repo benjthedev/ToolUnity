@@ -122,7 +122,7 @@ export default function TermsOfServicePage() {
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">7.2 Claims Process</h3>
             <p className="text-gray-700 mb-4">
-              If a tool is damaged or not returned, the Owner must report it within 48 hours. We will investigate and determine liability based on evidence provided by both parties.
+              If a tool is damaged or not returned, the Owner must report it promptly. We will investigate and determine liability based on evidence provided by both parties.
             </p>
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">7.3 Exclusions</h3>

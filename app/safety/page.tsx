@@ -102,7 +102,7 @@ export default function SafetyPage() {
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
                 <ol className="space-y-3 text-gray-700">
                   <li><strong>1. Damage reported</strong> — Owner reports damage via the return form</li>
-                  <li><strong>2. 48-hour response window</strong> — Renter has 48 hours to respond with their side</li>
+                  <li><strong>2. Renter responds</strong> — Renter has a chance to respond with their side</li>
                   <li><strong>3. Review & decision</strong> — ToolUnity reviews evidence and makes a fair decision</li>
                   <li><strong>4. Resolution</strong> — Damage costs are charged to the renter if warranted</li>
                 </ol>

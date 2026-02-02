@@ -239,7 +239,7 @@ export default function Home() {
               <div className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full font-bold mb-6">3</div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Return & Move On</h3>
               <p className="text-gray-700 text-sm mb-3">
-                Return the tool, and you're done. If there's damage, our team settles claims within 48 hours.
+                Return the tool, and you're done. If there's damage, report it and our team will investigate.
               </p>
               <p className="text-xs text-blue-600 font-semibold">✓ Fast claim resolution</p>
             </div>

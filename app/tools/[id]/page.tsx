@@ -610,7 +610,7 @@ export default function ToolDetailPage() {
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                 <p className="text-sm text-gray-700">
-                  <strong>What happens next?</strong> The owner will review your request within 24-48 hours. You'll see updates on your dashboard, and we'll notify you once they respond.
+                  <strong>What happens next?</strong> The owner will review your request and respond soon. You'll see updates on your dashboard, and we'll notify you once they respond.
                 </p>
               </div>
 

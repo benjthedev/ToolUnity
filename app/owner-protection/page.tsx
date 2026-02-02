@@ -92,7 +92,7 @@ export default function OwnerProtectionPage() {
               <strong>Renters are liable</strong> for damage to your tools, capped at the tool's listed value.
             </p>
             <ol className="space-y-3 text-gray-700">
-              <li><strong>1. Report damage</strong> — Submit photos within 48 hours of return</li>
+              <li><strong>1. Report damage</strong> — Submit photos when the tool is returned</li>
               <li><strong>2. We investigate</strong> — Our team reviews the claim fairly</li>
               <li><strong>3. Renter charged</strong> — If damage is confirmed, the renter pays</li>
             </ol>
@@ -110,10 +110,6 @@ export default function OwnerProtectionPage() {
             <li className="flex items-start gap-3">
               <span className="text-red-600 font-bold">✕</span>
               <span><strong>Pre-existing issues:</strong> Damage present before the rental is not covered.</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-red-600 font-bold">✕</span>
-              <span><strong>Late reports:</strong> Damage must be reported within 48 hours.</span>
             </li>
           </ul>
         </section>

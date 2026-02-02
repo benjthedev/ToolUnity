@@ -224,7 +224,7 @@ export default function ReturnToolPage() {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Return Condition</h3>
               <p className="text-sm text-gray-700 mb-6">
-                Please verify that the tool has been returned in working condition. Damage claims must be reported within 48 hours of return.
+                Please verify that the tool has been returned in working condition. Report any damage when confirming the return.
               </p>
               
               <label className="flex items-start gap-3">

@@ -289,7 +289,7 @@ export default function ForOwnersPage() {
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">When do I get paid?</h3>
               <p className="text-gray-700">
-                We pay out monthly to your bank account. After the rental ends, payment is processed within 48 hours. Monthly payouts happen on the 1st of each month.
+                We process payouts to your bank account within 5 business days of a completed rental. You receive 85% of each rental.
               </p>
             </div>
 
