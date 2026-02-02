@@ -24,7 +24,7 @@ ToolUnity is a **Next.js 16** tool-sharing marketplace with:
 
 ### Core Purpose
 A community-based tool-sharing platform where users can:
-- **Borrow tools** from neighbors (limited by subscription tier)
+- **Borrow tools** from neighbours (limited by subscription tier)
 - **Lend tools** as "tool owners" (unlock higher tiers)
 - **Manage subscriptions** for premium borrowing access
 - **Track borrow requests** (owner dashboard)

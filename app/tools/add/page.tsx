@@ -370,7 +370,7 @@ export default function AddToolPage() {
             <div>
               <p className="font-semibold text-green-900 mb-2">✓ Damage Protection</p>
               <p className="text-sm text-green-800">
-                Borrowers must have a payment method on file to protect against damage. You're covered if issues arise.
+                Renters are liable for damage up to your tool's listed value. Report damage within 48 hours and we'll investigate.
               </p>
             </div>
             <div>

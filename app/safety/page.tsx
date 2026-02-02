@@ -171,7 +171,7 @@ export default function SafetyPage() {
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">When do owners get paid?</h3>
               <p className="text-gray-700">
-                We process payouts monthly to your bank account. Owners receive 85% of each rental.
+                We process payouts within 5 business days of a completed rental. Owners receive 85% of each rental.
               </p>
             </div>
 

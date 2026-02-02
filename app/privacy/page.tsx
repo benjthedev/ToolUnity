@@ -3,7 +3,7 @@ export default function PrivacyPolicyPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Privacy Policy</h1>
-        <p className="text-gray-600 mb-8">Last updated: January 7, 2026</p>
+        <p className="text-gray-600 mb-8">Last updated: February 2, 2026</p>
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 space-y-8">
           <section>
@@ -22,8 +22,9 @@ export default function PrivacyPolicyPage() {
             <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-4">2.1 Personal Information</h3>
             <p className="text-gray-700 mb-2">We collect information that you provide directly to us, including:</p>
             <ul className="list-disc pl-6 text-gray-700 space-y-1">
-              <li>Name and email address (for account creation)</li>
+              <li>Name, email address, and phone number (for account creation and contact)</li>
               <li>Payment information (processed securely through Stripe - we never store your card details)</li>
+              <li>Bank account details for owners (account holder name, sort code, account number - for payout processing)</li>
               <li>Tool listings you create (tool descriptions, photos, condition, estimated value)</li>
               <li>Location information you provide in your profile or tool listings</li>
             </ul>
@@ -71,6 +72,7 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul className="list-disc pl-6 text-gray-700 space-y-1 mb-4">
               <li><strong>Stripe:</strong> Payment processing (they never share your card details with us)</li>
+              <li><strong>Resend:</strong> Transactional email delivery (rental notifications, verification emails)</li>
               <li><strong>Vercel:</strong> Website hosting</li>
               <li><strong>Supabase:</strong> Database and authentication</li>
             </ul>
