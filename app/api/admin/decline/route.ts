@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options';
+import { authOptions } from '@/auth';
 import { supabase } from '@/lib/supabase';
 import Stripe from 'stripe';
 
