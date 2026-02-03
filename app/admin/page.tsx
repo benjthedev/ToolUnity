@@ -38,7 +38,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [decliningId, setDecliningId] = useState<string | null>(null);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'completed'>('all');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'active' | 'rejected' | 'completed'>('all');
 
   const isAdmin = session?.user?.email === ADMIN_EMAIL;
 
@@ -127,7 +127,7 @@ export default function AdminDashboard() {
   const filteredRentals = rentals.filter(rental => {
     if (filter === 'all') return true;
     if (filter === 'pending') return rental.status === 'pending_approval';
-    if (filter === 'approved') return rental.status === 'approved';
+    if (filter === 'active') return rental.status === 'active';
     if (filter === 'rejected') return rental.status === 'rejected';
     if (filter === 'completed') return rental.status === 'completed';
     return true;
@@ -191,9 +191,9 @@ export default function AdminDashboard() {
           </div>
           <div className="bg-white rounded-lg shadow p-6">
             <div className="text-2xl font-bold text-green-600">
-              {rentals.filter(r => r.status === 'approved').length}
+              {rentals.filter(r => r.status === 'active').length}
             </div>
-            <div className="text-sm text-gray-500">Approved</div>
+            <div className="text-sm text-gray-500">Active</div>
           </div>
           <div className="bg-white rounded-lg shadow p-6">
             <div className="text-2xl font-bold text-red-600">
@@ -213,7 +213,7 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-lg shadow mb-6">
           <div className="border-b border-gray-200">
             <nav className="flex -mb-px">
-              {(['all', 'pending', 'approved', 'rejected', 'completed'] as const).map((tab) => (
+              {(['all', 'pending', 'active', 'rejected', 'completed'] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setFilter(tab)}
