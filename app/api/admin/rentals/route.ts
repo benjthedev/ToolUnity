@@ -14,7 +14,12 @@ export async function GET() {
     
     const { data, error } = await supabase
       .from('rental_transactions')
-      .select('*')
+      .select(`
+        *,
+        tools:tool_id(id, name),
+        renter:renter_id(id, email, username),
+        owner:owner_id(id, email, username)
+      `)
       .order('created_at', { ascending: false });
 
     console.log('Query result - error:', error, 'data length:', data?.length);

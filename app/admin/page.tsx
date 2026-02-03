@@ -7,26 +7,26 @@ import Link from 'next/link';
 interface Rental {
   id: string;
   tool_id: string;
-  borrower_id: string;
+  renter_id: string;
   owner_id: string;
   start_date: string;
   end_date: string;
-  total_price: number;
+  rental_cost: number;
   status: string;
   created_at: string;
-  payment_intent_id: string;
-  rejection_reason?: string;
   tools?: {
+    id: string;
     name: string;
-    daily_rate: number;
   };
-  borrower?: {
-    name: string;
+  renter?: {
+    id: string;
     email: string;
+    username?: string;
   };
   owner?: {
-    name: string;
+    id: string;
     email: string;
+    username?: string;
   };
 }
 
@@ -300,11 +300,11 @@ export default function AdminDashboard() {
                         <div className="text-xs text-gray-500">ID: {rental.tool_id.slice(0, 8)}...</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{rental.borrower?.name || 'Unknown'}</div>
-                        <div className="text-xs text-gray-500">{rental.borrower?.email || ''}</div>
+                        <div className="text-sm text-gray-900">{rental.renter?.username || rental.renter?.email || 'Unknown'}</div>
+                        <div className="text-xs text-gray-500">{rental.renter?.email || ''}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{rental.owner?.name || 'Unknown'}</div>
+                        <div className="text-sm text-gray-900">{rental.owner?.username || rental.owner?.email || 'Unknown'}</div>
                         <div className="text-xs text-gray-500">{rental.owner?.email || ''}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -314,7 +314,7 @@ export default function AdminDashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
-                          £{(rental.total_price / 100).toFixed(2)}
+                          £{(rental.rental_cost / 100).toFixed(2)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
