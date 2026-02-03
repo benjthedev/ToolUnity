@@ -13,7 +13,7 @@ export async function GET() {
     const supabase = getSupabaseAdmin();
     
     const { data, error } = await supabase
-      .from('rentals')
+      .from('rental_transactions')
       .select('*')
       .order('created_at', { ascending: false });
 

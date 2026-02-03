@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     // Get the rental details
     const { data: rental, error: rentalError } = await supabase
-      .from('rentals')
+      .from('rental_transactions')
       .select('*')
       .eq('id', rentalId)
       .single();
@@ -42,14 +42,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Rental not found' }, { status: 404 });
     }
 
-    // Fetch related data
-    const [toolRes, borrowerRes] = await Promise.all([
-      supabase.from('tools').select('name').eq('id', rental.tool_id).single(),
-      supabase.from('users').select('name, email').eq('id', rental.borrower_id).single(),
-    ]);
-
-    const tool = toolRes.data;
-    const borrower = borrowerRes.data;
+    // Rental data already contains tool and user info from the rental_transactions table
+    const tool = rental.tools;
+    const borrower = rental.renter;
 
     if (rental.status !== 'pending_approval') {
       return NextResponse.json({ 
@@ -74,7 +69,7 @@ export async function POST(request: NextRequest) {
 
     // Update rental status
     const { error: updateError } = await supabase
-      .from('rentals')
+      .from('rental_transactions')
       .update({
         status: 'rejected',
         rejection_reason: reason || 'Declined by administrator',
