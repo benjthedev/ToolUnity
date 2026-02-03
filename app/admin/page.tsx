@@ -314,8 +314,9 @@ export default function AdminDashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
-                          £{(rental.rental_cost / 100).toFixed(2)}
+                          £{((rental.rental_cost || 0) / 100).toFixed(2)}
                         </div>
+                        <div className="text-xs text-gray-500">({rental.rental_cost} pence)</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(rental.status)}`}>
