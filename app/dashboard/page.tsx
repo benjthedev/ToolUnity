@@ -67,6 +67,7 @@ export default function DashboardPage() {
   const [rentalRequests, setRentalRequests] = useState<RentalRequest[]>([]);
   const [csrfToken, setCsrfToken] = useState<string>('');
   const [processingRequest, setProcessingRequest] = useState<string | null>(null);
+  const [hasBankDetails, setHasBankDetails] = useState(false);
 
   useEffect(() => {
     if (loading) return;
@@ -127,6 +128,19 @@ export default function DashboardPage() {
             setOwnerRentals(ownerRentalsData || []);
           }
         }
+      }
+
+      // Fetch user's bank details
+      const { data: userDetails } = await supabase
+        .from('users_ext')
+        .select('bank_account_number')
+        .eq('user_id', session.user.id)
+        .single();
+
+      if (userDetails?.bank_account_number) {
+        setHasBankDetails(true);
+      } else {
+        setHasBankDetails(false);
       }
 
       // Fetch rental requests for owner's tools
@@ -290,7 +304,7 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
 
         {/* Setup Payouts Banner */}
-        {tools.length > 0 && (
+        {tools.length > 0 && !hasBankDetails && (
           <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 p-6 rounded-lg shadow-sm">
             <div className="flex items-start gap-4">
               <div className="text-3xl">💰</div>
