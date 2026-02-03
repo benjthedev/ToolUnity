@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/auth';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/supabase';
 
 const ADMIN_EMAIL = 'benclarknfk@gmail.com';
 
@@ -9,11 +9,13 @@ export async function GET() {
   try {
     console.log('Admin rentals API called');
     
-    // Simple test query
+    // Use admin client for unrestricted access
+    const supabase = getSupabaseAdmin();
+    
     const { data, error } = await supabase
       .from('rentals')
-      .select('id, status, created_at')
-      .limit(10);
+      .select('*')
+      .order('created_at', { ascending: false });
 
     console.log('Query result - error:', error, 'data length:', data?.length);
 
@@ -22,7 +24,7 @@ export async function GET() {
       return NextResponse.json({ 
         error: error.message,
         rentals: []
-      }, { status: 200 });
+      });
     }
 
     return NextResponse.json({ 
@@ -34,6 +36,6 @@ export async function GET() {
     return NextResponse.json({ 
       error: err instanceof Error ? err.message : 'Unknown error',
       rentals: []
-    }, { status: 200 });
+    });
   }
 }
