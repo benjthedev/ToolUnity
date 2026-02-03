@@ -71,10 +71,15 @@ export async function POST(request: NextRequest) {
         });
         console.log(`Refund issued successfully:`, refund.id);
       } catch (refundError: any) {
-        console.error('Stripe refund failed:', refundError.message);
-        return NextResponse.json({ 
-          error: `Failed to issue refund: ${refundError.message}` 
-        }, { status: 500 });
+        // Check if the charge was already refunded
+        if (refundError.message.includes('already been refunded')) {
+          console.log('Charge already refunded, proceeding with status update');
+        } else {
+          console.error('Stripe refund failed:', refundError.message);
+          return NextResponse.json({ 
+            error: `Failed to issue refund: ${refundError.message}` 
+          }, { status: 500 });
+        }
       }
     } else {
       console.log('No stripe_payment_intent_id found for rental:', rentalId);
