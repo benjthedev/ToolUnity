@@ -14,6 +14,7 @@ interface Rental {
   rental_cost: number;
   status: string;
   created_at: string;
+  rejection_reason?: string;
   tools?: {
     id: string;
     name: string;
