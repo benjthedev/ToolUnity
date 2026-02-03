@@ -231,7 +231,6 @@ export default function Home() {
               <p className="text-gray-700 text-sm mb-3">
                 Find a tool, pay the daily rate, and pick it up. Simple per-day pricing with no hidden fees.
               </p>
-              <p className="text-xs text-blue-600 font-semibold">✓ No membership required</p>
             </div>
 
             {/* Step 3: Return */}
@@ -361,11 +360,8 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div>
             <h4 className="text-2xl font-semibold text-green-600 mb-4">💰 Save Hundreds</h4>
-            <p className="text-gray-600 mb-4">
-              A power drill costs £50-200 new. Most homeowners use them once a year. Rent instead for just £1-5 per day.
-            </p>
             <p className="text-gray-600">
-              No membership fees—just pay for what you need, when you need it.
+              A power drill costs £50-200 new. Most homeowners use them once a year. Rent instead for just £1-5 per day.
             </p>
           </div>
           <div>

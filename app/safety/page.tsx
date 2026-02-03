@@ -164,7 +164,7 @@ export default function SafetyPage() {
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">How much does it cost to rent?</h3>
               <p className="text-gray-700">
-                Owners set their own prices, typically £1-5 per day. You pay per day with no membership or subscription required.
+                Owners set their own prices, typically £1-5 per day. You pay per day.
               </p>
             </div>
 

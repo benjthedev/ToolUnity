@@ -248,7 +248,7 @@ export default function ForOwnersPage() {
         <section className="text-center py-12 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Ready to Start Earning?</h2>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            List your tools free. Set your own prices. Start earning 85% on every rental. No memberships, no hidden fees.
+            List your tools free. Set your own prices. Start earning 85% on every rental.
           </p>
           {session ? (
             <Link

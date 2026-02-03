@@ -408,9 +408,6 @@ export default function ToolDetailPage() {
               {/* Rental Pricing Info */}
               <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">How Rental Works</h3>
-                <p className="text-sm text-gray-700 mb-4">
-                  No membership required—just pay for the rental period you need.
-                </p>
                 <div className="bg-white p-4 rounded border border-green-300 mb-4">
                   <p className="text-sm text-gray-600 mb-2">Daily Rental Rate</p>
                   <p className="text-2xl font-bold text-green-600">£{tool?.daily_rate || '3.00'}/day</p>

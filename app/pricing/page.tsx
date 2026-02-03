@@ -77,7 +77,7 @@ export default function PricingPage() {
             <div className="bg-white rounded-lg p-8 shadow-sm">
               <h3 className="text-2xl font-bold text-blue-600 mb-3">Renters</h3>
               <p className="text-gray-700 text-lg font-semibold mb-2">£1-5 per day</p>
-              <p className="text-gray-600 mb-4">Browse tools in your area. Rent for a day, a week, or longer. No membership required.</p>
+              <p className="text-gray-600 mb-4">Browse tools in your area. Rent for a day, a week, or longer.</p>
               <Link href="/tools" className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold">
                 Browse Tools →
               </Link>
@@ -270,7 +270,7 @@ export default function PricingPage() {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No subscription required?</h3>
-              <p className="text-gray-600">Right! You just pay per rental. Need a drill for one day? Rent it for £3. No membership, no monthly commitment. You only pay when you rent.</p>
+              <p className="text-gray-600">Right! You just pay per rental. Need a drill for one day? Rent it for £3. You only pay when you rent.</p>
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">How much can I earn as an owner?</h3>
