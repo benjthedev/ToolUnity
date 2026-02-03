@@ -91,7 +91,6 @@ export async function POST(request: NextRequest) {
       .update({
         status: 'rejected',
         rejection_reason: reason || 'Declined by administrator',
-        updated_at: new Date().toISOString(),
       })
       .eq('id', rentalId);
 
