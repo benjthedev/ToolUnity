@@ -278,6 +278,7 @@ export default function AddToolPage() {
           condition: formData.condition,
           tool_value: roundedToolValue,
           daily_rate: roundedDailyRate,
+          postcode: formData.postcode,
           images: imageUrl ? [imageUrl] : [],
           csrf_token: csrfToken,
         }),
