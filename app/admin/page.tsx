@@ -52,13 +52,18 @@ export default function AdminDashboard() {
     try {
       setLoading(true);
       const response = await fetch('/api/admin/rentals');
-      if (!response.ok) {
-        throw new Error('Failed to fetch rentals');
-      }
       const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || `HTTP ${response.status}`);
+      }
+      
       setRentals(data.rentals || []);
+      setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      const message = err instanceof Error ? err.message : 'An error occurred';
+      setError(message);
+      console.error('Fetch error:', message);
     } finally {
       setLoading(false);
     }

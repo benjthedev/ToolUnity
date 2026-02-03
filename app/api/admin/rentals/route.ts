@@ -5,17 +5,21 @@ import { supabase } from '@/lib/supabase';
 
 const ADMIN_EMAIL = 'benclarknfk@gmail.com';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
     
+    console.log('Admin rentals request - session:', session?.user?.email);
+    
     if (!session?.user?.email) {
+      console.log('No session email found');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check admin access
     if (session.user.email !== ADMIN_EMAIL) {
+      console.log(`Access denied for ${session.user.email}, admin email is ${ADMIN_EMAIL}`);
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
     }
 
@@ -27,9 +31,10 @@ export async function GET() {
 
     if (error) {
       console.error('Error fetching rentals:', error);
-      return NextResponse.json({ error: 'Failed to fetch rentals', details: error.message }, { status: 500 });
+      return NextResponse.json({ error: 'Failed to fetch rentals', details: error }, { status: 500 });
     }
 
+    console.log(`Returning ${rentals?.length || 0} rentals`);
     return NextResponse.json({ rentals: rentals || [] });
   } catch (error) {
     console.error('Admin rentals error:', error);
