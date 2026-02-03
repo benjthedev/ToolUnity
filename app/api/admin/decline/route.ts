@@ -34,7 +34,12 @@ export async function POST(request: NextRequest) {
     // Get the rental details
     const { data: rental, error: rentalError } = await supabase
       .from('rental_transactions')
-      .select('*')
+      .select(`
+        *,
+        tools:tool_id(id, name),
+        renter:renter_id(id, email, username),
+        owner:owner_id(id, email, username)
+      `)
       .eq('id', rentalId)
       .single();
 
@@ -42,7 +47,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Rental not found' }, { status: 404 });
     }
 
-    // Rental data already contains tool and user info from the rental_transactions table
     const tool = rental.tools;
     const borrower = rental.renter;
 
@@ -53,10 +57,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Issue refund via Stripe
-    if (rental.payment_intent_id) {
+    if (rental.stripe_payment_intent_id) {
       try {
         await stripe.refunds.create({
-          payment_intent: rental.payment_intent_id,
+          payment_intent: rental.stripe_payment_intent_id,
         });
         console.log(`Refund issued for rental ${rentalId}`);
       } catch (refundError) {
