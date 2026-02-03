@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
 
     if (updateError) {
       console.error('Update error:', updateError);
-      return NextResponse.json({ error: 'Failed to update rental status' }, { status: 500 });
+      return NextResponse.json({ error: `Failed to update rental status: ${updateError.message}` }, { status: 500 });
     }
 
     // Send notification email to borrower
