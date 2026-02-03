@@ -34,26 +34,22 @@ export async function POST(request: NextRequest) {
     // Get the rental details
     const { data: rental, error: rentalError } = await supabase
       .from('rentals')
-      .select(`
-        *,
-        tools:tool_id (
-          name
-        ),
-        borrower:borrower_id (
-          name,
-          email
-        ),
-        owner:owner_id (
-          name,
-          email
-        )
-      `)
+      .select('*')
       .eq('id', rentalId)
       .single();
 
     if (rentalError || !rental) {
       return NextResponse.json({ error: 'Rental not found' }, { status: 404 });
     }
+
+    // Fetch related data
+    const [toolRes, borrowerRes] = await Promise.all([
+      supabase.from('tools').select('name').eq('id', rental.tool_id).single(),
+      supabase.from('users').select('name, email').eq('id', rental.borrower_id).single(),
+    ]);
+
+    const tool = toolRes.data;
+    const borrower = borrowerRes.data;
 
     if (rental.status !== 'pending_approval') {
       return NextResponse.json({ 
@@ -92,9 +88,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Send notification email to borrower
-    const borrowerEmail = rental.borrower?.email;
-    const borrowerName = rental.borrower?.name || 'there';
-    const toolName = rental.tools?.name || 'the tool';
+    const borrowerEmail = borrower?.email;
+    const borrowerName = borrower?.name || 'there';
+    const toolName = tool?.name || 'the tool';
 
     if (borrowerEmail) {
       try {
