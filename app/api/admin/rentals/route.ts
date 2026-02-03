@@ -19,7 +19,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
     }
 
-    // Fetch all rentals with related data
+    // Fetch all rentals
     const { data: rentals, error } = await supabase
       .from('rentals')
       .select('*')
@@ -27,28 +27,10 @@ export async function GET() {
 
     if (error) {
       console.error('Error fetching rentals:', error);
-      return NextResponse.json({ error: 'Failed to fetch rentals' }, { status: 500 });
+      return NextResponse.json({ error: 'Failed to fetch rentals', details: error.message }, { status: 500 });
     }
 
-    // Fetch related data for each rental
-    const enrichedRentals = await Promise.all(
-      (rentals || []).map(async (rental) => {
-        const [toolRes, borrowerRes, ownerRes] = await Promise.all([
-          supabase.from('tools').select('name, daily_rate').eq('id', rental.tool_id).single(),
-          supabase.from('users').select('name, email').eq('id', rental.borrower_id).single(),
-          supabase.from('users').select('name, email').eq('id', rental.owner_id).single(),
-        ]);
-
-        return {
-          ...rental,
-          tools: toolRes.data || {},
-          borrower: borrowerRes.data || {},
-          owner: ownerRes.data || {},
-        };
-      })
-    );
-
-    return NextResponse.json({ rentals: enrichedRentals || [] });
+    return NextResponse.json({ rentals: rentals || [] });
   } catch (error) {
     console.error('Admin rentals error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
