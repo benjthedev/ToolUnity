@@ -60,16 +60,24 @@ export async function POST(request: NextRequest) {
     // Issue refund via Stripe
     if (rental.stripe_payment_intent_id) {
       try {
-        await stripe.refunds.create({
+        console.log('Attempting refund for payment intent:', rental.stripe_payment_intent_id);
+        const refund = await stripe.refunds.create({
           payment_intent: rental.stripe_payment_intent_id,
+          reason: 'requested_by_customer',
+          metadata: {
+            rental_id: rentalId,
+            decline_reason: reason || 'Declined by administrator',
+          },
         });
-        console.log(`Refund issued for rental ${rentalId}`);
-      } catch (refundError) {
-        console.error('Refund error:', refundError);
+        console.log(`Refund issued successfully:`, refund.id);
+      } catch (refundError: any) {
+        console.error('Stripe refund failed:', refundError.message);
         return NextResponse.json({ 
-          error: 'Failed to issue refund. Please try again or handle manually.' 
+          error: `Failed to issue refund: ${refundError.message}` 
         }, { status: 500 });
       }
+    } else {
+      console.log('No stripe_payment_intent_id found for rental:', rentalId);
     }
 
     // Update rental status
