@@ -129,7 +129,7 @@ export default function AdminDashboard() {
     if (filter === 'pending') return rental.status === 'pending_approval';
     if (filter === 'active') return rental.status === 'active';
     if (filter === 'rejected') return rental.status === 'rejected';
-    if (filter === 'completed') return rental.status === 'completed';
+    if (filter === 'completed') return rental.status === 'completed' || rental.status === 'returned';
     return true;
   });
 
@@ -203,7 +203,7 @@ export default function AdminDashboard() {
           </div>
           <div className="bg-white rounded-lg shadow p-6">
             <div className="text-2xl font-bold text-blue-600">
-              {rentals.filter(r => r.status === 'completed').length}
+              {rentals.filter(r => r.status === 'completed' || r.status === 'returned').length}
             </div>
             <div className="text-sm text-gray-500">Completed</div>
           </div>
