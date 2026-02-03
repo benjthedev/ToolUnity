@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/auth';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/supabase';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -32,7 +32,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Get the rental details
-    const { data: rental, error: rentalError } = await supabase
+    const supabaseAdmin = getSupabaseAdmin();
+    const { data: rental, error: rentalError } = await supabaseAdmin
       .from('rental_transactions')
       .select(`
         *,
@@ -72,7 +73,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update rental status
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabaseAdmin
       .from('rental_transactions')
       .update({
         status: 'rejected',
@@ -88,7 +89,7 @@ export async function POST(request: NextRequest) {
 
     // Send notification email to borrower
     const borrowerEmail = borrower?.email;
-    const borrowerName = borrower?.name || 'there';
+    const borrowerName = borrower?.username || borrower?.email?.split('@')[0] || 'there';
     const toolName = tool?.name || 'the tool';
 
     if (borrowerEmail) {
@@ -124,7 +125,7 @@ export async function POST(request: NextRequest) {
                     
                     <div style="background: #d1fae5; border: 1px solid #10b981; border-radius: 8px; padding: 15px; margin: 20px 0;">
                       <p style="margin: 0; color: #065f46;"><strong>✓ Full refund issued</strong></p>
-                      <p style="margin: 5px 0 0 0; color: #065f46; font-size: 14px;">Your refund of £${(rental.total_price / 100).toFixed(2)} will appear in your account within 5-10 business days.</p>
+                      <p style="margin: 5px 0 0 0; color: #065f46; font-size: 14px;">Your refund of £${(rental.rental_cost).toFixed(2)} will appear in your account within 5-10 business days.</p>
                     </div>
                     
                     <p>Don't worry - there are plenty of other tools available on ToolUnity!</p>
