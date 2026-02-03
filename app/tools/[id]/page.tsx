@@ -353,9 +353,6 @@ export default function ToolDetailPage() {
                           Select dates below to see your total rental cost
                         </p>
                       </div>
-                      <p className="text-sm text-gray-700">
-                        ✓ No membership required—just pay for what you rent
-                      </p>
                     </div>
                   </div>
                 </div>
