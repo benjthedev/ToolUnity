@@ -3,13 +3,11 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options';
 import { supabase } from '@/lib/supabase';
 import Stripe from 'stripe';
-import { Resend } from 'resend';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-03-31.basil',
 });
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const ADMIN_EMAIL = 'benclarknfk@gmail.com';
 
 export async function POST(request: NextRequest) {
@@ -100,47 +98,54 @@ export async function POST(request: NextRequest) {
 
     if (borrowerEmail) {
       try {
-        await resend.emails.send({
-          from: 'ToolUnity <noreply@toolunity.co.uk>',
-          to: borrowerEmail,
-          subject: 'Rental Request Declined - Refund Issued',
-          html: `
-            <!DOCTYPE html>
-            <html>
-              <head>
-                <meta charset="utf-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              </head>
-              <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-                <div style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); padding: 30px; border-radius: 10px 10px 0 0;">
-                  <h1 style="color: white; margin: 0; font-size: 24px;">Rental Request Declined</h1>
-                </div>
-                
-                <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
-                  <p>Hi ${borrowerName},</p>
-                  
-                  <p>Unfortunately, your rental request for <strong>${toolName}</strong> has been declined.</p>
-                  
-                  <p><strong>Reason:</strong> ${reason || 'Declined by administrator'}</p>
-                  
-                  <div style="background: #d1fae5; border: 1px solid #10b981; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                    <p style="margin: 0; color: #065f46;"><strong>✓ Full refund issued</strong></p>
-                    <p style="margin: 5px 0 0 0; color: #065f46; font-size: 14px;">Your refund of £${(rental.total_price / 100).toFixed(2)} will appear in your account within 5-10 business days.</p>
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+          },
+          body: JSON.stringify({
+            from: 'ToolUnity <noreply@toolunity.co.uk>',
+            to: borrowerEmail,
+            subject: 'Rental Request Declined - Refund Issued',
+            html: `
+              <!DOCTYPE html>
+              <html>
+                <head>
+                  <meta charset="utf-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                </head>
+                <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+                  <div style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); padding: 30px; border-radius: 10px 10px 0 0;">
+                    <h1 style="color: white; margin: 0; font-size: 24px;">Rental Request Declined</h1>
                   </div>
                   
-                  <p>Don't worry - there are plenty of other tools available on ToolUnity!</p>
-                  
-                  <a href="${process.env.NEXT_PUBLIC_APP_URL}/tools" 
-                     style="display: inline-block; background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 20px 0;">
-                    Browse More Tools →
-                  </a>
-                  
-                  <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
-                  <p style="color: #9ca3af; font-size: 12px;">ToolUnity - Share tools, build community</p>
-                </div>
-              </body>
-            </html>
-          `,
+                  <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
+                    <p>Hi ${borrowerName},</p>
+                    
+                    <p>Unfortunately, your rental request for <strong>${toolName}</strong> has been declined.</p>
+                    
+                    <p><strong>Reason:</strong> ${reason || 'Declined by administrator'}</p>
+                    
+                    <div style="background: #d1fae5; border: 1px solid #10b981; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                      <p style="margin: 0; color: #065f46;"><strong>✓ Full refund issued</strong></p>
+                      <p style="margin: 5px 0 0 0; color: #065f46; font-size: 14px;">Your refund of £${(rental.total_price / 100).toFixed(2)} will appear in your account within 5-10 business days.</p>
+                    </div>
+                    
+                    <p>Don't worry - there are plenty of other tools available on ToolUnity!</p>
+                    
+                    <a href="${process.env.NEXT_PUBLIC_APP_URL}/tools" 
+                       style="display: inline-block; background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 20px 0;">
+                      Browse More Tools →
+                    </a>
+                    
+                    <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+                    <p style="color: #9ca3af; font-size: 12px;">ToolUnity - Share tools, build community</p>
+                  </div>
+                </body>
+              </html>
+            `,
+          }),
         });
         console.log(`Decline notification sent to ${borrowerEmail}`);
       } catch (emailError) {
