@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/app/providers';
 import { getSupabase } from '@/lib/supabase';
 import { ToolCardSkeleton } from '@/app/components/LoadingSkeletons';
@@ -183,12 +184,15 @@ export default function ToolsPage() {
                 href={`/tools/${tool.id}`}
                 className="group bg-white rounded-lg border border-gray-200 overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all duration-300"
               >
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 h-48 flex items-center justify-center text-5xl overflow-hidden">
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 h-48 flex items-center justify-center text-5xl overflow-hidden relative">
                   {tool.image_url ? (
-                    <img
+                    <Image
                       src={tool.image_url}
                       alt={tool.name}
-                      className="w-full h-full object-contain group-hover:scale-110 transition-transform"
+                      fill
+                      className="object-contain group-hover:scale-110 transition-transform"
+                      loading="lazy"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   ) : (
                     '🔧'
