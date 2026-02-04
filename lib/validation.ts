@@ -40,7 +40,7 @@ export const ResetPasswordConfirmSchema = z.object({
 // Tool Schemas
 export const CreateToolSchema = z.object({
   name: z.string().min(2, 'Tool name must be at least 2 characters').max(100, 'Tool name must be less than 100 characters'),
-  description: z.string().min(3, 'Description must be at least 3 characters').max(1000, 'Description must be less than 1000 characters').optional().default(''),
+  description: z.string().max(1000, 'Description must be less than 1000 characters').optional().default(''),
   category: z.string().min(1, 'Category is required'),
   condition: z.string().transform(v => v.toLowerCase()),
   daily_rate: z.number().min(0.5, 'Daily rate must be at least £0.50').max(500, 'Daily rate must be less than £500'),
@@ -51,7 +51,7 @@ export const CreateToolSchema = z.object({
 
 export const UpdateToolSchema = z.object({
   name: z.string().min(2).max(100).optional(),
-  description: z.string().min(3).max(1000).optional(),
+  description: z.string().max(1000).optional(),
   category: z.string().min(1).optional(),
   condition: z.string().optional(),
   daily_rate: z.number().min(0.5).max(500).optional(),
