@@ -19,8 +19,8 @@ export function generateCsrfToken(): string {
  * Store CSRF token in cookie and return it
  */
 export function setCsrfToken(token: string): string {
-  // Store in cookie with secure flags
-  document.cookie = `${CSRF_COOKIE_NAME}=${encodeURIComponent(token)}; path=/; samesite=strict; max-age=3600`;
+  // Store in cookie with secure flags - 24 hours expiry for longer form sessions
+  document.cookie = `${CSRF_COOKIE_NAME}=${encodeURIComponent(token)}; path=/; samesite=strict; max-age=86400`;
   return token;
 }
 
