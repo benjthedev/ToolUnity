@@ -5,6 +5,7 @@ import { AuthProvider } from "./providers";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import CsrfInitializer from "./components/CsrfInitializer";
+import { Analytics } from "@vercel/analytics/react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +42,7 @@ export default function RootLayout({
             <Footer />
           </div>
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );
