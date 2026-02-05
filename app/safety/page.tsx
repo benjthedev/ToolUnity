@@ -16,7 +16,7 @@ export default function SafetyPage() {
         {/* Trust Summary */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-8">
           <p className="text-lg text-gray-900 leading-relaxed">
-            <strong>Owners are fully protected.</strong> Renters are responsible for any damage beyond normal wear, up to the tool's listed value. Owners have full control over who rents their tools and can approve or decline any request. If something goes wrong, we ensure owners are compensated.
+            <strong>Owners are fully protected up to the tool's listed value.</strong> Renters are responsible for any damage beyond normal wear, up to the tool's listed value. Owners have full control over who rents their tools and can approve or decline any request. If something goes wrong, we investigate and work to ensure owners are compensated fairly.
           </p>
         </div>
 

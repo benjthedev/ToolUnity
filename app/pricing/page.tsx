@@ -107,14 +107,14 @@ export default function PricingPage() {
             <div className="bg-white rounded-lg p-8 shadow-sm border-l-4 border-blue-600">
               <div className="flex items-center justify-center w-12 h-12 bg-blue-100 text-blue-600 rounded-full font-bold text-lg mb-4">1</div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Browse Tools</h3>
-              <p className="text-gray-600">Find the tool you need in your area. See prices, photos, and owner reviews.</p>
+              <p className="text-gray-600">Find the tool you need in your area. See prices, photos, and detailed listings.</p>
             </div>
 
             {/* Step 2 */}
             <div className="bg-white rounded-lg p-8 shadow-sm border-l-4 border-blue-600">
               <div className="flex items-center justify-center w-12 h-12 bg-blue-100 text-blue-600 rounded-full font-bold text-lg mb-4">2</div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Request Rental</h3>
-              <p className="text-gray-600">Choose your rental dates. Owner reviews your request and confirms (usually within 24 hours).</p>
+              <p className="text-gray-600">Choose your rental dates. Owner reviews your request and confirms (typically within 48 hours).</p>
             </div>
 
             {/* Step 3 */}

@@ -24,7 +24,7 @@ export default function ContactPage() {
             </div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Email Us</h2>
             <p className="text-gray-600 mb-4">
-              For any questions, feedback, or support, send us an email and we'll get back to you within 24 hours.
+              For any questions, feedback, or support, send us an email and we'll get back to you within 24-48 hours.
             </p>
           </div>
           
