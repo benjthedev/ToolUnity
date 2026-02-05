@@ -314,10 +314,6 @@ export default function ToolDetailPage() {
                     )}
                   </div>
                 </div>
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-lg">
-                  <p className="text-sm mb-1">Tool Value</p>
-                  <p className="text-3xl font-bold">£{tool.tool_value}</p>
-                </div>
               </div>
             </div>
 
