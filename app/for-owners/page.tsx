@@ -310,7 +310,7 @@ export default function ForOwnersPage() {
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Can I remove a tool anytime?</h3>
               <p className="text-gray-700">
-                Yes. If a tool is currently rented, that rental will complete first. You can also mark tools as temporarily unavailable. No penalties.
+                Yes. If a tool is currently rented, that rental will complete first. No penalties for removal.
               </p>
             </div>
 
