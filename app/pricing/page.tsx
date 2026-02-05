@@ -161,7 +161,7 @@ export default function PricingPage() {
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-bold text-gray-900 mb-4 text-center">For Tool Owners</h2>
           <p className="text-gray-600 text-lg text-center mb-12 max-w-2xl mx-auto">
-                Set your rental prices. Earn 85% of every rental. List as many tools as you want.
+                Set your rental prices. Earn 80% of every rental. List as many tools as you want.
           </p>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
             {/* Pricing Example 1 */}
@@ -170,7 +170,7 @@ export default function PricingPage() {
               <p className="text-gray-600 text-sm mb-4">Pressure washer at £4/day</p>
               <div className="bg-green-50 rounded-lg p-4 mb-4">
                 <p className="text-sm text-gray-600">Your daily rate: £4</p>
-                <p className="text-2xl font-bold text-green-600">You get 85%</p>
+                <p className="text-2xl font-bold text-green-600">You get 80%</p>
                 <p className="text-xs text-gray-600 mt-2">Per rental day</p>
               </div>
               <p className="text-xs text-gray-600">Earnings depend on rental frequency</p>
@@ -182,7 +182,7 @@ export default function PricingPage() {
               <p className="text-gray-600 text-sm mb-4">Electric drill at £3/day</p>
               <div className="bg-green-50 rounded-lg p-4 mb-4">
                 <p className="text-sm text-gray-600">Your daily rate: £3</p>
-                <p className="text-2xl font-bold text-green-600">You get 85%</p>
+                <p className="text-2xl font-bold text-green-600">You get 80%</p>
                 <p className="text-xs text-gray-600 mt-2">Per rental day</p>
               </div>
               <p className="text-xs text-gray-600">Earnings depend on rental frequency</p>
@@ -194,7 +194,7 @@ export default function PricingPage() {
               <p className="text-gray-600 text-sm mb-4">Ladder at £1.50/day</p>
               <div className="bg-green-50 rounded-lg p-4 mb-4">
                 <p className="text-sm text-gray-600">Your daily rate: £1.50</p>
-                <p className="text-2xl font-bold text-green-600">You get 85%</p>
+                <p className="text-2xl font-bold text-green-600">You get 80%</p>
                 <p className="text-xs text-gray-600 mt-2">Per rental day</p>
               </div>
               <p className="text-xs text-gray-600">Earnings depend on rental frequency</p>
@@ -224,9 +224,9 @@ export default function PricingPage() {
                   <p className="text-3xl font-bold text-green-600">{ownerStats.toolsCount}</p>
                 </div>
                 <div className="bg-white rounded-lg p-4 text-center">
-                  <p className="text-gray-600 text-sm mb-2">Earn 85% Per Rental</p>
+                  <p className="text-gray-600 text-sm mb-2">Earn 80% Per Rental</p>
                   <p className="text-3xl font-bold text-green-600">You set the price</p>
-                  <p className="text-xs text-gray-600 mt-2">Get paid monthly</p>
+                  <p className="text-xs text-gray-600 mt-2">Get paid within 5 business days</p>
                 </div>
               </div>
               <Link href="/owner-dashboard" className="block mt-6 text-center bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-semibold">
@@ -274,12 +274,12 @@ export default function PricingPage() {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">How much can I earn as an owner?</h3>
-              <p className="text-gray-600">It depends on how many tools you list and rental demand. Most owners list between 1-5 tools and earn £20-100+ per month. Some list 10+ tools and earn £500/month+. You set the daily rental price and keep 85%.</p>
+              <p className="text-gray-600">It depends on how many tools you list and rental demand. Most owners list between 1-5 tools and earn £20-100+ per month. Some list 10+ tools and earn £500/month+. You set the daily rental price and keep 80% (20% covers Stripe fees, hosting, and admin).</p>
             </div>
 
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">How do I get paid as an owner?</h3>
-              <p className="text-gray-600">We pay out directly to your bank account monthly. It's automatic—no invoices, no paperwork. Just list tools, get rented, earn. We keep 15% (to cover protection, platform costs, and payment processing).</p>
+              <p className="text-gray-600">We pay out directly to your bank account within 5 business days of each rental. It's automatic—no invoices, no paperwork. Just list tools, get rented, earn. We keep 20% (to cover Stripe fees, hosting, and admin).</p>
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Can I cancel a rental request as an owner?</h3>

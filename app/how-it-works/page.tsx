@@ -292,7 +292,7 @@ export default function HowItWorksPage() {
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Is there a cost to list tools?</h3>
               <p className="text-gray-700">
-                No. Listing is completely free. You only pay the 15% platform fee when someone rents your tool.
+                No. Listing is completely free. You only pay the 20% platform fee (covering Stripe, hosting, admin) when someone rents your tool.
               </p>
             </div>
 
