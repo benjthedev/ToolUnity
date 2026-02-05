@@ -131,8 +131,8 @@ export default function OwnerProtectionPage() {
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Questions?</h2>
           <p className="text-gray-700">
             For more details on damage claims or how rentals work, visit our{' '}
-            <Link href="/safety" className="text-blue-600 hover:text-blue-700 font-semibold">
-              Safety & Trust
+            <Link href="/how-it-works" className="text-blue-600 hover:text-blue-700 font-semibold">
+              How It Works
             </Link>
             {' '}page or email{' '}
             <a href="mailto:support@toolunity.co.uk" className="text-blue-600 hover:text-blue-700 font-semibold">

@@ -246,8 +246,8 @@ export default function Home() {
           <div className="mt-12 text-center">
             <p className="text-gray-700 mb-4">
               <strong>Both renters and owners are protected.</strong> Learn more about our trust system on our{' '}
-              <Link href="/safety" className="text-blue-600 hover:text-blue-700 font-semibold">
-                Safety & Trust
+              <Link href="/how-it-works" className="text-blue-600 hover:text-blue-700 font-semibold">
+                How It Works
               </Link>
               {' '}page.
             </p>
@@ -344,7 +344,7 @@ export default function Home() {
               This is permanent as long as you keep 3+ tools active. Relist if you drop below 3.
             </p>
             <Link
-              href="/for-owners"
+              href="/how-it-works"
               className="inline-block bg-emerald-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-emerald-700 transition"
             >
               Learn More About Listing Tools

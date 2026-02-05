@@ -48,11 +48,8 @@ export default function Header() {
             <Link href="/tools" className="text-gray-700 hover:text-blue-600 transition font-medium">
               Browse Tools
             </Link>
-            <Link href="/safety" className="text-gray-700 hover:text-blue-600 transition font-medium">
-              Safety
-            </Link>
-            <Link href="/for-owners" className="text-gray-700 hover:text-blue-600 transition font-medium">
-              For Owners
+            <Link href="/how-it-works" className="text-gray-700 hover:text-blue-600 transition font-medium">
+              How It Works
             </Link>
 
             {!loading && !session ? (
@@ -103,11 +100,8 @@ export default function Header() {
             <Link href="/tools" onClick={closeMenu} className="block py-2 text-gray-700 hover:text-blue-600 font-medium">
               Browse Tools
             </Link>
-            <Link href="/safety" onClick={closeMenu} className="block py-2 text-gray-700 hover:text-blue-600 font-medium">
-              Safety
-            </Link>
-            <Link href="/for-owners" onClick={closeMenu} className="block py-2 text-gray-700 hover:text-blue-600 font-medium">
-              For Owners
+            <Link href="/how-it-works" onClick={closeMenu} className="block py-2 text-gray-700 hover:text-blue-600 font-medium">
+              How It Works
             </Link>
             
             <div className="border-t border-gray-200 pt-3 mt-3">

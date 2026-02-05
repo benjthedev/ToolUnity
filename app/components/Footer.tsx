@@ -29,12 +29,12 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/for-owners" className="hover:text-white transition">
-                  For Tool Owners
+                <Link href="/how-it-works" className="hover:text-white transition">
+                  How It Works
                 </Link>
               </li>
               <li>
-                <Link href="/safety" className="hover:text-white transition">
+                <Link href="/how-it-works" className="hover:text-white transition">
                   Safety & Trust
                 </Link>
               </li>
@@ -46,7 +46,7 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-4">Support</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/safety" className="hover:text-white transition">
+                <Link href="/how-it-works" className="hover:text-white transition">
                   Help Center
                 </Link>
               </li>
@@ -61,7 +61,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/safety" className="hover:text-white transition">
+                <Link href="/how-it-works" className="hover:text-white transition">
                   FAQ
                 </Link>
               </li>
