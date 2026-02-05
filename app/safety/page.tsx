@@ -16,7 +16,7 @@ export default function SafetyPage() {
         {/* Trust Summary */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-8">
           <p className="text-lg text-gray-900 leading-relaxed">
-            <strong>Owners are fully protected up to the tool's listed value.</strong> Renters are responsible for any damage beyond normal wear, up to the tool's listed value. Owners have full control over who rents their tools and can approve or decline any request. If something goes wrong, we investigate and work to ensure owners are compensated fairly.
+            <strong>Owners are fully protected.</strong> Renters are responsible for any damage beyond normal wear. Owners have full control over who rents their tools and can approve or decline any request. If something goes wrong, we investigate and work to ensure owners are compensated fairly.
           </p>
         </div>
 
@@ -29,15 +29,15 @@ export default function SafetyPage() {
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Who Pays If a Tool Breaks?</h3>
               <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
                 <p className="text-gray-700">
-                  <strong>Renter</strong> pays the damage cost, up to the listed value of the tool.
+                  <strong>Renter</strong> pays for any damage beyond normal wear and tear.
                 </p>
                 <p className="text-gray-700">
-                  <strong>Maximum liability</strong> is always capped at the tool's listed value—no surprise fees.
+                  <strong>Maximum liability</strong> is determined by the tool's condition and replacement cost—no surprise fees.
                 </p>
                 <div className="bg-gray-50 p-4 rounded border-l-4 border-blue-600">
-                  <p className="text-sm text-gray-600 font-semibold mb-2">Example:</p>
+                  <p className="text-sm text-gray-600 font-semibold mb-2">How it works:</p>
                   <p className="text-sm text-gray-700">
-                    If you rent a £150 drill and accidentally break it, your maximum liability is £150. That's your absolute cap.
+                    If you damage a rented tool, you're responsible for the cost to repair or replace it. This is disclosed when you request a rental.
                   </p>
                 </div>
               </div>
@@ -128,7 +128,7 @@ export default function SafetyPage() {
             </p>
             <ul className="space-y-3 text-gray-700">
               <li>✓ <strong>Approve each request</strong> — You choose who rents your tools</li>
-              <li>✓ <strong>Set your own rates</strong> — Charge what you think is fair (£1-5+/day)</li>
+              <li>✓ <strong>Set your own rates</strong> — Charge what you think is fair</li>
               <li>✓ <strong>Renter pays for damage</strong> — If damage occurs, the renter pays up to the tool's full value</li>
               <li>✓ <strong>Keep 85%</strong> — You earn 85% of every rental</li>
               <li>✓ <strong>We handle disputes</strong> — If there's a problem, we investigate and ensure you're compensated</li>
@@ -164,7 +164,7 @@ export default function SafetyPage() {
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">How much does it cost to rent?</h3>
               <p className="text-gray-700">
-                Owners set their own prices, typically £1-5 per day. You pay per day.
+                Owners set their own prices. You pay the daily rate they choose.
               </p>
             </div>
 

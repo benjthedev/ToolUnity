@@ -54,7 +54,7 @@ export default function ForOwnersPage() {
               <div className="text-4xl mb-3">🔄</div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">You Control Everything</h3>
               <p className="text-gray-700">
-                Set your own daily rates (£1-5 per day). Approve or decline every rental request. You're in charge.
+                Set your own daily rates. Approve or decline every rental request. You're in charge.
               </p>
             </div>
 
@@ -78,11 +78,11 @@ export default function ForOwnersPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white rounded-lg p-6 border border-green-200">
                   <p className="text-sm text-gray-600 mb-2 font-semibold">Set Your Price</p>
-                  <p className="text-3xl font-bold text-green-600 mb-4">£1-5/day</p>
+                  <p className="text-lg font-semibold text-green-600 mb-4">You choose the rate</p>
                   <div className="space-y-3 text-sm text-gray-700">
                     <p>Drill, Pressure Washer, Ladder</p>
-                    <p className="text-lg font-semibold text-green-600">You choose the rate</p>
-                    <p className="text-xs text-gray-600">Based on tool value & demand</p>
+                    <p className="text-lg font-semibold text-green-600">Whatever you think is fair</p>
+                    <p className="text-xs text-gray-600">Based on tool condition & demand</p>
                   </div>
                 </div>
 
@@ -140,7 +140,7 @@ export default function ForOwnersPage() {
               <div className="flex-shrink-0 w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">List Your Tools</h3>
-                <p className="text-gray-700">Add tools with photos, descriptions, condition, and set your daily rental rate (£1-5/day). You control the price.</p>
+                <p className="text-gray-700">Add tools with photos, descriptions, condition, and set your daily rental rate. You control the price.</p>
               </div>
             </div>
 
@@ -282,7 +282,7 @@ export default function ForOwnersPage() {
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">How much should I charge per day?</h3>
               <p className="text-gray-700">
-                You set the price. Consider the tool's value, condition, and demand in your area. Most tools rent between £1-5/day. You can always adjust your prices anytime.
+                You set the price. Consider the tool's condition and demand in your area. You can always adjust your prices anytime.
               </p>
             </div>
 

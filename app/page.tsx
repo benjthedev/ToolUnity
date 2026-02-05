@@ -303,7 +303,7 @@ export default function Home() {
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-emerald-600 font-bold text-lg">✓</span>
-                  <span>Set your own daily rates (£1-5+/day)</span>
+                  <span>Set your own daily rates and earn from idle tools</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-emerald-600 font-bold text-lg">✓</span>
