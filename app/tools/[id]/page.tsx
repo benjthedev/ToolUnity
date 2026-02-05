@@ -545,11 +545,6 @@ export default function ToolDetailPage() {
                         />
                       </div>
 
-                      {/* Responsibility Note */}
-                      <div className="bg-gray-50 p-3 rounded-lg text-sm text-gray-600">
-                        <p>🛡️ Max liability: £{tool.tool_value} (tool value). You're responsible for returning the tool in working condition.</p>
-                      </div>
-
                       <div className="flex gap-3 pt-2">
                         <button
                           type="submit"
