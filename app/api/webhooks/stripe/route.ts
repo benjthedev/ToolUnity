@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
                   const renterEmail = rentalData.renter?.email || 'A user';
                   const startDate = new Date(rentalData.start_date).toLocaleDateString('en-GB');
                   const endDate = new Date(rentalData.end_date).toLocaleDateString('en-GB');
-                  const ownerEarning = (rentalData.rental_cost * 0.85).toFixed(2);
+                  const ownerEarning = (rentalData.rental_cost * 0.80).toFixed(2);
                   
                   // Send email via Resend
                   const emailResponse = await fetch('https://api.resend.com/emails', {

@@ -163,8 +163,8 @@ export async function POST(request: NextRequest) {
     // Calculate costs
     const dailyRate = tool.daily_rate || 3; // Default £3/day
     const rentalCost = parseFloat((dailyRate * durationDays).toFixed(2));
-    const platformFee = parseFloat((rentalCost * 0.15).toFixed(2)); // Platform takes 15%
-    const ownerPayout = parseFloat((rentalCost * 0.85).toFixed(2)); // Owner gets 85%
+    const platformFee = parseFloat((rentalCost * 0.20).toFixed(2)); // Platform takes 20% (covers Stripe fees, hosting, admin)
+    const ownerPayout = parseFloat((rentalCost * 0.80).toFixed(2)); // Owner gets 80%
     const totalCost = rentalCost;
 
     // Create rental transaction record (status: pending_payment)

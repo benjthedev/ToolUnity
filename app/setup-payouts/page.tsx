@@ -148,8 +148,8 @@ export default function SetupPayoutsPage() {
           {/* Info Box */}
           <div className="mb-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
             <p className="text-sm text-gray-700">
-              💳 <strong>How it works:</strong> When someone rents your tool, you'll receive 85% of the rental cost. 
-              We'll transfer funds to the bank account you provide here within 5 business days.
+              💳 <strong>How it works:</strong> When someone rents your tool, you'll receive 80% of the rental cost. 
+              20% covers payment processing (Stripe fees), hosting, and admin. We'll transfer funds to the bank account you provide here within 5 business days.
             </p>
           </div>
 

@@ -286,7 +286,7 @@ export default function DashboardPage() {
   }
 
   const totalEarningsPotential = tools.length > 0 
-    ? ownerRentals.reduce((sum, r) => sum + (r.rental_cost || 0), 0) * 0.85
+    ? ownerRentals.reduce((sum, r) => sum + (r.rental_cost || 0), 0) * 0.80
     : 0;
 
   return (
@@ -311,7 +311,7 @@ export default function DashboardPage() {
               <div className="flex-1">
                 <h3 className="text-lg font-bold text-gray-900 mb-2">Ready to Earn Money?</h3>
                 <p className="text-gray-700 mb-4">
-                  Add your bank details to receive payouts from tool rentals. You'll get 85% of each rental to your account.
+                  Add your bank details to receive payouts from tool rentals. You'll get 80% of each rental to your account.
                 </p>
                 <Link
                   href="/setup-payouts"
@@ -658,9 +658,9 @@ export default function DashboardPage() {
                               </div>
                             )}
                             <div>
-                              <p className="text-gray-600">You Earn (85%)</p>
+                              <p className="text-gray-600">You Earn (80%)</p>
                               <p className={`font-semibold ${rental.status === 'active' ? 'text-green-600' : 'text-yellow-600'}`}>
-                                £{((matchingRequest?.rental_cost || rental.rental_cost || 0) * 0.85).toFixed(2)}
+                                £{((matchingRequest?.rental_cost || rental.rental_cost || 0) * 0.80).toFixed(2)}
                               </p>
                             </div>
                           </div>
@@ -753,7 +753,7 @@ export default function DashboardPage() {
             <div className="text-6xl mb-4">🚀</div>
             <h3 className="text-2xl font-bold text-gray-900 mb-3">Welcome to ToolUnity</h3>
             <p className="text-gray-700 mb-8 max-w-2xl mx-auto">
-              Start by browsing tools to rent, or list your own tools to earn money when others rent them. You get 85% of every rental!
+              Start by browsing tools to rent, or list your own tools to earn money when others rent them. You get 80% of every rental!
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/tools" className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold">

@@ -375,7 +375,7 @@ export default function AddToolPage() {
               </p>
             </div>
             <div>
-              <p className="font-semibold text-green-900 mb-2">✓ Earn 85% of Every Rental</p>
+              <p className="font-semibold text-green-900 mb-2">✓ Earn 80% of Every Rental</p>
               <p className="text-sm text-green-800">
                 Set your own daily rate and earn money when others rent your tools. No upfront fees.
               </p>

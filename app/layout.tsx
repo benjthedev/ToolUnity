@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "ToolUnity - Tool Sharing Marketplace",
-  description: "Rent tools from your community or earn money from your idle tools. Tool owners keep 85% of every rental. Verified users only, owner approval required. No membership fees.",
+  description: "Rent tools from your community or earn money from your idle tools. Tool owners keep 80% of every rental. Verified users only, owner approval required. No membership fees.",
 };
 
 export default function RootLayout({

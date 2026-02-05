@@ -29,7 +29,7 @@ const ownerInfo = {
   description: 'Get paid every time someone rents your tools',
   features: [
     '✓ List tools for free',
-    '✓ Earn 85% of every rental',
+    '✓ Earn 80% of every rental',
     '✓ Monthly payouts to your bank',
     '✓ Build passive income',
     '✓ No fees or hidden costs',
@@ -84,7 +84,7 @@ export default function PricingPage() {
             </div>
             <div className="bg-white rounded-lg p-8 shadow-sm">
               <h3 className="text-2xl font-bold text-green-600 mb-3">Owners</h3>
-              <p className="text-gray-700 text-lg font-semibold mb-2">Earn 85% per rental</p>
+              <p className="text-gray-700 text-lg font-semibold mb-2">Earn 80% per rental</p>
               <p className="text-gray-600 mb-4">List your tools free. Get paid every time someone borrows. We handle all the protection.</p>
               <Link href="/tools/add" className="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-semibold">
                 List Your Tools →

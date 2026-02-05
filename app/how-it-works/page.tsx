@@ -92,8 +92,8 @@ export default function HowItWorksPage() {
 
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <div className="text-3xl mb-3">💵</div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Earn 85%</h3>
-              <p className="text-gray-700 text-sm">Keep 85% of every rental. We handle payments, disputes, and platform operations.</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Earn 80%</h3>
+              <p className="text-gray-700 text-sm">Keep 80% of every rental. 20% covers payment processing (Stripe fees), website hosting, and platform operations.</p>
             </div>
 
             <div className="bg-white border border-gray-200 rounded-lg p-6">
@@ -132,7 +132,7 @@ export default function HowItWorksPage() {
               <div className="flex-shrink-0 w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-bold">4</div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">Get Paid</h3>
-                <p className="text-gray-700">Earn 85% of every rental. We process payouts within 5 business days of each completed rental.</p>
+                <p className="text-gray-700">Earn 80% of every rental. We process payouts within 5 business days of each completed rental.</p>
               </div>
             </div>
           </div>
@@ -166,7 +166,7 @@ export default function HowItWorksPage() {
             </div>
             <div className="text-center">
               <h3 className="text-lg font-semibold text-green-600 mb-3">For Owners</h3>
-              <p className="text-gray-700">List for free. Set your own prices. Keep 85% of every rental. 15% covers platform operations.</p>
+              <p className="text-gray-700">List for free. Set your own prices. Keep 80% of every rental. 20% covers payment processing (Stripe fees), website hosting, and admin.</p>
             </div>
           </div>
         </section>
@@ -306,7 +306,7 @@ export default function HowItWorksPage() {
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">When do owners get paid?</h3>
               <p className="text-gray-700">
-                We process payouts within 5 business days of a completed rental. Owners receive 85% of each rental.
+                We process payouts within 5 business days of a completed rental. Owners receive 80% of each rental.
               </p>
             </div>
 
