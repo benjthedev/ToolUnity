@@ -42,7 +42,7 @@ export default function AddToolPage() {
         const { data, error } = await sb
           .from('users_ext')
           .select('email_verified')
-          .eq('user_id', session.user.id)
+          .eq('user_id', session?.user?.id || '')
           .single();
 
         if (error || !data?.email_verified) {
