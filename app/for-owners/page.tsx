@@ -234,7 +234,7 @@ export default function ForOwnersPage() {
 
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <h3 className="font-semibold text-gray-900 mb-2">✓ Bank Account for Payouts</h3>
-              <p className="text-gray-700 text-sm">Add your bank details (2 minutes). We'll transfer your earnings monthly.</p>
+              <p className="text-gray-700 text-sm">Add your bank details (2 minutes). We'll transfer your earnings within 5 business days of each rental.</p>
             </div>
           </div>
 
