@@ -291,13 +291,12 @@ export default function EditToolPage() {
           {/* Description */}
           <div className="mb-6">
             <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Description *
+              Description
             </label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
-              required
               rows={4}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Describe your tool condition, features, and what's included..."
