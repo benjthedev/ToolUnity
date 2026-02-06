@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
         const { data: renterExt } = await supabase
           .from('users_ext')
           .select('phone_number')
-          .eq('id', request.renter_id)
+          .eq('user_id', request.renter_id)
           .single();
 
         return {
