@@ -119,7 +119,7 @@ export default function DashboardPage() {
           
           const { data: ownerRentalsData } = await supabase
             .from('rental_transactions')
-            .select('*, tools(name)')
+            .select('*, tools(name), renter:renter_id(email, phone_number, username)')
             .in('tool_id', toolIds)
             .in('status', ['active', 'pending_approval', 'pending_payment'])
             .order('start_date', { ascending: false });
@@ -619,7 +619,14 @@ export default function DashboardPage() {
                             </span>
                           </div>
                           {matchingRequest?.renter?.email && (
-                            <p className="text-gray-600 text-sm">Requested by: {matchingRequest.renter.email}</p>
+                            <div className="space-y-1">
+                              <p className="text-gray-600 text-sm">Requested by: {matchingRequest.renter.email}</p>
+                              {matchingRequest.renter.phone_number && (
+                                <p className="text-gray-600 text-sm">
+                                  Phone: <a href={`tel:${matchingRequest.renter.phone_number}`} className="text-blue-600 hover:underline">{matchingRequest.renter.phone_number}</a>
+                                </p>
+                              )}
+                            </div>
                           )}
                           {rental.status === 'active' && matchingRequest?.renter && (
                             <div className="mt-2 space-y-1">
