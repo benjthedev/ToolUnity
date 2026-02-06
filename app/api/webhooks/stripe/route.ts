@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
                             <p><strong>Tool:</strong> ${toolName}</p>
                             <p><strong>Dates:</strong> ${startDate} to ${endDate}</p>
                             <p><strong>Duration:</strong> ${rentalData.duration_days} day${rentalData.duration_days > 1 ? 's' : ''}</p>
-                            <p><strong>You'll earn:</strong> £${ownerEarning} (80% of rental, after fees)</p>
+                            <p><strong>You'll earn:</strong> £${ownerEarning} (80% of rental)</p>
                           </div>
                           
                           <p><strong>Action required:</strong> Log in to your dashboard to accept or decline this request.</p>
