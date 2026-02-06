@@ -54,12 +54,19 @@ export async function GET(request: NextRequest) {
         // Fetch renter info from auth.users via service role
         const { data: { user: renter } } = await supabaseAdmin.auth.admin.getUserById(request.renter_id);
 
+        // Fetch renter phone number from users_ext table
+        const { data: renterExt } = await supabase
+          .from('users_ext')
+          .select('phone_number')
+          .eq('id', request.renter_id)
+          .single();
+
         return {
           ...request,
           tools: { name: tool?.name || 'Unknown Tool' },
           renter: {
             email: renter?.email || 'Unknown',
-            phone_number: renter?.phone || null,
+            phone_number: renterExt?.phone_number || null,
             full_name: renter?.user_metadata?.full_name || null,
           },
         };
