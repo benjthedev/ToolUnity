@@ -181,9 +181,22 @@ export default function DashboardPage() {
   };
 
   const handleDeleteTool = async (toolId: string) => {
-    if (!confirm('Are you sure you want to delete this tool?')) return;
+    if (!confirm('Are you sure you want to delete this tool? Any pending rental requests will be cancelled.')) return;
 
     try {
+      // First, delete any pending rental requests for this tool
+      const { error: requestsError } = await supabase
+        .from('rental_transactions')
+        .delete()
+        .eq('tool_id', toolId)
+        .in('status', ['pending_approval', 'pending_payment']);
+
+      if (requestsError) {
+        console.warn('Warning: Could not delete pending requests:', requestsError);
+        // Continue anyway - try to delete the tool
+      }
+
+      // Then delete the tool
       const { error } = await supabase
         .from('tools')
         .delete()
