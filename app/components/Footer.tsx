@@ -42,22 +42,12 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-4">Support</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/how-it-works" className="hover:text-white transition">
-                  Help Center
-                </Link>
-              </li>
-              <li>
                 <Link href="/contact" className="hover:text-white transition">
                   Contact Us
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-white transition">
-                  Report an Issue
-                </Link>
-              </li>
-              <li>
-                <Link href="/how-it-works" className="hover:text-white transition">
+                <Link href="/how-it-works#faq" className="hover:text-white transition">
                   FAQ
                 </Link>
               </li>

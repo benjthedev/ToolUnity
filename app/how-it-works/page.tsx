@@ -285,7 +285,7 @@ export default function HowItWorksPage() {
         </section>
 
         {/* ===== FAQs ===== */}
-        <section>
+        <section id="faq">
           <h2 className="text-3xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h2>
           
           <div className="space-y-6">

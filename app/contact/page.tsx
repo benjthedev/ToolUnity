@@ -30,7 +30,7 @@ export default function ContactPage() {
           
           <a 
             href="mailto:support@toolunity.co.uk" 
-            className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 font-semibold transition text-lg"
+            className="text-blue-600 hover:text-blue-700 font-semibold"
           >
             support@toolunity.co.uk
           </a>
