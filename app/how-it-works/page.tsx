@@ -45,7 +45,7 @@ export default function HowItWorksPage() {
               <div className="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">Request & Pay</h3>
-                <p className="text-gray-700">Choose your rental dates and submit a request. Pay securely through ToolUnity.</p>
+                <p className="text-gray-700">Choose your rental dates and submit a request. Pay securely through Stripe.</p>
               </div>
             </div>
 
