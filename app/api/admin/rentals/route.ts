@@ -7,8 +7,12 @@ const ADMIN_EMAIL = 'benclarknfk@gmail.com';
 
 export async function GET() {
   try {
-    console.log('Admin rentals API called');
-    
+    // Verify admin authentication
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email || session.user.email !== ADMIN_EMAIL) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     // Use admin client for unrestricted access
     const supabase = getSupabaseAdmin();
     
@@ -22,12 +26,9 @@ export async function GET() {
       `)
       .order('created_at', { ascending: false });
 
-    console.log('Query result - error:', error, 'data length:', data?.length);
-
     if (error) {
-      console.error('Supabase error:', error);
       return NextResponse.json({ 
-        error: error.message,
+        error: 'Failed to fetch rentals',
         rentals: []
       });
     }
@@ -37,9 +38,8 @@ export async function GET() {
       count: data?.length || 0
     });
   } catch (err) {
-    console.error('API error:', err);
     return NextResponse.json({ 
-      error: err instanceof Error ? err.message : 'Unknown error',
+      error: 'Internal server error',
       rentals: []
     });
   }

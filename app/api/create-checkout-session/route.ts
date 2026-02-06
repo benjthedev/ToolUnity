@@ -1,6 +1,8 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/auth';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { serverLog } from '@/lib/logger';
@@ -30,12 +32,22 @@ function getSupabase() {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { priceId, userId, email } = body;
+    // Verify authentication
+    const authSession = await getServerSession(authOptions);
+    if (!authSession?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    if (!priceId || !userId) {
+    const body = await request.json();
+    const { priceId } = body;
+
+    // Use authenticated session data, not client-supplied values
+    const userId = authSession.user.id;
+    const email = authSession.user.email;
+
+    if (!priceId) {
       return NextResponse.json(
-        { error: 'Missing priceId or userId' },
+        { error: 'Missing priceId' },
         { status: 400 }
       );
     }
@@ -66,9 +78,9 @@ export async function POST(request: NextRequest) {
       sessionConfig.customer_email = email;
     }
 
-    const session = await getStripe().checkout.sessions.create(sessionConfig);
+    const checkoutSession = await getStripe().checkout.sessions.create(sessionConfig);
 
-    return NextResponse.json({ sessionId: session.id, url: session.url }, { status: 200 });
+    return NextResponse.json({ sessionId: checkoutSession.id, url: checkoutSession.url }, { status: 200 });
   } catch (error) {
     serverLog.error('Stripe error:', error);
     return NextResponse.json(

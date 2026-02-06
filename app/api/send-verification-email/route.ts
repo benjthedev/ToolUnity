@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { verifyCsrfToken } from '@/lib/csrf';
 import { serverLog } from '@/lib/logger';
+import crypto from 'crypto';
+
+// Generate a verification HMAC for a given email using the server secret
+function generateVerificationToken(email: string): string {
+  const secret = process.env.NEXTAUTH_SECRET || '';
+  return crypto.createHmac('sha256', secret).update(email.toLowerCase().trim()).digest('hex');
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,8 +20,20 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { userId, email } = body;
 
-    if (!email) {
-      return NextResponse.json({ error: 'Email required' }, { status: 400 });
+    if (!email || !userId) {
+      return NextResponse.json({ error: 'Email and userId required' }, { status: 400 });
+    }
+
+    // Verify that the userId actually owns this email in users_ext
+    const { data: userRecord, error: lookupError } = await supabase
+      .from('users_ext')
+      .select('user_id, email')
+      .eq('user_id', userId)
+      .eq('email', email)
+      .single();
+
+    if (lookupError || !userRecord) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Send verification email via Resend
@@ -22,7 +41,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email service not configured' }, { status: 500 });
     }
 
-    const verificationLink = `${process.env.NEXTAUTH_URL}/api/verify-email?email=${encodeURIComponent(email)}`;
+    // Generate an HMAC-signed verification token (no DB storage needed)
+    const verificationToken = generateVerificationToken(email);
+
+    const verificationLink = `${process.env.NEXTAUTH_URL}/api/verify-email?email=${encodeURIComponent(email)}&token=${verificationToken}`;
 
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',

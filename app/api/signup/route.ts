@@ -66,7 +66,13 @@ export async function POST(request: NextRequest) {
       throw error;
     }
 
-    const { user_id, email, username, phone_number, subscription_tier } = body;
+    // Use validated data (not raw body) for all fields
+    const { email, username, phone_number } = validated;
+    const user_id = body.user_id;
+
+    if (!user_id || typeof user_id !== 'string') {
+      return ApiErrors.BAD_REQUEST('Missing user_id');
+    }
 
     // Rate limit signup by email
     const rateLimitCheck = checkRateLimitByEmail(
@@ -79,6 +85,22 @@ export async function POST(request: NextRequest) {
       return ApiErrors.RATE_LIMITED();
     }
 
+    // Verify the user_id exists in Supabase Auth and matches the email
+    const adminClient = getSupabaseAdmin();
+    if (adminClient) {
+      try {
+        const { data: authUser, error: authError } = await adminClient.auth.admin.getUserById(user_id);
+        if (authError || !authUser?.user || authUser.user.email !== email) {
+          return ApiErrors.BAD_REQUEST('Invalid user credentials');
+        }
+      } catch {
+        // If admin client fails, reject the request to be safe
+        return ApiErrors.INTERNAL_ERROR();
+      }
+    } else {
+      return ApiErrors.INTERNAL_ERROR();
+    }
+
     // Create user profile
     const sb = getSupabase();
     const { error: profileError } = await sb.from('users_ext').insert({
@@ -86,7 +108,7 @@ export async function POST(request: NextRequest) {
       email: email,
       username: username,
       phone_number: phone_number || null,
-      subscription_tier: subscription_tier || 'free',
+      subscription_tier: 'free',
       email_verified: false,
       tools_count: 0,
       created_at: new Date().toISOString(),

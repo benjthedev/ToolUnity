@@ -168,7 +168,8 @@ export default function DashboardPage() {
       const { error } = await supabase
         .from('rental_transactions')
         .update({ status: 'returned', end_date: new Date().toISOString().split('T')[0] })
-        .eq('id', rentalId);
+        .eq('id', rentalId)
+        .eq('renter_id', session?.user?.id || '');
 
       if (error) throw error;
 
@@ -184,22 +185,24 @@ export default function DashboardPage() {
     if (!confirm('Are you sure you want to delete this tool? Any rental requests will be cancelled.')) return;
 
     try {
-      // First, delete any rental requests for this tool (all statuses)
+      // First, delete any rental requests for this tool (only for tools owned by current user)
       const { error: requestsError } = await supabase
         .from('rental_transactions')
         .delete()
-        .eq('tool_id', toolId);
+        .eq('tool_id', toolId)
+        .eq('owner_id', session?.user?.id || '');
 
       if (requestsError) {
         console.warn('Warning: Could not delete rental requests:', requestsError);
         // Continue anyway - try to delete the tool
       }
 
-      // Then delete the tool
+      // Then delete the tool (only if owned by current user)
       const { error } = await supabase
         .from('tools')
         .delete()
-        .eq('id', toolId);
+        .eq('id', toolId)
+        .eq('owner_id', session?.user?.id || '');
 
       if (error) throw error;
 
