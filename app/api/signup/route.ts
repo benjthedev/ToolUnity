@@ -74,6 +74,12 @@ export async function POST(request: NextRequest) {
       return ApiErrors.BAD_REQUEST('Missing user_id');
     }
 
+    // Validate user_id is a valid UUID format (basic sanity check)
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(user_id)) {
+      return ApiErrors.BAD_REQUEST('Invalid user_id format');
+    }
+
     // Rate limit signup by email
     const rateLimitCheck = checkRateLimitByEmail(
       email,
@@ -85,24 +91,19 @@ export async function POST(request: NextRequest) {
       return ApiErrors.RATE_LIMITED();
     }
 
-    // Verify the user_id exists in Supabase Auth and matches the email
-    const adminClient = getSupabaseAdmin();
-    if (adminClient) {
-      try {
-        const { data: authUser, error: authError } = await adminClient.auth.admin.getUserById(user_id);
-        if (authError || !authUser?.user || authUser.user.email !== email) {
-          return ApiErrors.BAD_REQUEST('Invalid user credentials');
-        }
-      } catch {
-        // If admin client fails, reject the request to be safe
-        return ApiErrors.INTERNAL_ERROR();
-      }
-    } else {
-      return ApiErrors.INTERNAL_ERROR();
+    // Check if this email is already registered (prevents duplicate accounts)
+    const sb = getSupabase();
+    const { data: existingUser } = await sb
+      .from('users_ext')
+      .select('user_id')
+      .eq('email', email)
+      .single();
+
+    if (existingUser) {
+      return ApiErrors.BAD_REQUEST('Email already registered');
     }
 
     // Create user profile
-    const sb = getSupabase();
     const { error: profileError } = await sb.from('users_ext').insert({
       user_id: user_id,
       email: email,
