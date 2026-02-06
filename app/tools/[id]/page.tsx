@@ -411,7 +411,6 @@ export default function ToolDetailPage() {
                     <li>• No hidden fees—you see the total before paying</li>
                     <li>• Owner gets 80% of rental, 20% covers fees & platform costs</li>
                     <li>• Flexible rental periods—rent for 1 day or longer</li>
-                    <li>• Contact owner directly for questions</li>
                   </ul>
                 </div>
               </div>
