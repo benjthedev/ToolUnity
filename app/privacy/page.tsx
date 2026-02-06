@@ -129,7 +129,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">9. International Data Transfers</h2>
             <p className="text-gray-700">
-              Your information is stored on servers in the UK and EU. If you're accessing ToolUnity from outside these regions, your data may be transferred internationally.
+              Your information is processed by our service providers (Supabase, Vercel, Stripe) whose servers may be located in the UK, EU, or US. By using ToolUnity, you consent to your data being processed in these regions.
             </p>
           </section>
 
