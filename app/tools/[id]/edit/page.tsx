@@ -7,7 +7,13 @@ import { useAuth } from '@/app/providers';
 import { getSupabase } from '@/lib/supabase';
 
 const categories = ['Power Tools', 'Garden Tools', 'Camping Equipment', 'Sports Equipment', 'Other'];
-const conditions = ['Like New', 'Excellent', 'Good', 'Fair'];
+const conditions = ['like-new', 'excellent', 'good', 'fair'];
+const conditionLabels: { [key: string]: string } = {
+  'like-new': 'Like New',
+  'excellent': 'Excellent',
+  'good': 'Good',
+  'fair': 'Fair',
+};
 
 export default function EditToolPage() {
   const router = useRouter();
@@ -19,7 +25,7 @@ export default function EditToolPage() {
     name: '',
     category: 'Power Tools',
     description: '',
-    condition: 'Good',
+    condition: 'good',
     toolValue: '',
     dailyRate: '',
     postcode: '',
@@ -317,7 +323,7 @@ export default function EditToolPage() {
             >
               {conditions.map((cond) => (
                 <option key={cond} value={cond}>
-                  {cond}
+                  {conditionLabels[cond]}
                 </option>
               ))}
             </select>
