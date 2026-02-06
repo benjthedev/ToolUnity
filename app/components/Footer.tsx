@@ -33,11 +33,7 @@ export default function Footer() {
                   How It Works
                 </Link>
               </li>
-              <li>
-                <Link href="/how-it-works" className="hover:text-white transition">
-                  Safety & Trust
-                </Link>
-              </li>
+
             </ul>
           </div>
 

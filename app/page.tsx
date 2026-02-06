@@ -341,7 +341,7 @@ export default function Home() {
 
           <div className="text-center mt-8">
             <p className="text-gray-600 mb-4">
-              This is permanent as long as you keep 3+ tools active. Relist if you drop below 3.
+
             </p>
             <Link
               href="/how-it-works"
@@ -361,7 +361,7 @@ export default function Home() {
           <div>
             <h4 className="text-2xl font-semibold text-green-600 mb-4">💰 Save Hundreds</h4>
             <p className="text-gray-600">
-              A power drill costs £50-200 new. Most homeowners use them once a year. Rent instead for just £1-5 per day.
+              A power drill costs £50-200 new. Most homeowners use them once a year. Rent one instead.
             </p>
           </div>
           <div>

@@ -15,7 +15,7 @@ const borrowingPlans = [
     features: [
       '✓ Rent any tool',
       '✓ No subscription required',
-      '✓ £1-5 per day per tool',
+      '✓ Set your own prices',
       '✓ Flexible rental periods',
       '✓ Up to 14 days per borrow',
     ],
@@ -76,7 +76,7 @@ export default function PricingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
             <div className="bg-white rounded-lg p-8 shadow-sm">
               <h3 className="text-2xl font-bold text-blue-600 mb-3">Renters</h3>
-              <p className="text-gray-700 text-lg font-semibold mb-2">£1-5 per day</p>
+              <p className="text-gray-700 text-lg font-semibold mb-2">You set the price</p>
               <p className="text-gray-600 mb-4">Browse tools in your area. Rent for a day, a week, or longer.</p>
               <Link href="/tools" className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold">
                 Browse Tools →
