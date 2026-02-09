@@ -136,9 +136,13 @@ export default function DashboardPage() {
 
           if (ownerRentalsData) {
             setOwnerRentals(ownerRentalsData.filter((r: any) => ['active', 'pending_approval', 'pending_payment'].includes(r.status)) || []);
-            setOwnerReturnedRentals(ownerRentalsData.filter((r: any) => 
-              r.deposit_status && r.deposit_status !== 'none' && r.deposit_status !== 'released' && r.deposit_status !== 'refunded' && r.deposit_status !== 'forfeited'
-            ) || []);
+            setOwnerReturnedRentals(ownerRentalsData.filter((r: any) => {
+              const hasActiveDeposit = r.deposit_status && r.deposit_status !== 'none' && r.deposit_status !== 'released' && r.deposit_status !== 'refunded' && r.deposit_status !== 'forfeited';
+              const isReturned = r.status === 'returned';
+              const isPastDueDate = r.end_date && new Date(r.end_date) < new Date();
+              // Only show in Deposit Review if tool has been returned OR rental period has passed
+              return hasActiveDeposit && (isReturned || isPastDueDate);
+            }) || []);
           }
         }
       }
