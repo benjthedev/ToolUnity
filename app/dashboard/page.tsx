@@ -176,8 +176,20 @@ export default function DashboardPage() {
 
   const handleReturn = async (rentalId: string) => {
     try {
-      // Calculate claim window end date (7 days from now)
-      const claimWindowEnd = new Date();
+      // Get the rental to fetch the end_date
+      const { data: rental } = await supabase
+        .from('rental_transactions')
+        .select('end_date')
+        .eq('id', rentalId)
+        .single();
+
+      if (!rental) {
+        throw new Error('Rental not found');
+      }
+
+      // Calculate claim window end date (7 days from the due date)
+      const endDate = new Date(rental.end_date);
+      const claimWindowEnd = new Date(endDate);
       claimWindowEnd.setDate(claimWindowEnd.getDate() + 7);
 
       const { error } = await supabase
