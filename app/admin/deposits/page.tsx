@@ -48,7 +48,9 @@ export default function AdminDepositsPage() {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'claimed' | 'held' | 'pending_release' | 'released' | 'forfeited' | 'refunded'>('all');
   const [resolvingId, setResolvingId] = useState<string | null>(null);
+  const [holdingId, setHoldingId] = useState<string | null>(null);
   const [adminNotes, setAdminNotes] = useState('');
+  const [holdNotes, setHoldNotes] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
 
   const isAdmin = session?.user?.email === ADMIN_EMAIL;
@@ -106,6 +108,39 @@ export default function AdminDepositsPage() {
       fetchDeposits();
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Error resolving deposit');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleHold = async (rentalId: string) => {
+    if (!confirm('Are you sure you want to manually HOLD this deposit and prevent automatic release?')) {
+      return;
+    }
+
+    try {
+      setActionLoading(true);
+      const response = await fetch('/api/admin/deposits/hold', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          rentalId,
+          adminNotes: holdNotes || 'Manually held by admin',
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to hold deposit');
+      }
+
+      alert('Deposit held successfully');
+      setHoldingId(null);
+      setHoldNotes('');
+      fetchDeposits();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Error holding deposit');
     } finally {
       setActionLoading(false);
     }
@@ -335,6 +370,51 @@ export default function AdminDepositsPage() {
                         >
                           Review & Resolve
                         </button>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Actions for Pending Release deposits */}
+                  {deposit.deposit_status === 'pending_release' && (
+                    <div className="flex-shrink-0 lg:w-72">
+                      {holdingId === deposit.id ? (
+                        <div className="space-y-3 bg-gray-50 border border-gray-200 rounded-lg p-4">
+                          <textarea
+                            placeholder="Why are you holding this deposit? (optional)..."
+                            value={holdNotes}
+                            onChange={(e) => setHoldNotes(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none"
+                            rows={3}
+                          />
+                          <button
+                            onClick={() => handleHold(deposit.id)}
+                            disabled={actionLoading}
+                            className="w-full bg-orange-600 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-orange-700 disabled:opacity-50"
+                          >
+                            {actionLoading ? '...' : 'Confirm Hold'}
+                          </button>
+                          <button
+                            onClick={() => { setHoldingId(null); setHoldNotes(''); }}
+                            className="w-full text-gray-500 text-sm hover:text-gray-700"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <button
+                            onClick={() => setHoldingId(deposit.id)}
+                            className="w-full bg-orange-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-orange-700 transition"
+                          >
+                            🔒 Hold Release
+                          </button>
+                          <button
+                            disabled
+                            className="w-full bg-green-50 text-green-700 px-4 py-2 rounded-lg text-sm font-semibold border border-green-200 cursor-not-allowed"
+                          >
+                            ✓ Auto-releases in window
+                          </button>
+                        </div>
                       )}
                     </div>
                   )}
