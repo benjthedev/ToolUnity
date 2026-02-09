@@ -69,26 +69,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Only the tool owner can claim deposits' }, { status: 403 });
     }
 
-    // Check rental is in a claimable state
-    if (rental.status !== 'returned') {
-      return NextResponse.json(
-        { error: 'Can only claim deposit for returned rentals' },
-        { status: 400 }
-      );
-    }
-
-    // Check deposit is held or pending release
+    // Check deposit is in a claimable state (held or pending_release)
     if (rental.deposit_status !== DEPOSIT_STATUS.HELD && rental.deposit_status !== DEPOSIT_STATUS.PENDING_RELEASE) {
       return NextResponse.json(
         { error: `Cannot claim deposit - current status: ${rental.deposit_status}` },
-        { status: 400 }
-      );
-    }
-
-    // Check claim window hasn't expired
-    if (rental.claim_window_ends_at && new Date(rental.claim_window_ends_at) < new Date()) {
-      return NextResponse.json(
-        { error: 'The 7-day claim window has expired. The deposit has been or will be automatically refunded.' },
         { status: 400 }
       );
     }

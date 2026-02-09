@@ -39,10 +39,40 @@ export async function GET(request: NextRequest) {
     const supabase = getSupabase();
     const now = new Date();
 
-    // Find deposits eligible for auto-release:
-    // - Status is 'returned' 
+    // PART 1: Auto-set claim_window_ends_at for active rentals past their due date
+    // that don't have a claim window set yet (renter never clicked "Mark as Returned").
+    // This ensures the 7-day clock starts from the due date.
+    const sevenDaysAgo = new Date(now);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const { data: overdueRentals } = await supabase
+      .from('rental_transactions')
+      .select('id, end_date')
+      .eq('status', 'active')
+      .in('deposit_status', [DEPOSIT_STATUS.HELD, DEPOSIT_STATUS.NONE])
+      .is('claim_window_ends_at', null)
+      .lt('end_date', now.toISOString().split('T')[0]);
+
+    if (overdueRentals && overdueRentals.length > 0) {
+      for (const overdue of overdueRentals) {
+        const endDate = new Date(overdue.end_date);
+        const claimWindowEnd = new Date(endDate);
+        claimWindowEnd.setDate(claimWindowEnd.getDate() + 7);
+
+        await supabase
+          .from('rental_transactions')
+          .update({
+            claim_window_ends_at: claimWindowEnd.toISOString(),
+            deposit_status: DEPOSIT_STATUS.PENDING_RELEASE,
+          })
+          .eq('id', overdue.id);
+      }
+    }
+
+    // PART 2: Find deposits eligible for auto-release:
     // - deposit_status is 'held' or 'pending_release'
     // - claim_window_ends_at has passed
+    // - Includes both returned AND active (overdue, unreturned) rentals
     const { data: eligibleRentals, error: fetchError } = await supabase
       .from('rental_transactions')
       .select(`
@@ -56,7 +86,6 @@ export async function GET(request: NextRequest) {
         stripe_payment_intent_id,
         tools:tool_id(name)
       `)
-      .eq('status', 'returned')
       .in('deposit_status', [DEPOSIT_STATUS.HELD, DEPOSIT_STATUS.PENDING_RELEASE])
       .lt('claim_window_ends_at', now.toISOString());
 

@@ -136,7 +136,9 @@ export default function DashboardPage() {
 
           if (ownerRentalsData) {
             setOwnerRentals(ownerRentalsData.filter((r: any) => ['active', 'pending_approval', 'pending_payment'].includes(r.status)) || []);
-            setOwnerReturnedRentals(ownerRentalsData.filter((r: any) => r.status === 'returned' && r.deposit_status && r.deposit_status !== 'none' && r.deposit_status !== 'released' && r.deposit_status !== 'refunded') || []);
+            setOwnerReturnedRentals(ownerRentalsData.filter((r: any) => 
+              r.deposit_status && r.deposit_status !== 'none' && r.deposit_status !== 'released' && r.deposit_status !== 'refunded' && r.deposit_status !== 'forfeited'
+            ) || []);
           }
         }
       }
@@ -176,27 +178,14 @@ export default function DashboardPage() {
 
   const handleReturn = async (rentalId: string) => {
     try {
-      // Get the rental to fetch the end_date
-      const { data: rental } = await supabase
-        .from('rental_transactions')
-        .select('end_date')
-        .eq('id', rentalId)
-        .single();
-
-      if (!rental) {
-        throw new Error('Rental not found');
-      }
-
-      // Calculate claim window end date (7 days from the due date)
-      const endDate = new Date(rental.end_date);
-      const claimWindowEnd = new Date(endDate);
+      // 7-day claim window starts from NOW (when renter marks as returned)
+      const claimWindowEnd = new Date();
       claimWindowEnd.setDate(claimWindowEnd.getDate() + 7);
 
       const { error } = await supabase
         .from('rental_transactions')
         .update({
           status: 'returned',
-          end_date: new Date().toISOString().split('T')[0],
           return_confirmed_at: new Date().toISOString(),
           claim_window_ends_at: claimWindowEnd.toISOString(),
           deposit_status: 'pending_release',
@@ -822,8 +811,21 @@ export default function DashboardPage() {
                             </div>
                           )}
                           {rental.status === 'active' && (
-                            <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-800">
+                            <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-800 mb-3">
                               ✓ Rental active - Contact information shared with renter
+                            </div>
+                          )}
+                          {rental.status === 'active' && rental.deposit_status !== 'claimed' && (
+                            <Link
+                              href={`/report-issue?rental_id=${rental.id}&tool_name=${encodeURIComponent(rental.tools?.name || 'Tool')}`}
+                              className="block w-full bg-red-100 text-red-700 py-2 rounded-lg hover:bg-red-200 font-semibold text-sm transition text-center"
+                            >
+                              ⚠️ Report Damage / Missing
+                            </Link>
+                          )}
+                          {rental.status === 'active' && rental.deposit_status === 'claimed' && (
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm">
+                              <p className="font-semibold text-red-800">📋 Damage/missing report submitted - under review</p>
                             </div>
                           )}
                         </div>
@@ -838,8 +840,8 @@ export default function DashboardPage() {
             {/* Returned Tools - Deposit Claims (Owner) */}
             {ownerReturnedRentals.length > 0 && (
               <section className="border-t pt-12">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Returned Tools - Deposit Review</h2>
-                <p className="text-gray-600 mb-4 text-sm">Tools that have been returned. You have 7 days to inspect and report any damage.</p>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Deposit Review</h2>
+                <p className="text-gray-600 mb-4 text-sm">Tools with active deposits. Report damage or missing tools before the claim window expires.</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {ownerReturnedRentals.map((rental) => {
                     const claimWindowEnd = rental.claim_window_ends_at ? new Date(rental.claim_window_ends_at) : null;
@@ -876,47 +878,20 @@ export default function DashboardPage() {
                             )}
                           </div>
 
-                          {rental.deposit_status === 'pending_release' && !isExpired && (
-                            <>
-                              {claimingRentalId === rental.id ? (
-                                <div className="space-y-3">
-                                  <textarea
-                                    className="w-full border border-red-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"
-                                    placeholder="Describe the damage in detail (min 10 characters)..."
-                                    rows={3}
-                                    value={claimReason}
-                                    onChange={(e) => setClaimReason(e.target.value)}
-                                  />
-                                  <div className="flex gap-2">
-                                    <button
-                                      onClick={() => handleDepositClaim(rental.id)}
-                                      disabled={processingRequest === rental.id}
-                                      className="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 font-semibold text-sm disabled:opacity-50 transition"
-                                    >
-                                      {processingRequest === rental.id ? 'Submitting...' : 'Submit Damage Claim'}
-                                    </button>
-                                    <button
-                                      onClick={() => { setClaimingRentalId(null); setClaimReason(''); }}
-                                      className="px-4 bg-gray-200 text-gray-700 py-2 rounded-lg text-sm hover:bg-gray-300 transition"
-                                    >
-                                      Cancel
-                                    </button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div className="flex gap-3">
-                                  <button
-                                    onClick={() => setClaimingRentalId(rental.id)}
-                                    className="flex-1 bg-red-100 text-red-700 py-2 rounded-lg hover:bg-red-200 font-semibold text-sm transition"
-                                  >
-                                    ⚠️ Report Damage
-                                  </button>
-                                  <div className="flex-1 bg-green-50 border border-green-200 rounded-lg py-2 px-3 text-center text-sm text-green-700">
-                                    ✓ No damage? Deposit auto-refunds
-                                  </div>
+                          {(rental.deposit_status === 'held' || rental.deposit_status === 'pending_release') && !isExpired && (
+                            <div className="flex gap-3">
+                              <Link
+                                href={`/report-issue?rental_id=${rental.id}&tool_name=${encodeURIComponent(rental.tools?.name || 'Tool')}`}
+                                className="flex-1 bg-red-100 text-red-700 py-2 rounded-lg hover:bg-red-200 font-semibold text-sm transition text-center"
+                              >
+                                ⚠️ Report Damage / Missing
+                              </Link>
+                              {rental.deposit_status === 'pending_release' && (
+                                <div className="flex-1 bg-green-50 border border-green-200 rounded-lg py-2 px-3 text-center text-sm text-green-700">
+                                  ✓ No damage? Deposit auto-refunds
                                 </div>
                               )}
-                            </>
+                            </div>
                           )}
 
                           {rental.deposit_status === 'claimed' && (
