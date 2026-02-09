@@ -127,13 +127,13 @@ function ReportIssueContent() {
                 Please email us with your rental details, a description of the damage or issue, and any photos if possible. We will review your report and get back to you.
               </p>
               <a
-                href={`mailto:support@toolunity.co.uk?subject=Damage%20Report%20-%20${encodeURIComponent(decodeURIComponent(toolName))}&body=Rental%20ID%3A%20${rentalId}%0ATool%3A%20${encodeURIComponent(decodeURIComponent(toolName))}%0A%0APlease%20describe%20the%20issue%3A%0A%0A`}
+                href="mailto:support@toolunity.co.uk?subject=Damage Report - Rental Issue"
                 className="block w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition text-lg text-center"
               >
                 📧 Email Us About This Issue
               </a>
               <p className="text-blue-700 text-sm mt-3 text-center">
-                Or email directly: <a href="mailto:support@toolunity.co.uk" className="underline font-semibold">support@toolunity.co.uk</a>
+                Or email directly: <a href="mailto:support@toolunity.co.uk" className="underline font-semibold hover:text-blue-900">support@toolunity.co.uk</a>
               </p>
             </div>
 
@@ -159,13 +159,13 @@ function ReportIssueContent() {
                 If the report didn&apos;t go through, you can still email us directly and we&apos;ll handle it manually:
               </p>
               <a
-                href={`mailto:support@toolunity.co.uk?subject=Damage%20Report%20-%20${encodeURIComponent(decodeURIComponent(toolName))}&body=Rental%20ID%3A%20${rentalId}%0ATool%3A%20${encodeURIComponent(decodeURIComponent(toolName))}%0A%0APlease%20describe%20the%20issue%3A%0A%0A`}
+                href="mailto:support@toolunity.co.uk?subject=Damage Report - Rental Issue"
                 className="block w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition text-lg text-center"
               >
                 📧 Email Us About This Issue
               </a>
               <p className="text-blue-700 text-sm mt-3 text-center">
-                Or email directly: <a href="mailto:support@toolunity.co.uk" className="underline font-semibold">support@toolunity.co.uk</a>
+                Or email directly: <a href="mailto:support@toolunity.co.uk" className="underline font-semibold hover:text-blue-900">support@toolunity.co.uk</a>
               </p>
             </div>
 
