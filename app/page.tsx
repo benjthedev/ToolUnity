@@ -221,7 +221,6 @@ export default function Home() {
               <p className="text-gray-700 text-sm mb-3">
                 Create your account and browse tools available in your area right away.
               </p>
-              <p className="text-xs text-blue-600 font-semibold">✓ Quick and easy signup</p>
             </div>
 
             {/* Step 2: Borrow */}
@@ -240,7 +239,6 @@ export default function Home() {
               <p className="text-gray-700 text-sm mb-3">
                 Return the tool, and you're done. If there's damage, report it and our team will investigate.
               </p>
-              <p className="text-xs text-blue-600 font-semibold">✓ Fast claim resolution</p>
             </div>
           </div>
           <div className="mt-12 text-center">
