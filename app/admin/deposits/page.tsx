@@ -90,9 +90,9 @@ export default function AdminDepositsPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          rentalId,
+          rental_id: rentalId,
           action,
-          adminNotes: adminNotes || undefined,
+          admin_notes: adminNotes || undefined,
         }),
       });
 
