@@ -17,8 +17,26 @@ export const authOptions: NextAuthOptions = {
         }
 
         const supabase = getSupabase();
+
+        // Check if the input is an email or username
+        let loginEmail = credentials.email;
+        if (!loginEmail.includes('@')) {
+          // It's a username - look up the email
+          const { data: userRecord } = await supabase
+            .from('users_ext')
+            .select('email')
+            .eq('username', loginEmail)
+            .single();
+
+          if (!userRecord?.email) {
+            serverLog.error('Username not found:', loginEmail);
+            return null;
+          }
+          loginEmail = userRecord.email;
+        }
+
         const { data, error } = await supabase.auth.signInWithPassword({
-          email: credentials.email,
+          email: loginEmail,
           password: credentials.password,
         });
 
