@@ -131,6 +131,8 @@ export async function POST(request: NextRequest) {
         rejected_at: new Date().toISOString(),
         rejection_reason: reason || 'Tool owner declined request',
         refund_id: refundId,
+        deposit_status: 'released', // Deposit is refunded along with rental
+        deposit_released_at: new Date().toISOString(),
       })
       .eq('id', rental_id);
 

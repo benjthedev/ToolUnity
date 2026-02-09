@@ -45,7 +45,7 @@ export default function HowItWorksPage() {
               <div className="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">Request & Pay</h3>
-                <p className="text-gray-700">Choose your rental dates and submit a request. Pay securely through Stripe.</p>
+                <p className="text-gray-700">Choose your rental dates and submit a request. Pay securely through Stripe. A <strong>£10 refundable security deposit</strong> is included at checkout to protect the tool owner.</p>
               </div>
             </div>
 
@@ -60,8 +60,8 @@ export default function HowItWorksPage() {
             <div className="flex gap-4">
               <div className="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">4</div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Return</h3>
-                <p className="text-gray-700">Return the tool in the same condition. That's it—simple as that.</p>
+                <h3 className="text-lg font-semibold text-gray-900">Return & Get Your Deposit Back</h3>
+                <p className="text-gray-700">Return the tool in the same condition. The owner has 7 days to inspect it. If everything's fine, your <strong>£10 deposit is automatically refunded</strong>—no action needed.</p>
               </div>
             </div>
           </div>
@@ -98,8 +98,8 @@ export default function HowItWorksPage() {
 
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <div className="text-3xl mb-3">🛡️</div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Protected</h3>
-              <p className="text-gray-700 text-sm">Renters are responsible for any damage. We investigate disputes and ensure fair outcomes.</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Deposit Protection</h3>
+              <p className="text-gray-700 text-sm">Every rental includes a £10 security deposit. If a renter damages your tool, you have 7 days to report it and claim the deposit.</p>
             </div>
           </div>
           
@@ -162,7 +162,7 @@ export default function HowItWorksPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="text-center">
               <h3 className="text-lg font-semibold text-blue-600 mb-3">For Renters</h3>
-              <p className="text-gray-700">Pay the daily rate set by the owner. No subscriptions, no hidden fees. Just pay per rental.</p>
+              <p className="text-gray-700">Pay the daily rate set by the owner, plus a <strong>£10 refundable security deposit</strong>. No subscriptions, no hidden fees. Your deposit is automatically refunded 7 days after return if no damage is reported.</p>
             </div>
             <div className="text-center">
               <h3 className="text-lg font-semibold text-green-600 mb-3">For Owners</h3>
@@ -180,11 +180,25 @@ export default function HowItWorksPage() {
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Who Pays If Something Breaks?</h3>
               <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
                 <p className="text-gray-700">
-                  <strong>Renters</strong> are responsible for any damage beyond normal wear and tear.
+                  <strong>Renters</strong> are responsible for any damage beyond normal wear and tear. A <strong>£10 security deposit</strong> is held during every rental to cover potential damage.
                 </p>
                 <p className="text-gray-700">
-                  <strong>Owners</strong> are protected. If damage occurs, we investigate and ensure fair compensation.
+                  <strong>Owners</strong> have 7 days after the tool is returned to inspect it. If damage is found, the owner can claim the deposit. An admin reviews every claim to ensure fairness.
                 </p>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">How the Security Deposit Works</h3>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-6">
+                <ol className="space-y-3 text-gray-700">
+                  <li><strong>1. Checkout</strong> — A £10 refundable deposit is added to your rental payment</li>
+                  <li><strong>2. Held securely</strong> — The deposit is held while you have the tool</li>
+                  <li><strong>3. Tool returned</strong> — The owner has 7 days to inspect the tool</li>
+                  <li><strong>4a. No issues</strong> — Your deposit is automatically refunded after 7 days</li>
+                  <li><strong>4b. Damage reported</strong> — The owner files a claim, and an admin reviews it</li>
+                  <li><strong>5. Admin decision</strong> — If the claim is valid, the deposit is forfeited. If not, it's refunded to you</li>
+                </ol>
               </div>
             </div>
 
@@ -215,10 +229,10 @@ export default function HowItWorksPage() {
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Dispute Resolution</h3>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
                 <ol className="space-y-3 text-gray-700">
-                  <li><strong>1. Damage reported</strong> — Owner reports damage when tool is returned</li>
-                  <li><strong>2. Renter responds</strong> — Renter has a chance to share their side</li>
-                  <li><strong>3. Review & decision</strong> — ToolUnity reviews evidence and makes a fair decision</li>
-                  <li><strong>4. Resolution</strong> — Damage costs are charged to the renter if warranted</li>
+                  <li><strong>1. Damage reported</strong> — Owner reports damage within 7 days of return and claims the deposit</li>
+                  <li><strong>2. Admin review</strong> — A ToolUnity admin reviews the claim and any evidence</li>
+                  <li><strong>3. Decision</strong> — The admin either refunds the deposit to the renter or forfeits it to compensate the owner</li>
+                  <li><strong>4. Both notified</strong> — Both renter and owner receive an email with the outcome</li>
                 </ol>
               </div>
             </div>
@@ -275,6 +289,9 @@ export default function HowItWorksPage() {
                 <strong>✓ Secure payments</strong> — All payments processed securely through Stripe
               </li>
               <li>
+                <strong>✓ Refundable deposits</strong> — £10 security deposit protects owners and is auto-refunded if no damage is reported
+              </li>
+              <li>
                 <strong>✓ Direct communication</strong> — Renters and owners coordinate directly for pickup
               </li>
               <li>
@@ -313,7 +330,14 @@ export default function HowItWorksPage() {
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">What if a tool gets damaged?</h3>
               <p className="text-gray-700">
-                Renters are responsible for damage. We investigate disputes and ensure owners are compensated fairly.
+                The owner has 7 days after return to report damage and claim the £10 security deposit. An admin reviews every claim. If the claim is valid, the deposit is forfeited to compensate the owner. If not, it's refunded to the renter.
+              </p>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">When do I get my deposit back?</h3>
+              <p className="text-gray-700">
+                Your £10 deposit is automatically refunded 7 days after the tool is returned, as long as the owner hasn't reported any damage. You'll receive an email when the refund is processed.
               </p>
             </div>
 

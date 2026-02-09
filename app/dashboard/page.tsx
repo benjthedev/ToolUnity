@@ -18,6 +18,11 @@ interface Rental {
   rental_cost: number;
   daily_rate?: number;
   owner_id?: string;
+  deposit_amount?: number;
+  deposit_status?: string;
+  return_confirmed_at?: string;
+  claim_window_ends_at?: string;
+  deposit_claim_reason?: string;
   tools?: { 
     name: string;
     owner_id: string;
@@ -61,13 +66,17 @@ export default function DashboardPage() {
   const [activeRentals, setActiveRentals] = useState<Rental[]>([]);
   const [pendingRentals, setPendingRentals] = useState<Rental[]>([]);
   const [pendingApprovalRentals, setPendingApprovalRentals] = useState<Rental[]>([]);
+  const [returnedRentals, setReturnedRentals] = useState<Rental[]>([]);
   const [ownerRentals, setOwnerRentals] = useState<Rental[]>([]);
+  const [ownerReturnedRentals, setOwnerReturnedRentals] = useState<Rental[]>([]);
   const [tools, setTools] = useState<Tool[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [rentalRequests, setRentalRequests] = useState<RentalRequest[]>([]);
   const [csrfToken, setCsrfToken] = useState<string>('');
   const [processingRequest, setProcessingRequest] = useState<string | null>(null);
   const [hasBankDetails, setHasBankDetails] = useState(false);
+  const [claimReason, setClaimReason] = useState<string>('');
+  const [claimingRentalId, setClaimingRentalId] = useState<string | null>(null);
 
   useEffect(() => {
     if (loading) return;
@@ -101,6 +110,7 @@ export default function DashboardPage() {
         setActiveRentals(rentalData.filter((r: Rental) => r.status === 'active') || []);
         setPendingRentals(rentalData.filter((r: Rental) => r.status === 'pending_payment') || []);
         setPendingApprovalRentals(rentalData.filter((r: Rental) => r.status === 'pending_approval') || []);
+        setReturnedRentals(rentalData.filter((r: Rental) => r.status === 'returned' && r.deposit_status && r.deposit_status !== 'none' && r.deposit_status !== 'released' && r.deposit_status !== 'refunded') || []);
       }
 
       // Fetch owner's tools
@@ -121,11 +131,12 @@ export default function DashboardPage() {
             .from('rental_transactions')
             .select('*, tools(name), renter:renter_id(email, phone_number, username)')
             .in('tool_id', toolIds)
-            .in('status', ['active', 'pending_approval', 'pending_payment'])
+            .in('status', ['active', 'pending_approval', 'pending_payment', 'returned'])
             .order('start_date', { ascending: false });
 
           if (ownerRentalsData) {
-            setOwnerRentals(ownerRentalsData || []);
+            setOwnerRentals(ownerRentalsData.filter((r: any) => ['active', 'pending_approval', 'pending_payment'].includes(r.status)) || []);
+            setOwnerReturnedRentals(ownerRentalsData.filter((r: any) => r.status === 'returned' && r.deposit_status && r.deposit_status !== 'none' && r.deposit_status !== 'released' && r.deposit_status !== 'refunded') || []);
           }
         }
       }
@@ -165,19 +176,57 @@ export default function DashboardPage() {
 
   const handleReturn = async (rentalId: string) => {
     try {
+      // Calculate claim window end date (7 days from now)
+      const claimWindowEnd = new Date();
+      claimWindowEnd.setDate(claimWindowEnd.getDate() + 7);
+
       const { error } = await supabase
         .from('rental_transactions')
-        .update({ status: 'returned', end_date: new Date().toISOString().split('T')[0] })
+        .update({
+          status: 'returned',
+          end_date: new Date().toISOString().split('T')[0],
+          return_confirmed_at: new Date().toISOString(),
+          claim_window_ends_at: claimWindowEnd.toISOString(),
+          deposit_status: 'pending_release',
+        })
         .eq('id', rentalId)
         .eq('renter_id', session?.user?.id || '');
 
       if (error) throw error;
 
-      showToast('Tool returned successfully', 'success');
+      showToast('Tool returned successfully! Your deposit will be refunded within 7 days if no issues are reported.', 'success');
       fetchData();
     } catch (err) {
       console.error('Error returning tool:', err);
       showToast('Failed to return tool', 'error');
+    }
+  };
+
+  const handleDepositClaim = async (rentalId: string) => {
+    if (!claimReason || claimReason.trim().length < 10) {
+      showToast('Please describe the damage in at least 10 characters', 'error');
+      return;
+    }
+
+    setProcessingRequest(rentalId);
+    try {
+      const response = await fetch('/api/deposits/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rental_id: rentalId, reason: claimReason }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to submit claim');
+
+      showToast('Damage claim submitted. An admin will review it.', 'success');
+      setClaimingRentalId(null);
+      setClaimReason('');
+      fetchData();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to submit claim', 'error');
+    } finally {
+      setProcessingRequest(null);
     }
   };
 
@@ -511,6 +560,13 @@ export default function DashboardPage() {
                               <p className="font-semibold text-blue-600">£{rental.rental_cost.toFixed(2)}</p>
                             </div>
                           )}
+                          {rental.deposit_amount && rental.deposit_amount > 0 && (
+                            <div className="bg-amber-50 rounded p-3 text-sm border border-amber-200">
+                              <p className="text-gray-600">🛡️ Refundable Deposit</p>
+                              <p className="font-semibold text-amber-700">£{rental.deposit_amount.toFixed(2)}</p>
+                              <p className="text-xs text-gray-500 mt-1">Returned within 7 days after you return the tool (if no damage reported)</p>
+                            </div>
+                          )}
                           <button
                             onClick={() => handleReturn(rental.id)}
                             className="w-full bg-red-100 text-red-700 py-2 rounded-lg hover:bg-red-200 font-semibold transition"
@@ -522,6 +578,54 @@ export default function DashboardPage() {
                     ))}
                   </div>
                 </>
+              )}
+
+              {/* Returned Rentals - Deposit Pending */}
+              {returnedRentals.length > 0 && (
+                <div className="mt-8">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4">Returned - Deposit Status</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {returnedRentals.map((rental) => (
+                      <div key={rental.id} className="bg-white rounded-lg border border-amber-200 overflow-hidden shadow-sm">
+                        <div className="bg-gradient-to-r from-amber-50 to-yellow-50 p-6 border-b border-amber-200">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="text-lg font-semibold text-gray-900">{rental.tools?.name}</h3>
+                              <p className="text-gray-600 text-sm mt-1">Tool returned ✓</p>
+                            </div>
+                            <span className={`text-xs px-3 py-1 rounded-full font-semibold ${
+                              rental.deposit_status === 'pending_release' ? 'bg-amber-100 text-amber-800' :
+                              rental.deposit_status === 'claimed' ? 'bg-red-100 text-red-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {rental.deposit_status === 'pending_release' ? '⏳ Deposit Pending' :
+                               rental.deposit_status === 'claimed' ? '⚠️ Claim Under Review' :
+                               rental.deposit_status === 'held' ? '🔒 Deposit Held' :
+                               rental.deposit_status}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="p-6 space-y-3">
+                          <div className="bg-amber-50 border border-amber-200 rounded p-3 text-sm">
+                            <p className="text-gray-700">
+                              <strong>Deposit: £{rental.deposit_amount?.toFixed(2) || '10.00'}</strong>
+                            </p>
+                            {rental.deposit_status === 'pending_release' && rental.claim_window_ends_at && (
+                              <p className="text-gray-600 text-xs mt-1">
+                                Auto-refund after: {new Date(rental.claim_window_ends_at).toLocaleDateString('en-GB')}
+                              </p>
+                            )}
+                            {rental.deposit_status === 'claimed' && (
+                              <p className="text-red-700 text-xs mt-1">
+                                The owner has reported damage. An admin is reviewing your deposit.
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
             </>
           ) : activeRentals.length > 0 ? (
@@ -719,6 +823,106 @@ export default function DashboardPage() {
             )}
 
             {/* Your Tools */}
+            {/* Returned Tools - Deposit Claims (Owner) */}
+            {ownerReturnedRentals.length > 0 && (
+              <section className="border-t pt-12">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Returned Tools - Deposit Review</h2>
+                <p className="text-gray-600 mb-4 text-sm">Tools that have been returned. You have 7 days to inspect and report any damage.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {ownerReturnedRentals.map((rental) => {
+                    const claimWindowEnd = rental.claim_window_ends_at ? new Date(rental.claim_window_ends_at) : null;
+                    const daysLeft = claimWindowEnd ? Math.max(0, Math.ceil((claimWindowEnd.getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : 0;
+                    const isExpired = claimWindowEnd && claimWindowEnd < new Date();
+
+                    return (
+                      <div key={rental.id} className="bg-white rounded-lg border border-amber-200 overflow-hidden shadow-sm">
+                        <div className="bg-gradient-to-r from-amber-50 to-yellow-50 p-6 border-b border-amber-200">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="text-lg font-semibold text-gray-900">{rental.tools?.name}</h3>
+                              <p className="text-gray-600 text-sm mt-1">Returned on {rental.return_confirmed_at ? new Date(rental.return_confirmed_at).toLocaleDateString('en-GB') : 'recently'}</p>
+                            </div>
+                            <span className={`text-xs px-3 py-1 rounded-full font-semibold ${
+                              rental.deposit_status === 'pending_release' ? 'bg-amber-100 text-amber-800' :
+                              rental.deposit_status === 'claimed' ? 'bg-red-100 text-red-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {rental.deposit_status === 'pending_release' ? `⏳ ${daysLeft} days left to inspect` :
+                               rental.deposit_status === 'claimed' ? '📋 Claim Under Review' :
+                               rental.deposit_status === 'held' ? '🔒 Deposit Held' :
+                               rental.deposit_status}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="p-6 space-y-4">
+                          <div className="bg-amber-50 border border-amber-200 rounded p-3 text-sm">
+                            <p className="font-semibold text-gray-900">Deposit: £{rental.deposit_amount?.toFixed(2) || '10.00'}</p>
+                            {!isExpired && rental.deposit_status === 'pending_release' && (
+                              <p className="text-amber-700 text-xs mt-1">
+                                You have {daysLeft} day{daysLeft !== 1 ? 's' : ''} to report damage. After that, the deposit is automatically refunded to the renter.
+                              </p>
+                            )}
+                          </div>
+
+                          {rental.deposit_status === 'pending_release' && !isExpired && (
+                            <>
+                              {claimingRentalId === rental.id ? (
+                                <div className="space-y-3">
+                                  <textarea
+                                    className="w-full border border-red-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"
+                                    placeholder="Describe the damage in detail (min 10 characters)..."
+                                    rows={3}
+                                    value={claimReason}
+                                    onChange={(e) => setClaimReason(e.target.value)}
+                                  />
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => handleDepositClaim(rental.id)}
+                                      disabled={processingRequest === rental.id}
+                                      className="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 font-semibold text-sm disabled:opacity-50 transition"
+                                    >
+                                      {processingRequest === rental.id ? 'Submitting...' : 'Submit Damage Claim'}
+                                    </button>
+                                    <button
+                                      onClick={() => { setClaimingRentalId(null); setClaimReason(''); }}
+                                      className="px-4 bg-gray-200 text-gray-700 py-2 rounded-lg text-sm hover:bg-gray-300 transition"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="flex gap-3">
+                                  <button
+                                    onClick={() => setClaimingRentalId(rental.id)}
+                                    className="flex-1 bg-red-100 text-red-700 py-2 rounded-lg hover:bg-red-200 font-semibold text-sm transition"
+                                  >
+                                    ⚠️ Report Damage
+                                  </button>
+                                  <div className="flex-1 bg-green-50 border border-green-200 rounded-lg py-2 px-3 text-center text-sm text-green-700">
+                                    ✓ No damage? Deposit auto-refunds
+                                  </div>
+                                </div>
+                              )}
+                            </>
+                          )}
+
+                          {rental.deposit_status === 'claimed' && (
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm">
+                              <p className="font-semibold text-red-800 mb-1">Your claim is under review</p>
+                              <p className="text-red-700 text-xs">{rental.deposit_claim_reason}</p>
+                              <p className="text-gray-600 text-xs mt-2">An admin will review and decide. You'll be notified of the outcome.</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+
+            {/* Your Tools List */}
             <section className="border-t pt-12">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">Your Tools</h2>

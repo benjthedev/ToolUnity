@@ -7,6 +7,7 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { serverLog } from '@/lib/logger';
 import { verifyCsrfToken } from '@/lib/csrf';
+import { DEPOSIT_AMOUNT } from '@/lib/deposit-config';
 
 let stripe: Stripe | null = null;
 let supabase: any = null;
@@ -82,6 +83,7 @@ export async function POST(request: NextRequest) {
         daily_rate,
         rental_cost,
         total_cost,
+        deposit_amount,
         status,
         tools:tool_id(name, image_url)
       `)
@@ -114,6 +116,10 @@ export async function POST(request: NextRequest) {
       .single();
 
     // Create Stripe Checkout session for one-time payment
+    const depositAmount = rental.deposit_amount || DEPOSIT_AMOUNT;
+    const rentalAmountPence = Math.round(rental.rental_cost * 100);
+    const depositAmountPence = Math.round(depositAmount * 100);
+
     const checkoutSession = await getStripe().checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment', // One-time payment, NOT subscription
@@ -121,11 +127,22 @@ export async function POST(request: NextRequest) {
         {
           price_data: {
             currency: 'gbp',
-            unit_amount: Math.round(rental.total_cost * 100), // Stripe uses pence
+            unit_amount: rentalAmountPence,
             product_data: {
               name: `Tool Rental: ${rental.tools?.name || 'Tool'}`,
               description: `${rental.duration_days} day${rental.duration_days > 1 ? 's' : ''} rental (${rental.start_date} to ${rental.end_date})`,
               images: rental.tools?.image_url ? [rental.tools.image_url] : [],
+            },
+          },
+          quantity: 1,
+        },
+        {
+          price_data: {
+            currency: 'gbp',
+            unit_amount: depositAmountPence,
+            product_data: {
+              name: 'Refundable Tool Deposit',
+              description: `\u00a3${depositAmount.toFixed(2)} security deposit - automatically refunded within 7 days of return if no damage is reported`,
             },
           },
           quantity: 1,
@@ -137,6 +154,7 @@ export async function POST(request: NextRequest) {
         owner_id: rental.owner_id,
         tool_id: rental.tool_id,
         type: 'rental_payment',
+        deposit_amount: depositAmount.toString(),
       },
       success_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard?rental=success&rental_id=${rentalTransactionId}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/tools/${rental.tool_id}?rental=cancelled`,

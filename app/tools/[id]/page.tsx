@@ -343,10 +343,15 @@ export default function ToolDetailPage() {
                       <h3 className="font-bold text-gray-900 mb-3">Rental Price</h3>
                       <div className="bg-white rounded p-3 mb-3">
                         <p className="text-sm text-gray-700 mb-2">
-                          <strong>£{tool?.daily_rate || '3.00'} per day</strong>
+                          <strong>£{tool?.daily_rate || '3.00'} per day</strong> + £10.00 refundable deposit
                         </p>
                         <p className="text-xs text-gray-600">
-                          Select dates below to see your total rental cost
+                          Select dates below to see your total cost
+                        </p>
+                      </div>
+                      <div className="bg-amber-50 border border-amber-200 rounded p-3">
+                        <p className="text-xs text-amber-800">
+                          🛡️ <strong>£10 Security Deposit</strong> — Automatically refunded within 7 days of returning the tool, as long as no damage is reported.
                         </p>
                       </div>
                     </div>
@@ -405,12 +410,21 @@ export default function ToolDetailPage() {
                   <p className="text-sm text-gray-600 mb-2">Daily Rental Rate</p>
                   <p className="text-2xl font-bold text-green-600">£{tool?.daily_rate || '3.00'}/day</p>
                 </div>
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-4">
                   <p className="font-semibold text-gray-900 mb-2">✓ What's Included</p>
                   <ul className="space-y-2 text-sm text-gray-700">
                     <li>• No hidden fees—you see the total before paying</li>
                     <li>• Owner gets 80% of rental, 20% covers fees & platform costs</li>
                     <li>• Flexible rental periods—rent for 1 day or longer</li>
+                  </ul>
+                </div>
+                <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-lg p-4">
+                  <p className="font-semibold text-gray-900 mb-2">🛡️ Security Deposit</p>
+                  <ul className="space-y-2 text-sm text-gray-700">
+                    <li>• A <strong>£10 refundable deposit</strong> is added at checkout</li>
+                    <li>• Once the tool is returned, the owner has <strong>7 days</strong> to report any damage</li>
+                    <li>• If no claim is made, your deposit is <strong>automatically refunded</strong></li>
+                    <li>• If damage is reported, an admin reviews the claim before any decision</li>
                   </ul>
                 </div>
               </div>
@@ -513,15 +527,28 @@ export default function ToolDetailPage() {
                               const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
                               const dailyRate = tool?.daily_rate || 3;
                               const rentalCost = (dailyRate * days).toFixed(2);
+                              const deposit = 10.00;
+                              const totalCost = (parseFloat(rentalCost) + deposit).toFixed(2);
                               
                               if (days <= 0) {
                                 return <p className="text-red-600 text-sm">End date must be after start date</p>;
                               }
                               
                               return (
-                                <div className="flex justify-between items-center">
-                                  <span className="text-gray-700">{days} day{days !== 1 ? 's' : ''} × £{dailyRate}</span>
-                                  <span className="text-2xl font-bold text-blue-600">£{rentalCost}</span>
+                                <div className="space-y-2">
+                                  <div className="flex justify-between items-center text-sm">
+                                    <span className="text-gray-700">{days} day{days !== 1 ? 's' : ''} × £{dailyRate}</span>
+                                    <span className="font-semibold text-gray-900">£{rentalCost}</span>
+                                  </div>
+                                  <div className="flex justify-between items-center text-sm">
+                                    <span className="text-gray-700">🛡️ Refundable deposit</span>
+                                    <span className="font-semibold text-amber-700">£{deposit.toFixed(2)}</span>
+                                  </div>
+                                  <div className="border-t border-blue-200 pt-2 flex justify-between items-center">
+                                    <span className="text-gray-900 font-semibold">Total at checkout</span>
+                                    <span className="text-2xl font-bold text-blue-600">£{totalCost}</span>
+                                  </div>
+                                  <p className="text-xs text-gray-500 mt-1">Deposit is automatically refunded 7 days after return if no damage reported</p>
                                 </div>
                               );
                             })()

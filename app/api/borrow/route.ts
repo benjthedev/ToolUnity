@@ -8,6 +8,7 @@ import { BorrowRequestSchema } from '@/lib/validation';
 import { serverLog } from '@/lib/logger';
 import { ApiErrors } from '@/lib/api-response';
 import { ZodError } from 'zod';
+import { DEPOSIT_AMOUNT, DEPOSIT_STATUS } from '@/lib/deposit-config';
 
 /**
  * NEW RENTAL MODEL: Create a rental request
@@ -165,7 +166,8 @@ export async function POST(request: NextRequest) {
     const rentalCost = parseFloat((dailyRate * durationDays).toFixed(2));
     const platformFee = parseFloat((rentalCost * 0.20).toFixed(2)); // Platform takes 20% (covers Stripe fees, hosting, admin)
     const ownerPayout = parseFloat((rentalCost * 0.80).toFixed(2)); // Owner gets 80%
-    const totalCost = rentalCost;
+    const depositAmount = DEPOSIT_AMOUNT; // Fixed £10 refundable deposit
+    const totalCost = parseFloat((rentalCost + depositAmount).toFixed(2)); // Rental + deposit
 
     // Create rental transaction record (status: pending_payment)
     const { data: rentalTransaction, error: createError } = await sb
@@ -182,6 +184,8 @@ export async function POST(request: NextRequest) {
         platform_fee: platformFee,
         owner_payout: ownerPayout,
         total_cost: totalCost,
+        deposit_amount: depositAmount,
+        deposit_status: DEPOSIT_STATUS.NONE, // Will become 'held' after payment
         status: 'pending_payment', // Waiting for Stripe payment
         notes: notes || null,
         created_at: new Date().toISOString(),
@@ -206,8 +210,11 @@ export async function POST(request: NextRequest) {
         pricing: {
           durationDays,
           rentalCost,
+          depositAmount,
           totalCost,
           breakdown: {
+            rental: rentalCost,
+            deposit: depositAmount,
             youPay: totalCost,
             ownerGets: ownerPayout,
             platformGets: platformFee,

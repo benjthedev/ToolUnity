@@ -95,6 +95,8 @@ export async function POST(request: NextRequest) {
               status: 'pending_approval',
               payment_completed_at: new Date().toISOString(),
               stripe_payment_intent_id: session.payment_intent as string,
+              deposit_status: metadata.deposit_amount ? 'held' : 'none',
+              deposit_amount: metadata.deposit_amount ? parseFloat(metadata.deposit_amount) : 0,
             })
             .eq('id', rentalId);
           
@@ -135,6 +137,7 @@ export async function POST(request: NextRequest) {
                   const startDate = new Date(rentalData.start_date).toLocaleDateString('en-GB');
                   const endDate = new Date(rentalData.end_date).toLocaleDateString('en-GB');
                   const ownerEarning = (rentalData.rental_cost * 0.80).toFixed(2);
+                  const depositInfo = metadata.deposit_amount ? `<p><strong>Deposit Held:</strong> £${parseFloat(metadata.deposit_amount).toFixed(2)} (refundable security deposit)</p>` : '';
                   
                   // Send email via Resend
                   const emailResponse = await fetch('https://api.resend.com/emails', {
@@ -158,6 +161,11 @@ export async function POST(request: NextRequest) {
                             <p><strong>Dates:</strong> ${startDate} to ${endDate}</p>
                             <p><strong>Duration:</strong> ${rentalData.duration_days} day${rentalData.duration_days > 1 ? 's' : ''}</p>
                             <p><strong>You'll earn:</strong> £${ownerEarning} (80% of rental)</p>
+                            ${depositInfo}
+                          </div>
+                          
+                          <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #bbf7d0;">
+                            <p style="margin: 0; font-size: 14px; color: #166534;">🛡️ <strong>Deposit Protection:</strong> A security deposit is held from the renter. If the tool is returned damaged, you have 7 days to report it.</p>
                           </div>
                           
                           <p><strong>Action required:</strong> Log in to your dashboard to accept or decline this request.</p>
