@@ -471,7 +471,7 @@ export default function AddToolPage() {
               <label className="block text-sm font-semibold text-gray-900 mb-2">
                 Tool Value (£) <span className="text-red-600">*</span>
               </label>
-              <p className="text-xs text-gray-600 mb-2">Approximate retail value, maximum £300</p>
+              <p className="text-xs text-gray-600 mb-2">Approximate retail value, maximum £500</p>
                 <input
                   type="number"
                   name="toolValue"
@@ -481,7 +481,7 @@ export default function AddToolPage() {
                   placeholder="e.g., 150"
                   step="0.01"
                   min="0"
-                  max="300"
+                  max="500"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500 bg-white"
                 />
             </div>

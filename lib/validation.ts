@@ -44,7 +44,7 @@ export const CreateToolSchema = z.object({
   category: z.string().min(1, 'Category is required'),
   condition: z.string().transform(v => v.toLowerCase()),
   daily_rate: z.number().min(0.5, 'Daily rate must be at least £0.50').max(500, 'Daily rate must be less than £500'),
-  tool_value: z.number().min(1, 'Tool value must be at least £1').max(10000, 'Tool value must be less than £10,000').optional(),
+  tool_value: z.number().min(1, 'Tool value must be at least £1').max(500, 'Tool value must be less than £500').optional(),
   images: z.array(z.string().url()).optional().default([]),
   image_url: z.string().url().optional(),
 });
@@ -55,7 +55,7 @@ export const UpdateToolSchema = z.object({
   category: z.string().min(1).optional(),
   condition: z.string().optional(),
   daily_rate: z.number().min(0.5).max(500).optional(),
-  tool_value: z.number().min(1).max(10000).optional(),
+  tool_value: z.number().min(1).max(500).optional(),
   postcode: z.string().max(10).optional(),
   image_url: z.string().url().optional(),
 });
