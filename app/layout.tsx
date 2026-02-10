@@ -38,7 +38,7 @@ export default function RootLayout({
             <Header />
             <div className="bg-yellow-100 border-b-2 border-yellow-400 px-4 py-3 text-center text-yellow-800">
               <p className="text-sm font-medium">
-                ⚠️ <strong>Website Under Development</strong> — We apologize for any issues encountered. Please email{' '}
+                ⚠️ We are aware of an issue related to account creation. Please email{' '}
                 <a href="mailto:support@toolunity.co.uk" className="underline hover:text-yellow-900 font-semibold">
                   support@toolunity.co.uk
                 </a>
