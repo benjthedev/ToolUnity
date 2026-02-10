@@ -421,7 +421,7 @@ export default function DashboardPage() {
 
         {/* Quick Stats */}
         {(activeRentals.length > 0 || tools.length > 0) && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
               <p className="text-gray-600 text-sm mb-2">Active Rentals</p>
               <p className="text-4xl font-bold text-blue-600">{activeRentals.length}</p>
