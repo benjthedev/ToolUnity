@@ -63,7 +63,7 @@ export default function PricingPage() {
           .gt('created_at', thirtyDaysAgo.toISOString());
         
         // Calculate 80% of total rental costs (owner gets 80%, platform gets 20%)
-        const monthlyEarnings = (completedRentals || []).reduce((total, rental) => {
+        const monthlyEarnings = (completedRentals || []).reduce((total: number, rental: any) => {
           return total + (rental.rental_cost * 0.8);
         }, 0);
         

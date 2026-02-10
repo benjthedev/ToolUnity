@@ -1,0 +1,84 @@
+﻿Ôû▓ Next.js 16.1.1 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+Ô£ô Compiled successfully in 2.2min
+  Skipping validation of types
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/51) ...
+  Generating static pages using 3 workers (12/51) 
+  Generating static pages using 3 workers (25/51) 
+  Generating static pages using 3 workers (38/51) 
+Ô£ô Generating static pages using 3 workers (51/51) in 7.8s
+  Finalizing page optimization ...
+
+Route (app)
+Ôöî Ôùï /
+Ôö£ Ôùï /_not-found
+Ôö£ Ôùï /admin
+Ôö£ Ôùï /admin/deposits
+Ôö£ ãÆ /api/add-stripe-columns
+Ôö£ ãÆ /api/admin/decline
+Ôö£ ãÆ /api/admin/deposits
+Ôö£ ãÆ /api/admin/deposits/resolve
+Ôö£ ãÆ /api/admin/rentals
+Ôö£ ãÆ /api/admin/subscriptions/override
+Ôö£ ãÆ /api/auth/[...nextauth]
+Ôö£ ãÆ /api/auth/logout
+Ôö£ ãÆ /api/auth/reset-password
+Ôö£ ãÆ /api/borrow
+Ôö£ ãÆ /api/borrow/validate
+Ôö£ ãÆ /api/check-stripe-subscription
+Ôö£ ãÆ /api/check-subscription
+Ôö£ ãÆ /api/create-checkout-session
+Ôö£ ãÆ /api/create-portal-session
+Ôö£ ãÆ /api/cron/auto-decline-rentals
+Ôö£ ãÆ /api/cron/auto-release-deposits
+Ôö£ ãÆ /api/deposits/claim
+Ôö£ ãÆ /api/owner/requests
+Ôö£ ãÆ /api/owner/requests/accept
+Ôö£ ãÆ /api/owner/requests/reject
+Ôö£ ãÆ /api/rental-checkout
+Ôö£ ãÆ /api/reset-tier
+Ôö£ ãÆ /api/send-verification-email
+Ôö£ ãÆ /api/signup
+Ôö£ ãÆ /api/subscriptions/check-tool-count
+Ôö£ ãÆ /api/sync-subscription
+Ôö£ ãÆ /api/tools
+Ôö£ ãÆ /api/tools/create
+Ôö£ ãÆ /api/tools/update
+Ôö£ ãÆ /api/user/requests
+Ôö£ ãÆ /api/verify-email
+Ôö£ ãÆ /api/waitlist
+Ôö£ ãÆ /api/webhooks/stripe
+Ôö£ Ôùï /auth/callback
+Ôö£ Ôùï /contact
+Ôö£ Ôùï /cookies
+Ôö£ Ôùï /dashboard
+Ôö£ Ôùï /for-owners
+Ôö£ Ôùï /forgot-password
+Ôö£ Ôùï /how-it-works
+Ôö£ Ôùï /login
+Ôö£ Ôùï /owner-dashboard
+Ôö£ Ôùï /owner-protection
+Ôö£ Ôùï /pricing
+Ôö£ Ôùï /privacy
+Ôö£ Ôùï /profile
+Ôö£ Ôùï /reset-password
+Ôö£ Ôùï /safety
+Ôö£ Ôùï /setup-payouts
+Ôö£ Ôùï /signup
+Ôö£ Ôùï /signup-success
+Ôö£ Ôùï /terms
+Ôö£ Ôùï /tools
+Ôö£ ãÆ /tools/[id]
+Ôö£ ãÆ /tools/[id]/edit
+Ôö£ ãÆ /tools/[id]/return
+Ôö£ Ôùï /tools/add
+Ôö£ Ôùï /verify-email
+Ôöö Ôùï /verify-email-sent
+
+
+Ôùï  (Static)   prerendered as static content
+ãÆ  (Dynamic)  server-rendered on demand
+
