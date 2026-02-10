@@ -444,7 +444,7 @@ export default function DashboardPage() {
               </div>
             )}
 
-            {tools.length > 0 && !loadingStats && (
+            {tools.length > 0 && (
               <div className="bg-white rounded-lg p-6 border border-green-200 shadow-sm">
                 <p className="text-gray-600 text-sm mb-2">This Month's Earnings</p>
                 <p className="text-4xl font-bold text-green-600">£{ownerStats.monthlyEarnings.toFixed(2)}</p>
