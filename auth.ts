@@ -1,6 +1,6 @@
 import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { getSupabase } from '@/lib/supabase';
+import { getSupabase, getSupabaseAdmin } from '@/lib/supabase';
 import { serverLog } from '@/lib/logger';
 
 export const authOptions: NextAuthOptions = {
@@ -51,17 +51,40 @@ export const authOptions: NextAuthOptions = {
         
         // Also check our custom email_verified field in users_ext as fallback and get Stripe info
         try {
-          const { data: userExt } = await supabase
+          const { data: userExt, error: userExtError } = await supabase
             .from('users_ext')
             .select('email_verified, stripe_connect_account_id')
             .eq('user_id', data.user.id)
             .single();
           
-          if (userExt?.email_verified) {
-            emailVerified = true;
-          }
-          if (userExt?.stripe_connect_account_id) {
-            stripeConnectId = userExt.stripe_connect_account_id;
+          // SAFETY NET: If user exists in auth but NOT in users_ext, create the profile
+          if (userExtError && userExtError.code === 'PGRST116') {
+            serverLog.warn('Orphaned auth user detected, creating profile:', data.user.id, data.user.email);
+            
+            const adminSupabase = getSupabaseAdmin();
+            const { error: insertError } = await adminSupabase.from('users_ext').insert({
+              user_id: data.user.id,
+              email: data.user.email,
+              username: data.user.email?.split('@')[0] || 'user',
+              phone_number: null,
+              subscription_tier: 'free',
+              email_verified: emailVerified,
+              tools_count: 0,
+              created_at: new Date().toISOString(),
+            });
+
+            if (insertError) {
+              serverLog.error('Failed to create safety-net profile:', insertError.message);
+            } else {
+              serverLog.info('Safety-net profile created for:', data.user.email);
+            }
+          } else if (userExt) {
+            if (userExt.email_verified) {
+              emailVerified = true;
+            }
+            if (userExt.stripe_connect_account_id) {
+              stripeConnectId = userExt.stripe_connect_account_id;
+            }
           }
         } catch (err) {
           // Silently fail - just use the Supabase auth status
