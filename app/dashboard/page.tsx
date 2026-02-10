@@ -423,7 +423,18 @@ export default function DashboardPage() {
 
         {/* Quick Stats */}
         {(activeRentals.length > 0 || tools.length > 0) && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="space-y-6">
+            {/* Monthly Earnings - Featured Card */}
+            {tools.length > 0 && (
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-8 border-2 border-green-500 shadow-md">
+                <p className="text-gray-600 text-sm mb-2 font-semibold">💰 This Month's Earnings</p>
+                <p className="text-5xl font-bold text-green-600 mb-2">£{ownerStats.monthlyEarnings.toFixed(2)}</p>
+                <p className="text-gray-600">80% of all completed rentals in the last 30 days</p>
+              </div>
+            )}
+
+            {/* Other Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
               <p className="text-gray-600 text-sm mb-2">Active Rentals</p>
               <p className="text-4xl font-bold text-blue-600">{activeRentals.length}</p>
@@ -445,14 +456,7 @@ export default function DashboardPage() {
                 <p className="text-gray-500 text-xs mt-2">Being rented by others</p>
               </div>
             )}
-
-            {tools.length > 0 && (
-              <div className="bg-white rounded-lg p-6 border border-green-200 shadow-sm">
-                <p className="text-gray-600 text-sm mb-2">This Month's Earnings</p>
-                <p className="text-4xl font-bold text-green-600">£{ownerStats.monthlyEarnings.toFixed(2)}</p>
-                <p className="text-gray-500 text-xs mt-2">80% of rental costs</p>
-              </div>
-            )}
+            </div>
           </div>
         )}
 
