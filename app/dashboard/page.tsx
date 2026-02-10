@@ -164,6 +164,8 @@ export default function DashboardPage() {
           return total + (rental.rental_cost * 0.8);
         }, 0);
         
+        console.log('Dashboard Earnings Calc:', { completedRentals: completedRentals?.length, monthlyEarnings, toolsCount: toolsData?.length });
+        
         setOwnerStats({
           toolsCount: toolsData?.length || 0,
           monthlyEarnings: Math.round(monthlyEarnings * 100) / 100,
