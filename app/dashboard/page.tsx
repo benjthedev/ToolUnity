@@ -425,13 +425,14 @@ export default function DashboardPage() {
         {(activeRentals.length > 0 || tools.length > 0) && (
           <div className="space-y-6">
             {/* Monthly Earnings - Featured Card */}
-            {tools.length > 0 && (
+            {tools.length > 0 ? (
               <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-8 border-2 border-green-500 shadow-md">
                 <p className="text-gray-600 text-sm mb-2 font-semibold">💰 This Month's Earnings</p>
                 <p className="text-5xl font-bold text-green-600 mb-2">£{ownerStats.monthlyEarnings.toFixed(2)}</p>
                 <p className="text-gray-600">80% of all completed rentals in the last 30 days</p>
+                <p className="text-xs text-gray-500 mt-4">Tools: {tools.length} | Stats: {JSON.stringify(ownerStats)}</p>
               </div>
-            )}
+            ) : null}
 
             {/* Other Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
