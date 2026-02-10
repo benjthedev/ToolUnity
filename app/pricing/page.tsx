@@ -45,14 +45,31 @@ export default function PricingPage() {
   useEffect(() => {
     if (session?.user?.id && !loading) {
       const fetchStats = async () => {
+        // Fetch tools
         const { data: userTools } = await supabase
           .from('tools')
           .select('id')
           .eq('owner_id', session.user?.id);
         
+        // Calculate monthly earnings from completed rentals
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        
+        const { data: completedRentals } = await supabase
+          .from('rental_transactions')
+          .select('rental_cost')
+          .eq('owner_id', session.user?.id)
+          .eq('status', 'completed')
+          .gt('created_at', thirtyDaysAgo.toISOString());
+        
+        // Calculate 80% of total rental costs (owner gets 80%, platform gets 20%)
+        const monthlyEarnings = (completedRentals || []).reduce((total, rental) => {
+          return total + (rental.rental_cost * 0.8);
+        }, 0);
+        
         setOwnerStats({
           toolsCount: userTools?.length || 0,
-          monthlyEarnings: 0, // TODO: Calculate from completed borrows
+          monthlyEarnings: Math.round(monthlyEarnings * 100) / 100,
         });
         setLoadingStats(false);
       };
@@ -218,15 +235,20 @@ export default function PricingPage() {
           {session && !loadingStats && ownerStats.toolsCount > 0 && (
             <div className="mt-12 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-8 border-2 border-green-600">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Your Owner Dashboard</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6\">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white rounded-lg p-4 text-center">
                   <p className="text-gray-600 text-sm mb-2">Tools Listed</p>
                   <p className="text-3xl font-bold text-green-600">{ownerStats.toolsCount}</p>
                 </div>
                 <div className="bg-white rounded-lg p-4 text-center">
-                  <p className="text-gray-600 text-sm mb-2">Earn 80% Per Rental</p>
-                  <p className="text-3xl font-bold text-green-600">You set the price</p>
-                  <p className="text-xs text-gray-600 mt-2">Get paid within 5 business days</p>
+                  <p className="text-gray-600 text-sm mb-2">This Month's Earnings</p>
+                  <p className="text-3xl font-bold text-green-600">£{ownerStats.monthlyEarnings.toFixed(2)}</p>
+                  <p className="text-xs text-gray-600 mt-2">80% of rental costs</p>
+                </div>
+                <div className="bg-white rounded-lg p-4 text-center">
+                  <p className="text-gray-600 text-sm mb-2">Payout Schedule</p>
+                  <p className="text-lg font-semibold text-green-600">Monthly</p>
+                  <p className="text-xs text-gray-600 mt-2">Within 5 business days</p>
                 </div>
               </div>
               <Link href="/owner-dashboard" className="block mt-6 text-center bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-semibold">
