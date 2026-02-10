@@ -103,8 +103,8 @@ export async function POST(request: NextRequest) {
       return ApiErrors.BAD_REQUEST('Email already registered');
     }
 
-    // Create user profile
-    const { error: profileError } = await sb.from('users_ext').insert({
+    // Create or update user profile (in case trigger already created it)
+    const { error: profileError } = await sb.from('users_ext').upsert({
       user_id: user_id,
       email: email,
       username: username,
@@ -113,6 +113,8 @@ export async function POST(request: NextRequest) {
       email_verified: false,
       tools_count: 0,
       created_at: new Date().toISOString(),
+    }, {
+      onConflict: 'user_id',
     });
 
     if (profileError) {
