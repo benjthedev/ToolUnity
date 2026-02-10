@@ -343,7 +343,7 @@ export default function ToolDetailPage() {
                       <h3 className="font-bold text-gray-900 mb-3">Rental Price</h3>
                       <div className="bg-white rounded p-3 mb-3">
                         <p className="text-sm text-gray-700 mb-2">
-                          <strong>£{tool?.daily_rate || '3.00'} per day</strong> + £10.00 refundable deposit
+                          <strong>£{tool?.daily_rate || '3.00'} per day</strong> + £{Math.max(10, Math.min((tool?.tool_value || 0) * 0.2, 500)).toFixed(2)} refundable deposit
                         </p>
                         <p className="text-xs text-gray-600">
                           Select dates below to see your total cost
@@ -351,7 +351,7 @@ export default function ToolDetailPage() {
                       </div>
                       <div className="bg-amber-50 border border-amber-200 rounded p-3">
                         <p className="text-xs text-amber-800">
-                          🛡️ <strong>£10 Security Deposit</strong> — Automatically refunded within 7 days of returning the tool, as long as no damage is reported.
+                          🛡️ <strong>£{Math.max(10, Math.min((tool?.tool_value || 0) * 0.2, 500)).toFixed(2)} Security Deposit</strong> — 20% of tool value. Automatically refunded within 7 days of returning the tool, as long as no damage is reported.
                         </p>
                       </div>
                     </div>
@@ -421,7 +421,7 @@ export default function ToolDetailPage() {
                 <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-lg p-4">
                   <p className="font-semibold text-gray-900 mb-2">🛡️ Security Deposit</p>
                   <ul className="space-y-2 text-sm text-gray-700">
-                    <li>• A <strong>£10 refundable deposit</strong> is added at checkout</li>
+                    <li>• A <strong>refundable deposit (20% of tool value, min £10, max £500)</strong> is added at checkout</li>
                     <li>• Once the tool is returned, the owner has <strong>7 days</strong> to report any damage</li>
                     <li>• If no claim is made, your deposit is <strong>automatically refunded</strong></li>
                     <li>• If damage is reported, an admin reviews the claim before any decision</li>
@@ -527,7 +527,8 @@ export default function ToolDetailPage() {
                               const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
                               const dailyRate = tool?.daily_rate || 3;
                               const rentalCost = (dailyRate * days).toFixed(2);
-                              const deposit = 10.00;
+                              const toolValue = tool?.tool_value || 0;
+                              const deposit = Math.round(Math.max(10, Math.min(toolValue * 0.2, 500)) * 100) / 100;
                               const totalCost = (parseFloat(rentalCost) + deposit).toFixed(2);
                               
                               if (days <= 0) {

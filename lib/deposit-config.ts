@@ -5,8 +5,20 @@
  * All deposit-related constants are defined here.
  */
 
-// Fixed deposit amount in GBP
+// Deposit calculation constants
+export const DEPOSIT_PERCENTAGE = 0.20; // 20% of tool value
+export const MIN_DEPOSIT = 10.00; // Minimum deposit in GBP
+export const MAX_DEPOSIT = 500.00; // Maximum deposit in GBP
+
+// Legacy fixed deposit (fallback if tool_value is missing)
 export const DEPOSIT_AMOUNT = 10.00;
+
+// Calculate deposit based on tool value: 20% of value, min £10, max £500
+export function calculateDeposit(toolValue: number | null | undefined): number {
+  if (!toolValue || toolValue <= 0) return MIN_DEPOSIT;
+  const deposit = toolValue * DEPOSIT_PERCENTAGE;
+  return Math.round(Math.max(MIN_DEPOSIT, Math.min(deposit, MAX_DEPOSIT)) * 100) / 100;
+}
 
 // Claim window in days - owner has this many days after return to report damage
 export const CLAIM_WINDOW_DAYS = 7;

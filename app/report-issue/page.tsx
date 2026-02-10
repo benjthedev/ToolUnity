@@ -82,7 +82,7 @@ function ReportIssueContent() {
                 <strong>What happens when you report:</strong>
               </p>
               <ul className="text-sm text-amber-700 mt-2 space-y-1">
-                <li>• The renter&apos;s £10 deposit will be <strong>frozen</strong> (not auto-refunded)</li>
+                <li>• The renter&apos;s deposit will be <strong>frozen</strong> (not auto-refunded)</li>
                 <li>• You&apos;ll be asked to email us with details so we can investigate</li>
                 <li>• An admin will review and decide the outcome</li>
               </ul>

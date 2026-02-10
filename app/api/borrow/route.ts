@@ -8,7 +8,7 @@ import { BorrowRequestSchema } from '@/lib/validation';
 import { serverLog } from '@/lib/logger';
 import { ApiErrors } from '@/lib/api-response';
 import { ZodError } from 'zod';
-import { DEPOSIT_AMOUNT, DEPOSIT_STATUS } from '@/lib/deposit-config';
+import { DEPOSIT_STATUS, calculateDeposit } from '@/lib/deposit-config';
 
 /**
  * NEW RENTAL MODEL: Create a rental request
@@ -97,10 +97,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get tool info including daily rental rate
+    // Get tool info including daily rental rate and tool value for deposit calculation
     const { data: tool } = await sb
       .from('tools')
-      .select('id, owner_id, daily_rate, description')
+      .select('id, owner_id, daily_rate, description, tool_value')
       .eq('id', toolId)
       .single();
 
@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
     const rentalCost = parseFloat((dailyRate * durationDays).toFixed(2));
     const platformFee = parseFloat((rentalCost * 0.20).toFixed(2)); // Platform takes 20% (covers Stripe fees, hosting, admin)
     const ownerPayout = parseFloat((rentalCost * 0.80).toFixed(2)); // Owner gets 80%
-    const depositAmount = DEPOSIT_AMOUNT; // Fixed £10 refundable deposit
+    const depositAmount = calculateDeposit(tool.tool_value); // 20% of tool value, min £10, max £500
     const totalCost = parseFloat((rentalCost + depositAmount).toFixed(2)); // Rental + deposit
 
     // Create rental transaction record (status: pending_payment)
