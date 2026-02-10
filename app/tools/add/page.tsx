@@ -303,11 +303,12 @@ export default function AddToolPage() {
       // Check if user now qualifies for free Standard plan (3+ tools)
       if (session.user?.id) {
         try {
-          // Get current tool count first
+          // Get current tool count first (excluding deleted)
           const { data: currentTools } = await sb
             .from('tools')
             .select('id')
-            .eq('owner_id', session.user.id);
+            .eq('owner_id', session.user.id)
+            .is('deleted_at', null);
           
           const newToolCount = currentTools?.length || 1;
           

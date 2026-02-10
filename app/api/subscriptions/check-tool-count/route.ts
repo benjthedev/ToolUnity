@@ -27,12 +27,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Count approved, active tools owned by this user
+    // Count approved, active tools owned by this user (excluding deleted)
     const { data: tools, error: toolsError } = await supabase
       .from('tools')
       .select('id')
       .eq('owner_id', userId)
-      .eq('available', true);
+      .eq('available', true)
+      .is('deleted_at', null);
 
     if (toolsError) {
       serverLog.error('Error counting tools:', toolsError);

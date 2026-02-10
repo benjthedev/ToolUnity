@@ -34,11 +34,12 @@ export default function ToolDetailPage() {
     const fetchTool = async () => {
       try {
         const sb = getSupabase();
-        // Fetch tool
+        // Fetch tool (excluding deleted)
         const { data: toolData, error: toolError } = await sb
           .from('tools')
           .select('*')
           .eq('id', toolId)
+          .is('deleted_at', null)
           .single();
 
         if (toolError || !toolData) {

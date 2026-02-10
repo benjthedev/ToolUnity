@@ -50,7 +50,7 @@ export default function ToolsPage() {
       const offset = (currentPage - 1) * pageSize;
 
       // Build query with pagination
-      let query = sb.from('tools').select('*', { count: 'exact' });
+      let query = sb.from('tools').select('*', { count: 'exact' }).is('deleted_at', null);
       
       if (filters.category) {
         query = query.eq('category', filters.category);

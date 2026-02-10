@@ -42,6 +42,7 @@ export async function DELETE(request: NextRequest) {
       .from('tools')
       .select('owner_id')
       .eq('id', toolId)
+      .is('deleted_at', null)
       .single();
 
     if (fetchError || !tool) {
@@ -58,10 +59,10 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Delete the tool
+    // Soft delete the tool (mark as deleted instead of removing)
     const { error: deleteError } = await supabase
       .from('tools')
-      .delete()
+      .update({ deleted_at: new Date().toISOString() })
       .eq('id', toolId);
 
     if (deleteError) {

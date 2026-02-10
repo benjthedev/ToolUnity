@@ -71,6 +71,7 @@ export default function EditToolPage() {
           .from('tools')
           .select('*')
           .eq('id', toolId)
+          .is('deleted_at', null)
           .single();
 
         if (error) throw error;

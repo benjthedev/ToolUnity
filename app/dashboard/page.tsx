@@ -115,11 +115,12 @@ export default function DashboardPage() {
         setReturnedRentals(rentalData.filter((r: Rental) => r.status === 'returned' && r.deposit_status && r.deposit_status !== 'none' && r.deposit_status !== 'released' && r.deposit_status !== 'refunded') || []);
       }
 
-      // Fetch owner's tools
+      // Fetch owner's tools (excluding deleted)
       const { data: toolsData } = await supabase
         .from('tools')
         .select('*')
         .eq('owner_id', session.user.id)
+        .is('deleted_at', null)
         .order('created_at', { ascending: false });
 
       if (toolsData) {

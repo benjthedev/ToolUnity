@@ -49,6 +49,7 @@ export async function GET(request: NextRequest) {
           .from('tools')
           .select('name')
           .eq('id', request.tool_id)
+          .is('deleted_at', null)
           .single();
 
         // Fetch renter info from auth.users via service role

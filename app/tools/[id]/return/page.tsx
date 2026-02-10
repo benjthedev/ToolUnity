@@ -68,6 +68,7 @@ export default function ReturnToolPage() {
           .from('tools')
           .select('owner_id')
           .eq('id', toolId)
+          .is('deleted_at', null)
           .single();
 
         if (toolError || !toolData || toolData.owner_id !== session.user?.id) {

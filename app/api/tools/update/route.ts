@@ -95,6 +95,7 @@ export async function PUT(request: NextRequest) {
       .from('tools')
       .select('owner_id')
       .eq('id', toolId)
+      .is('deleted_at', null)
       .single();
 
     if (toolError || !tool) {

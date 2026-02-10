@@ -102,6 +102,7 @@ export async function POST(request: NextRequest) {
       .from('tools')
       .select('id, owner_id, daily_rate, description, tool_value')
       .eq('id', toolId)
+      .is('deleted_at', null)
       .single();
 
     if (!tool) {
