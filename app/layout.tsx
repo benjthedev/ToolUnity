@@ -36,10 +36,10 @@ export default function RootLayout({
           <CsrfInitializer />
           <div className="flex flex-col min-h-screen">
             <Header />
-            <div className="bg-yellow-100 border-b-2 border-yellow-400 px-4 py-3 text-center text-yellow-800">
+            <div className="bg-blue-50 border-b-2 border-blue-300 px-4 py-3 text-center text-blue-800">
               <p className="text-sm font-medium">
-                ⚠️ We are aware of an issue related to account creation. Please email{' '}
-                <a href="mailto:support@toolunity.co.uk" className="underline hover:text-yellow-900 font-semibold">
+                This website is currently under development. If you notice any issues, please contact{' '}
+                <a href="mailto:support@toolunity.co.uk" className="underline hover:text-blue-900 font-semibold">
                   support@toolunity.co.uk
                 </a>
               </p>
