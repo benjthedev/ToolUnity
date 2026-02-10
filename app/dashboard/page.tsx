@@ -267,25 +267,18 @@ export default function DashboardPage() {
 
     try {
       // First, delete any rental requests for this tool (only for tools owned by current user)
-      const { error: requestsError } = await supabase
-        .from('rental_transactions')
-        .delete()
-        .eq('tool_id', toolId)
-        .eq('owner_id', session?.user?.id || '');
+      // Use the API endpoint for deletion (handles soft delete and count updates)
+      const response = await fetch(`/api/tools?id=${toolId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-      if (requestsError) {
-        console.warn('Warning: Could not delete rental requests:', requestsError);
-        // Continue anyway - try to delete the tool
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete tool');
       }
-
-      // Then delete the tool (only if owned by current user)
-      const { error } = await supabase
-        .from('tools')
-        .delete()
-        .eq('id', toolId)
-        .eq('owner_id', session?.user?.id || '');
-
-      if (error) throw error;
 
       showToast('Tool deleted successfully', 'success');
       fetchData();

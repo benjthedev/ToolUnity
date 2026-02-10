@@ -73,6 +73,25 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
+    // Update tools_count in users_ext (count non-deleted tools)
+    try {
+      const { data: toolCount } = await supabase
+        .from('tools')
+        .select('id')
+        .eq('owner_id', session.user.id)
+        .is('deleted_at', null);
+      
+      const newCount = toolCount?.length || 0;
+      
+      await supabase
+        .from('users_ext')
+        .update({ tools_count: newCount })
+        .eq('user_id', session.user.id);
+    } catch (err) {
+      serverLog.error('Error updating tools_count:', err);
+      // Don't fail the deletion if the count update fails
+    }
+
     // Trigger tier check to handle free tier downgrade (issue #16)
     // If user drops from 3 tools to 2, they go from Standard free to Basic free
     // If user drops to 0 tools and has no paid subscription, they lose borrowing access
