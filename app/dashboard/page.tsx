@@ -77,6 +77,8 @@ export default function DashboardPage() {
   const [hasBankDetails, setHasBankDetails] = useState(false);
   const [claimReason, setClaimReason] = useState<string>('');
   const [claimingRentalId, setClaimingRentalId] = useState<string | null>(null);
+  const [ownerStats, setOwnerStats] = useState({ toolsCount: 0, monthlyEarnings: 0 });
+  const [loadingStats, setLoadingStats] = useState(true);
 
   useEffect(() => {
     if (loading) return;
@@ -145,6 +147,29 @@ export default function DashboardPage() {
             }) || []);
           }
         }
+
+        // Calculate monthly earnings
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        
+        const { data: completedRentals } = await supabase
+          .from('rental_transactions')
+          .select('rental_cost')
+          .eq('owner_id', session.user.id)
+          .eq('status', 'completed')
+          .gt('created_at', thirtyDaysAgo.toISOString());
+        
+        // Calculate 80% of total rental costs (owner gets 80%, platform gets 20%)
+        const monthlyEarnings = (completedRentals || []).reduce((total: number, rental: any) => {
+          return total + (rental.rental_cost * 0.8);
+        }, 0);
+        
+        setOwnerStats({
+          toolsCount: toolsData?.length || 0,
+          monthlyEarnings: Math.round(monthlyEarnings * 100) / 100,
+        });
+      } else {
+        setOwnerStats({ toolsCount: 0, monthlyEarnings: 0 });
       }
 
       // Fetch user's bank details
@@ -177,6 +202,7 @@ export default function DashboardPage() {
       console.error('Error fetching dashboard data:', err);
     } finally {
       setLoadingData(false);
+      setLoadingStats(false);
     }
   };
 
@@ -415,6 +441,14 @@ export default function DashboardPage() {
                 <p className="text-gray-600 text-sm mb-2">Active Tool Rentals</p>
                 <p className="text-4xl font-bold text-purple-600">{ownerRentals.length}</p>
                 <p className="text-gray-500 text-xs mt-2">Being rented by others</p>
+              </div>
+            )}
+
+            {tools.length > 0 && !loadingStats && (
+              <div className="bg-white rounded-lg p-6 border border-green-200 shadow-sm">
+                <p className="text-gray-600 text-sm mb-2">This Month's Earnings</p>
+                <p className="text-4xl font-bold text-green-600">£{ownerStats.monthlyEarnings.toFixed(2)}</p>
+                <p className="text-gray-500 text-xs mt-2">80% of rental costs</p>
               </div>
             )}
           </div>
