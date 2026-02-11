@@ -12,19 +12,27 @@ function generateVerificationToken(email: string): string {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('[SEND-VERIFICATION-EMAIL] Request received');
+    
     const csrfCheck = await verifyCsrfToken(request);
+    console.log('[SEND-VERIFICATION-EMAIL] CSRF check result:', csrfCheck.valid);
+    
     if (!csrfCheck.valid) {
+      console.error('[SEND-VERIFICATION-EMAIL] CSRF validation failed');
       return NextResponse.json({ error: 'CSRF token validation failed' }, { status: 403 });
     }
 
     const body = await request.json();
     const { userId, email } = body;
+    console.log('[SEND-VERIFICATION-EMAIL] Attempting to send email to:', email, 'for userId:', userId);
 
     if (!email || !userId) {
+      console.error('[SEND-VERIFICATION-EMAIL] Missing email or userId');
       return NextResponse.json({ error: 'Email and userId required' }, { status: 400 });
     }
 
     // Verify that the userId actually owns this email in users_ext
+    console.log('[SEND-VERIFICATION-EMAIL] Looking up user in users_ext...');
     const { data: userRecord, error: lookupError } = await supabase
       .from('users_ext')
       .select('user_id, email')
@@ -32,19 +40,30 @@ export async function POST(request: NextRequest) {
       .eq('email', email)
       .single();
 
-    if (lookupError || !userRecord) {
+    if (lookupError) {
+      console.error('[SEND-VERIFICATION-EMAIL] User lookup error:', lookupError);
+    }
+    
+    if (!userRecord) {
+      console.error('[SEND-VERIFICATION-EMAIL] User not found in users_ext');
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
+    
+    console.log('[SEND-VERIFICATION-EMAIL] User found in users_ext');
 
     // Send verification email via Resend
     if (!process.env.RESEND_API_KEY) {
+      console.error('[SEND-VERIFICATION-EMAIL] RESEND_API_KEY is not configured');
       return NextResponse.json({ error: 'Email service not configured' }, { status: 500 });
     }
 
+    console.log('[SEND-VERIFICATION-EMAIL] RESEND_API_KEY is configured');
+
     // Generate an HMAC-signed verification token (no DB storage needed)
     const verificationToken = generateVerificationToken(email);
-
     const verificationLink = `${process.env.NEXTAUTH_URL}/api/verify-email?email=${encodeURIComponent(email)}&token=${verificationToken}`;
+    
+    console.log('[SEND-VERIFICATION-EMAIL] Sending email via Resend...');
 
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -70,13 +89,17 @@ export async function POST(request: NextRequest) {
     });
 
     const responseData = await response.json();
+    console.log('[SEND-VERIFICATION-EMAIL] Resend API response status:', response.status);
 
     if (!response.ok) {
+      console.error('[SEND-VERIFICATION-EMAIL] Resend API error:', JSON.stringify(responseData));
       throw new Error(`Resend error: ${JSON.stringify(responseData)}`);
     }
 
+    console.log('[SEND-VERIFICATION-EMAIL] Email sent successfully');
     return NextResponse.json({ message: 'Verification email sent' }, { status: 200 });
   } catch (error) {
+    console.error('[SEND-VERIFICATION-EMAIL] Caught error:', error);
     serverLog.error('Send verification email error:', error);
     return NextResponse.json({ error: 'Failed to send email' }, { status: 500 });
   }

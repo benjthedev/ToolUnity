@@ -41,13 +41,17 @@ function getSupabase() {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('[SIGNUP-API] Request received');
+    
     // Verify CSRF token
     const csrfCheck = await verifyCsrfToken(request);
     if (!csrfCheck.valid) {
+      console.error('[SIGNUP-API] CSRF token validation failed');
       return ApiErrors.CSRF_FAILED();
     }
 
     const body = await request.json();
+    console.log('[SIGNUP-API] Body received, attempting to parse:', body.email);
     
     // Validate input with Zod
     let validated;
@@ -59,7 +63,9 @@ export async function POST(request: NextRequest) {
         password: body.password,
         subscription_tier: body.subscription_tier || 'free',
       });
+      console.log('[SIGNUP-API] Validation passed for:', body.email);
     } catch (error) {
+      console.error('[SIGNUP-API] Validation failed:', error);
       if (error instanceof ZodError) {
         return ApiErrors.VALIDATION_ERROR('Invalid signup data provided');
       }
@@ -70,13 +76,17 @@ export async function POST(request: NextRequest) {
     const { email, username, phone_number } = validated;
     const user_id = body.user_id;
 
+    console.log('[SIGNUP-API] Processing signup for user_id:', user_id, 'email:', email, 'phone:', phone_number);
+
     if (!user_id || typeof user_id !== 'string') {
+      console.error('[SIGNUP-API] Missing or invalid user_id');
       return ApiErrors.BAD_REQUEST('Missing user_id');
     }
 
     // Validate user_id is a valid UUID format (basic sanity check)
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(user_id)) {
+      console.error('[SIGNUP-API] Invalid user_id format:', user_id);
       return ApiErrors.BAD_REQUEST('Invalid user_id format');
     }
 
@@ -88,11 +98,13 @@ export async function POST(request: NextRequest) {
     );
 
     if (!rateLimitCheck.allowed) {
+      console.error('[SIGNUP-API] Rate limit exceeded for:', email);
       return ApiErrors.RATE_LIMITED();
     }
 
     // Check if this email is already registered (prevents duplicate accounts)
     const sb = getSupabase();
+    console.log('[SIGNUP-API] Checking if email already exists...');
     const { data: existingUser } = await sb
       .from('users_ext')
       .select('user_id')
@@ -100,8 +112,11 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (existingUser) {
+      console.error('[SIGNUP-API] Email already registered:', email);
       return ApiErrors.BAD_REQUEST('Email already registered');
     }
+
+    console.log('[SIGNUP-API] Email is unique, proceeding with upsert...');
 
     // Create or update user profile (in case trigger already created it)
     const { error: profileError } = await sb.from('users_ext').upsert({
@@ -118,8 +133,11 @@ export async function POST(request: NextRequest) {
     });
 
     if (profileError) {
+      console.error('[SIGNUP-API] Profile upsert error:', profileError);
       return ApiErrors.BAD_REQUEST(profileError.message);
     }
+
+    console.log('[SIGNUP-API] User profile created/updated successfully:', user_id);
 
     // Supabase will automatically send verification email and keep email unverified
     // until user clicks the verification link
@@ -130,6 +148,7 @@ export async function POST(request: NextRequest) {
       201
     );
   } catch (error) {
+    console.error('[SIGNUP-API] Caught error:', error);
     return ApiErrors.INTERNAL_ERROR();
   }
 }

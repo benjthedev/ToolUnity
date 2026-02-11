@@ -89,6 +89,7 @@ export default function SignupPage() {
         subscription_tier: 'free',
       };
 
+      console.log('[SIGNUP-PAGE] Calling /api/signup with data:', profileData);
       const response = await fetchWithCsrf('/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -98,43 +99,58 @@ export default function SignupPage() {
       const data = await response.json();
 
       if (!response.ok) {
+        console.error('[SIGNUP-PAGE] Profile endpoint failed:', data);
         setError(data.error || data.message || 'Failed to create account');
         setLoading(false);
         return;
       }
 
       if (!data.success) {
+        console.error('[SIGNUP-PAGE] Profile endpoint returned success=false:', data);
         setError(data.message || 'Failed to create account');
         setLoading(false);
         return;
       }
 
+      console.log('[SIGNUP-PAGE] Profile created successfully, now sending verification email...');
+
       // Send verification email using Resend (our email service)
       try {
+        const emailPayload = {
+          userId: authData.user.id,
+          email: email,
+        };
+        console.log('[SIGNUP-PAGE] Sending email with payload:', emailPayload);
+        
         const emailResponse = await fetchWithCsrf('/api/send-verification-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: authData.user.id,
-            email: email,
-          }),
+          body: JSON.stringify(emailPayload),
         });
 
+        console.log('[SIGNUP-PAGE] Email endpoint response status:', emailResponse.status);
+        
         if (!emailResponse.ok) {
           const emailError = await emailResponse.json();
+          console.error('[SIGNUP-PAGE] Email endpoint failed:', emailError);
           setError(emailError.error || 'Failed to send verification email');
           setLoading(false);
           return;
         }
+        
+        console.log('[SIGNUP-PAGE] Verification email sent successfully');
       } catch (emailErr) {
+        console.error('[SIGNUP-PAGE] Email sending error:', emailErr);
         setError('Failed to send verification email. Please try again.');
         setLoading(false);
         return;
       }
 
+      console.log('[SIGNUP-PAGE] Redirecting to signup-success page...');
       // Redirect to success page showing email verification message
       router.push(`/signup-success?email=${encodeURIComponent(email)}`);
     } catch (err) {
+      console.error('[SIGNUP-PAGE] Caught error:', err);
       setError('An unexpected error occurred');
     } finally {
       setLoading(false);
