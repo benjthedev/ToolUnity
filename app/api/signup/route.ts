@@ -102,23 +102,10 @@ export async function POST(request: NextRequest) {
       return ApiErrors.RATE_LIMITED();
     }
 
-    // Check if this email is already registered (prevents duplicate accounts)
+    // Upsert user profile directly (trigger may have already created a partial profile)
     const sb = getSupabase();
-    console.log('[SIGNUP-API] Checking if email already exists...');
-    const { data: existingUser } = await sb
-      .from('users_ext')
-      .select('user_id')
-      .eq('email', email)
-      .single();
+    console.log('[SIGNUP-API] Upserting profile for user_id:', user_id);
 
-    if (existingUser) {
-      console.error('[SIGNUP-API] Email already registered:', email);
-      return ApiErrors.BAD_REQUEST('Email already registered');
-    }
-
-    console.log('[SIGNUP-API] Email is unique, proceeding with upsert...');
-
-    // Create or update user profile (in case trigger already created it)
     const { error: profileError } = await sb.from('users_ext').upsert({
       user_id: user_id,
       email: email,
