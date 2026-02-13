@@ -176,7 +176,7 @@ export default function ToolsPage() {
             <div className="flex items-end gap-2">
               <button
                 onClick={() => setViewMode('list')}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                className={`px-6 py-3 rounded-lg font-semibold transition-colors text-base ${
                   viewMode === 'list'
                     ? 'bg-blue-600 text-white'
                     : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
@@ -186,7 +186,7 @@ export default function ToolsPage() {
               </button>
               <button
                 onClick={() => setViewMode('map')}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                className={`px-6 py-3 rounded-lg font-semibold transition-colors text-base ${
                   viewMode === 'map'
                     ? 'bg-blue-600 text-white'
                     : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
