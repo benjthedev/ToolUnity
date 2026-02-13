@@ -75,44 +75,55 @@ export default function ToolMap({ tools, initialCenter }: ToolMapProps) {
       });
 
       // Add tools as markers
+      const markers: Array<{ marker: mapboxgl.Marker; tool: Tool }> = [];
+      
       toolsWithCoords.forEach((tool) => {
         if (tool.latitude && tool.longitude) {
           const el = document.createElement('div');
-          el.className = `w-8 h-8 rounded-full flex items-center justify-center text-sm cursor-pointer transition-transform hover:scale-110 flex-shrink-0`;
+          el.style.width = '40px';
+          el.style.height = '40px';
+          el.style.borderRadius = '50%';
+          el.style.display = 'flex';
+          el.style.alignItems = 'center';
+          el.style.justifyContent = 'center';
+          el.style.fontSize = '20px';
+          el.style.cursor = 'pointer';
           el.style.backgroundColor = tool.available ? '#10b981' : '#9ca3af';
-          el.style.border = '2px solid white';
+          el.style.border = '3px solid white';
           el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
+          el.style.pointerEvents = 'auto';
           el.textContent = '🔧';
 
-          const popup = new mapboxgl.Popup({ offset: 25, closeButton: true, closeOnClick: false }).setHTML(
-            `<div class="p-3 max-w-xs bg-white rounded">
-              <h3 class="font-semibold text-sm text-gray-900 mb-1">${tool.name}</h3>
-              <p class="text-xs text-gray-600 mb-2">${tool.category}</p>
-              <div class="flex items-center justify-between mb-3 gap-2">
-                <span class="text-xs font-semibold px-2 py-1 rounded-full ${
-                  tool.available
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-gray-100 text-gray-800'
-                }">
-                  ${tool.available ? '✓ Available' : '✗ Unavailable'}
-                </span>
-                <span class="text-sm font-bold text-green-600">
-                  £${tool.daily_rate || 3}/day
-                </span>
-              </div>
-              <a href="/tools/${tool.id}" class="block w-full text-center text-xs text-blue-600 hover:text-blue-700 font-semibold bg-blue-50 py-2 px-3 rounded">
-                View Details →
-              </a>
-            </div>`
-          );
+          const popupHtml = `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 12px; max-width: 240px;">
+            <h3 style="margin: 0 0 4px 0; font-weight: 600; font-size: 14px; color: #111;">${tool.name}</h3>
+            <p style="margin: 0 0 8px 0; font-size: 12px; color: #666;">${tool.category}</p>
+            <div style="display: flex; gap: 8px; margin-bottom: 10px; align-items: center;">
+              <span style="font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 4px; ${
+                tool.available
+                  ? 'background-color: #d1fae5; color: #065f46;'
+                  : 'background-color: #f3f4f6; color: #374151;'
+              }">
+                ${tool.available ? '✓ Available' : '✗ Unavailable'}
+              </span>
+              <span style="font-size: 12px; font-weight: 700; color: #059669;">£${tool.daily_rate || 3}/day</span>
+            </div>
+            <a href="/tools/${tool.id}" style="display: block; width: 100%; text-align: center; font-size: 12px; color: #2563eb; text-decoration: none; font-weight: 600; background-color: #eff6ff; padding: 8px; border-radius: 4px; border: none; cursor: pointer;">
+              View Details →
+            </a>
+          </div>`;
 
-          const marker = new mapboxgl.Marker(el)
+          const popup = new mapboxgl.Popup({ offset: 25, closeButton: true, closeOnClick: false }).setHTML(popupHtml);
+
+          const marker = new mapboxgl.Marker({ element: el })
             .setLngLat([tool.longitude, tool.latitude])
             .setPopup(popup)
             .addTo(map.current!);
 
-          // Open popup on click
-          marker.getElement().addEventListener('click', () => {
+          markers.push({ marker, tool });
+
+          // Add click listener directly to element
+          el.addEventListener('click', (e) => {
+            e.stopPropagation();
             marker.togglePopup();
           });
         }
