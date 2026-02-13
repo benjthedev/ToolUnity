@@ -118,92 +118,109 @@ export default function ToolsPage() {
       </div>
 
       {/* Search & Filter Section */}
-      <div className="bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <input
-            type="text"
-            placeholder="Search tools by name or category..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500 bg-white"
-          />
+      {viewMode === 'list' && (
+        <div className="bg-white border-b border-gray-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <input
+              type="text"
+              placeholder="Search tools by name or category..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500 bg-white"
+            />
+          </div>
         </div>
-      </div>
+      )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col md:flex-row gap-6 mb-8">
-          {/* Filters Row */}
-          <div className="flex flex-col sm:flex-row gap-4 flex-1">
-            <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-2">Category</label>
-              <select
-                value={filters.category}
-                onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">All Categories</option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-2">Postcode Area</label>
-              <input
-                type="text"
-                placeholder="e.g. SW1A"
-                value={filters.postcode}
-                onChange={(e) => setFilters({ ...filters, postcode: e.target.value })}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white focus:ring-2 focus:ring-blue-500"
-              />
+      {viewMode === 'list' && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex flex-col md:flex-row gap-6 mb-8">
+            {/* Filters Row */}
+            <div className="flex flex-col sm:flex-row gap-4 flex-1">
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">Category</label>
+                <select
+                  value={filters.category}
+                  onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">All Categories</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">Postcode Area</label>
+                <input
+                  type="text"
+                  placeholder="e.g. SW1A"
+                  value={filters.postcode}
+                  onChange={(e) => setFilters({ ...filters, postcode: e.target.value })}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="flex items-end">
+                <button
+                  onClick={() => setFilters({ category: '', postcode: '', availability: true })}
+                  className="px-4 py-2 border border-gray-300 text-gray-900 rounded-lg hover:bg-gray-50 font-medium"
+                >
+                  Clear Filters
+                </button>
+              </div>
             </div>
 
-            <div className="flex items-end">
+            {/* View Toggle */}
+            <div className="flex items-end gap-2">
               <button
-                onClick={() => setFilters({ category: '', postcode: '', availability: true })}
-                className="px-4 py-2 border border-gray-300 text-gray-900 rounded-lg hover:bg-gray-50 font-medium"
+                onClick={() => setViewMode('list')}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  viewMode === 'list'
+                    ? 'bg-blue-600 text-white'
+                    : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                }`}
               >
-                Clear Filters
+                📋 List
+              </button>
+              <button
+                onClick={() => setViewMode('map')}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  viewMode === 'map'
+                    ? 'bg-blue-600 text-white'
+                    : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                🗺️ Map
               </button>
             </div>
           </div>
 
-          {/* View Toggle */}
-          <div className="flex items-end gap-2">
-            <button
-              onClick={() => setViewMode('list')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                viewMode === 'list'
-                  ? 'bg-blue-600 text-white'
-                  : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              📋 List
-            </button>
-            <button
-              onClick={() => setViewMode('map')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                viewMode === 'map'
-                  ? 'bg-blue-600 text-white'
-                  : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              🗺️ Map
-            </button>
-          </div>
-        </div>
-
         {/* Map View */}
         {viewMode === 'map' && !loading && (
-          <div className="h-96 rounded-lg border border-gray-200 overflow-hidden shadow-lg mb-8">
-            <ToolMap tools={filteredTools} />
+          <div className="fixed inset-0 top-0 left-0 right-0 bottom-0 z-50 flex flex-col">
+            <div className="flex-1 rounded-lg border border-gray-200 overflow-hidden shadow-lg">
+              <ToolMap tools={filteredTools} />
+            </div>
+            <div className="absolute top-4 left-4 z-10 flex items-end gap-2 bg-white rounded-lg p-2 shadow-lg">
+              <button
+                onClick={() => setViewMode('list')}
+                className="px-4 py-2 rounded-lg font-medium transition-colors border border-gray-300 text-gray-700 hover:bg-gray-50"
+              >
+                📋 List
+              </button>
+              <button
+                onClick={() => setViewMode('map')}
+                className="px-4 py-2 rounded-lg font-medium transition-colors bg-blue-600 text-white"
+              >
+                🗺️ Map
+              </button>
+            </div>
           </div>
         )}
 
         {/* Tools Grid - Only show in list view */}
-        {viewMode === 'list' && (
-          <>
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
@@ -300,9 +317,31 @@ export default function ToolsPage() {
             </button>
           </div>
         )}
-          </>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Map View */}
+      {viewMode === 'map' && !loading && (
+        <div className="fixed inset-0 top-0 left-0 right-0 bottom-0 z-50 flex flex-col">
+          <div className="flex-1 overflow-hidden">
+            <ToolMap tools={filteredTools} />
+          </div>
+          <div className="absolute top-4 left-4 z-10 flex items-end gap-2 bg-white rounded-lg p-2 shadow-lg">
+            <button
+              onClick={() => setViewMode('list')}
+              className="px-4 py-2 rounded-lg font-medium transition-colors border border-gray-300 text-gray-700 hover:bg-gray-50"
+            >
+              📋 List
+            </button>
+            <button
+              onClick={() => setViewMode('map')}
+              className="px-4 py-2 rounded-lg font-medium transition-colors bg-blue-600 text-white"
+            >
+              🗺️ Map
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
