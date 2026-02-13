@@ -78,36 +78,43 @@ export default function ToolMap({ tools, initialCenter }: ToolMapProps) {
       toolsWithCoords.forEach((tool) => {
         if (tool.latitude && tool.longitude) {
           const el = document.createElement('div');
-          el.className = `w-7 h-7 rounded-full flex items-center justify-center text-lg cursor-pointer transition-transform hover:scale-110 ${
-            tool.available
-              ? 'bg-green-500 border-2 border-white shadow-lg'
-              : 'bg-gray-400 border-2 border-white shadow-lg'
-          }`;
+          el.className = `w-8 h-8 rounded-full flex items-center justify-center text-sm cursor-pointer transition-transform hover:scale-110 flex-shrink-0`;
+          el.style.backgroundColor = tool.available ? '#10b981' : '#9ca3af';
+          el.style.border = '2px solid white';
+          el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
           el.textContent = '🔧';
 
-          const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-            `<div class="p-3 max-w-xs">
+          const popup = new mapboxgl.Popup({ offset: 25, closeButton: true, closeOnClick: false }).setHTML(
+            `<div class="p-3 max-w-xs bg-white rounded">
               <h3 class="font-semibold text-sm text-gray-900 mb-1">${tool.name}</h3>
               <p class="text-xs text-gray-600 mb-2">${tool.category}</p>
-              <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center justify-between mb-3 gap-2">
                 <span class="text-xs font-semibold px-2 py-1 rounded-full ${
                   tool.available
                     ? 'bg-green-100 text-green-800'
                     : 'bg-gray-100 text-gray-800'
                 }">
-                  ${tool.available ? 'Available' : 'Unavailable'}
+                  ${tool.available ? '✓ Available' : '✗ Unavailable'}
                 </span>
                 <span class="text-sm font-bold text-green-600">
                   £${tool.daily_rate || 3}/day
                 </span>
               </div>
-              <a href="/tools/${tool.id}" class="text-xs text-blue-600 hover:text-blue-700 font-semibold inline-block">
+              <a href="/tools/${tool.id}" class="block w-full text-center text-xs text-blue-600 hover:text-blue-700 font-semibold bg-blue-50 py-2 px-3 rounded">
                 View Details →
               </a>
             </div>`
           );
 
-          new mapboxgl.Marker(el).setLngLat([tool.longitude, tool.latitude]).setPopup(popup).addTo(map.current!);
+          const marker = new mapboxgl.Marker(el)
+            .setLngLat([tool.longitude, tool.latitude])
+            .setPopup(popup)
+            .addTo(map.current!);
+
+          // Open popup on click
+          marker.getElement().addEventListener('click', () => {
+            marker.togglePopup();
+          });
         }
       });
     } catch (err) {
