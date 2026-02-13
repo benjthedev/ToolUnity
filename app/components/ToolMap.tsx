@@ -67,11 +67,22 @@ export default function ToolMap({ tools, initialCenter }: ToolMapProps) {
     }
 
     try {
+      // Calculate center point from all tools
+      const toolsWithCoordinatesFiltered = toolsWithCoords.filter(t => t.latitude && t.longitude);
+      let defaultCenter = [initialCenter?.lng ?? 1.2977, initialCenter?.lat ?? 52.6286] as [number, number];
+      let defaultZoom = initialCenter ? 12 : 10;
+
+      if (toolsWithCoordinatesFiltered.length > 0 && !initialCenter) {
+        const avgLng = toolsWithCoordinatesFiltered.reduce((sum, t) => sum + (t.longitude || 0), 0) / toolsWithCoordinatesFiltered.length;
+        const avgLat = toolsWithCoordinatesFiltered.reduce((sum, t) => sum + (t.latitude || 0), 0) / toolsWithCoordinatesFiltered.length;
+        defaultCenter = [avgLng, avgLat];
+      }
+
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/streets-v12',
-        center: [initialCenter?.lng ?? 1.2977, initialCenter?.lat ?? 52.6286],
-        zoom: initialCenter ? 12 : 10,
+        center: defaultCenter,
+        zoom: defaultZoom,
       });
 
       // Group tools by location
