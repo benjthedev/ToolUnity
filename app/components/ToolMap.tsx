@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import Link from 'next/link';
+import { geocodePostcodes } from '@/lib/geocode';
 
 interface Tool {
   id: string;
@@ -24,30 +25,38 @@ interface ToolMapProps {
   initialCenter?: { lat: number; lng: number };
 }
 
-const postcodeToCoordinates: Record<string, [number, number]> = {
-  // London
-  'SW1A': [-0.1264, 51.5007],
-  'W1A': [-0.1436, 51.5155],
-  'EC1A': [-0.0955, 51.5185],
-  'N1': [-0.1087, 51.5329],
-  'E1': [-0.0759, 51.5160],
-  'SE1': [-0.1008, 51.5050],
-  'SW1': [-0.1437, 51.4914],
-  'W1': [-0.1456, 51.5142],
-  'EC1': [-0.0955, 51.5185],
-  'N1C': [-0.1087, 51.5329],
-  // Norfolk
-  'NR12': [1.2918, 52.6233],
-  'NR29': [1.3833, 52.8167],
-};
-
 export default function ToolMap({ tools, initialCenter }: ToolMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
+  const [toolsWithCoords, setToolsWithCoords] = useState<Tool[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!mapContainer.current || map.current) return;
+    // Get all unique postcodes and geocode them
+    const uniquePostcodes = [...new Set(tools.map((t) => t.postcode))];
+    
+    geocodePostcodes(uniquePostcodes).then((coords) => {
+      const toolsWithCoordinates = tools.map((tool) => {
+        if (tool.latitude && tool.longitude) {
+          return tool;
+        }
+        const geocoded = coords[tool.postcode.toUpperCase()];
+        if (geocoded) {
+          return {
+            ...tool,
+            latitude: geocoded.lat,
+            longitude: geocoded.lon,
+          };
+        }
+        return tool;
+      });
+      setToolsWithCoords(toolsWithCoordinates);
+      setLoading(false);
+    });
+  }, [tools]);
+
+  useEffect(() => {
+    if (!mapContainer.current || map.current || loading) return;
 
     // Set Mapbox token
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
@@ -66,20 +75,8 @@ export default function ToolMap({ tools, initialCenter }: ToolMapProps) {
       });
 
       // Add tools as markers
-      tools.forEach((tool) => {
-        let latitude = tool.latitude;
-        let longitude = tool.longitude;
-
-        if (!latitude || !longitude) {
-          const postcode = tool.postcode ? tool.postcode.toUpperCase() : '';
-          const coords = postcodeToCoordinates[postcode];
-          if (coords) {
-            longitude = coords[0];
-            latitude = coords[1];
-          }
-        }
-
-        if (latitude && longitude) {
+      toolsWithCoords.forEach((tool) => {
+        if (tool.latitude && tool.longitude) {
           const el = document.createElement('div');
           el.className = `w-7 h-7 rounded-full flex items-center justify-center text-lg cursor-pointer transition-transform hover:scale-110 ${
             tool.available
@@ -110,7 +107,7 @@ export default function ToolMap({ tools, initialCenter }: ToolMapProps) {
             </div>`
           );
 
-          new mapboxgl.Marker(el).setLngLat([longitude, latitude]).setPopup(popup).addTo(map.current!);
+          new mapboxgl.Marker(el).setLngLat([tool.longitude, tool.latitude]).setPopup(popup).addTo(map.current!);
         }
       });
     } catch (err) {
@@ -123,7 +120,9 @@ export default function ToolMap({ tools, initialCenter }: ToolMapProps) {
         map.current = null;
       }
     };
-  }, [tools, initialCenter]);
+  }, [toolsWithCoords, initialCenter, loading]);
 
-  return <div ref={mapContainer} className="w-full h-full" />;
+  return (
+    <div ref={mapContainer} className="w-full h-full" />
+  );
 }
