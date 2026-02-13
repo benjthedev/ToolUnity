@@ -25,16 +25,20 @@ interface ToolMapProps {
 }
 
 const postcodeToCoordinates: Record<string, [number, number]> = {
-  'SW1A': [-0.1264, 51.5007], // Westminster
-  'W1A': [-0.1436, 51.5155], // West End
-  'EC1A': [-0.0955, 51.5185], // City of London
-  'N1': [-0.1087, 51.5329], // Islington
-  'E1': [-0.0759, 51.5160], // Tower Hamlets
-  'SE1': [-0.1008, 51.5050], // Southwark
-  'SW1': [-0.1437, 51.4914], // Chelsea
-  'W1': [-0.1456, 51.5142], // Mayfair
-  'EC1': [-0.0955, 51.5185], // Clerkenwell
-  'N1C': [-0.1087, 51.5329], // Islington
+  // London
+  'SW1A': [-0.1264, 51.5007],
+  'W1A': [-0.1436, 51.5155],
+  'EC1A': [-0.0955, 51.5185],
+  'N1': [-0.1087, 51.5329],
+  'E1': [-0.0759, 51.5160],
+  'SE1': [-0.1008, 51.5050],
+  'SW1': [-0.1437, 51.4914],
+  'W1': [-0.1456, 51.5142],
+  'EC1': [-0.0955, 51.5185],
+  'N1C': [-0.1087, 51.5329],
+  // Norfolk
+  'NR12': [1.2918, 52.6233],
+  'NR29': [1.3833, 52.8167],
 };
 
 export default function ToolMap({ tools, initialCenter }: ToolMapProps) {
@@ -57,8 +61,8 @@ export default function ToolMap({ tools, initialCenter }: ToolMapProps) {
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/streets-v12',
-        center: [initialCenter?.lng ?? -0.1276, initialCenter?.lat ?? 51.5074],
-        zoom: 12,
+        center: [initialCenter?.lng ?? -2.0, initialCenter?.lat ?? 53.4],
+        zoom: initialCenter ? 12 : 6,
       });
 
       // Add tools as markers
