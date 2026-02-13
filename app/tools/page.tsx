@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useAuth } from '@/app/providers';
 import { getSupabase } from '@/lib/supabase';
 import { ToolCardSkeleton } from '@/app/components/LoadingSkeletons';
+import ToolMap from '@/app/components/ToolMap';
 
 interface Tool {
   id: string;
@@ -27,6 +28,7 @@ export default function ToolsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const pageSize = 20; // Items per page
   const [filters, setFilters] = useState({
     category: '',
@@ -131,7 +133,7 @@ export default function ToolsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col md:flex-row gap-6 mb-8">
           {/* Filters Row */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 flex-1">
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">Category</label>
               <select
@@ -166,9 +168,42 @@ export default function ToolsPage() {
               </button>
             </div>
           </div>
+
+          {/* View Toggle */}
+          <div className="flex items-end gap-2">
+            <button
+              onClick={() => setViewMode('list')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                viewMode === 'list'
+                  ? 'bg-blue-600 text-white'
+                  : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              📋 List
+            </button>
+            <button
+              onClick={() => setViewMode('map')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                viewMode === 'map'
+                  ? 'bg-blue-600 text-white'
+                  : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              🗺️ Map
+            </button>
+          </div>
         </div>
 
-        {/* Tools Grid */}
+        {/* Map View */}
+        {viewMode === 'map' && !loading && (
+          <div className="h-96 rounded-lg border border-gray-200 overflow-hidden shadow-lg mb-8">
+            <ToolMap tools={filteredTools} />
+          </div>
+        )}
+
+        {/* Tools Grid - Only show in list view */}
+        {viewMode === 'list' && (
+          <>
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
@@ -264,6 +299,8 @@ export default function ToolsPage() {
               Next →
             </button>
           </div>
+        )}
+          </>
         )}
       </div>
     </div>
