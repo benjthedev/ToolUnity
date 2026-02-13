@@ -70,8 +70,8 @@ export default function ToolMap({ tools, initialCenter }: ToolMapProps) {
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/streets-v12',
-        center: [initialCenter?.lng ?? -2.0, initialCenter?.lat ?? 53.4],
-        zoom: initialCenter ? 12 : 6,
+        center: [initialCenter?.lng ?? 1.2977, initialCenter?.lat ?? 52.6286],
+        zoom: initialCenter ? 12 : 10,
       });
 
       // Group tools by location
