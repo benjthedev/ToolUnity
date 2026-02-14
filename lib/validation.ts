@@ -14,7 +14,7 @@ export const SignupSchema = z.object({
     .min(1, 'Phone number is required')
     .refine(
       (phone) => {
-        const digitsOnly = phone.replace(/[\s\-()]/g, '');
+        const digitsOnly = phone.replace(/\D/g, '');
         return /^\d{10,}$/.test(digitsOnly);
       },
       'Phone number must contain at least 10 digits'
