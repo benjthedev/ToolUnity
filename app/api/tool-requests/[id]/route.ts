@@ -11,11 +11,29 @@ export async function PATCH(
     const supabase = getSupabaseAdmin();
     console.log('[TOOL-REQUESTS-ID-PATCH] Request received for ID:', params.id);
     console.log('[TOOL-REQUESTS-ID-PATCH] ID type:', typeof params.id, 'ID length:', params.id?.length);
+    console.log('[TOOL-REQUESTS-ID-PATCH] Request URL:', request.url);
+    console.log('[TOOL-REQUESTS-ID-PATCH] Request method:', request.method);
+    
+    // Log all headers
+    const headers: Record<string, string> = {};
+    request.headers.forEach((value, key) => {
+      if (key.toLowerCase().includes('auth') || key.toLowerCase().includes('cookie')) {
+        headers[key] = value.substring(0, 50) + (value.length > 50 ? '...' : '');
+      }
+    });
+    console.log('[TOOL-REQUESTS-ID-PATCH] Auth/Cookie headers:', headers);
+    
     const session = await getServerSession(authOptions);
-    console.log('[TOOL-REQUESTS-ID-PATCH] Session:', session?.user?.id);
+    console.log('[TOOL-REQUESTS-ID-PATCH] Session retrieved:', { 
+      hasSession: !!session, 
+      userEmail: session?.user?.email,
+      userId: session?.user?.id,
+      sessionKeys: session ? Object.keys(session) : 'null'
+    });
     
     if (!session?.user?.id) {
       console.error('[TOOL-REQUESTS-ID-PATCH] No session found');
+      console.error('[TOOL-REQUESTS-ID-PATCH] Session object:', JSON.stringify(session));
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -94,11 +112,29 @@ export async function DELETE(
   try {
     const supabase = getSupabaseAdmin();
     console.log('[TOOL-REQUESTS-ID-DELETE] Request received for ID:', params.id);
+    console.log('[TOOL-REQUESTS-ID-DELETE] Request URL:', request.url);
+    console.log('[TOOL-REQUESTS-ID-DELETE] Request method:', request.method);
+    
+    // Log all headers
+    const headers: Record<string, string> = {};
+    request.headers.forEach((value, key) => {
+      if (key.toLowerCase().includes('auth') || key.toLowerCase().includes('cookie')) {
+        headers[key] = value.substring(0, 50) + (value.length > 50 ? '...' : '');
+      }
+    });
+    console.log('[TOOL-REQUESTS-ID-DELETE] Auth/Cookie headers:', headers);
+    
     const session = await getServerSession(authOptions);
-    console.log('[TOOL-REQUESTS-ID-DELETE] Session:', session?.user?.id);
+    console.log('[TOOL-REQUESTS-ID-DELETE] Session retrieved:', { 
+      hasSession: !!session, 
+      userEmail: session?.user?.email,
+      userId: session?.user?.id,
+      sessionKeys: session ? Object.keys(session) : 'null'
+    });
     
     if (!session?.user?.id) {
       console.error('[TOOL-REQUESTS-ID-DELETE] No session found');
+      console.error('[TOOL-REQUESTS-ID-DELETE] Session object:', JSON.stringify(session));
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
