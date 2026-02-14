@@ -52,6 +52,12 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     console.log('[SIGNUP-API] Body received, attempting to parse:', body.email);
+    console.log('[SIGNUP-API] Raw body fields:', {
+      email: body.email,
+      username: body.username,
+      phone_number: body.phone_number ? `${body.phone_number.substring(0, 3)}...` : 'MISSING',
+      password: body.password ? '***' : 'MISSING',
+    });
     
     // Validate input with Zod
     let validated;
@@ -65,9 +71,13 @@ export async function POST(request: NextRequest) {
       });
       console.log('[SIGNUP-API] Validation passed for:', body.email);
     } catch (error) {
-      console.error('[SIGNUP-API] Validation failed:', error);
       if (error instanceof ZodError) {
-        return ApiErrors.VALIDATION_ERROR('Invalid signup data provided');
+        console.error('[SIGNUP-API] Zod validation errors:');
+        error.errors.forEach((err) => {
+          console.error(`  - ${err.path.join('.')}: ${err.code} - ${err.message}`);
+        });
+        console.error('[SIGNUP-API] Full validation error object:', JSON.stringify(error.errors, null, 2));
+        return ApiErrors.VALIDATION_ERROR(`Invalid signup data: ${error.errors.map(e => `${e.path}: ${e.message}`).join(', ')}`);
       }
       throw error;
     }
