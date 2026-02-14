@@ -76,7 +76,8 @@ export async function POST(request: NextRequest) {
     const { email, username, phone_number } = validated;
     const user_id = body.user_id;
 
-    console.log('[SIGNUP-API] Processing signup for user_id:', user_id, 'email:', email, 'phone:', phone_number);
+    console.log('[SIGNUP-API] Validated data - email:', email, 'username:', username, 'phone_number:', phone_number || 'EMPTY');
+    console.log('[SIGNUP-API] Processing signup for user_id:', user_id, 'email:', email, 'phone:', phone_number || 'EMPTY');
 
     if (!user_id || typeof user_id !== 'string') {
       console.error('[SIGNUP-API] Missing or invalid user_id');
@@ -105,33 +106,46 @@ export async function POST(request: NextRequest) {
     // Upsert user profile directly (trigger may have already created a partial profile)
     const sb = getSupabase();
     console.log('[SIGNUP-API] Upserting profile for user_id:', user_id);
+    console.log('[SIGNUP-API] Data being upserted:', {
+      user_id,
+      email,
+      username,
+      phone_number: phone_number || null,
+      subscription_tier: 'free',
+      email_verified: false,
+    });
 
-    const { error: profileError } = await sb.from('users_ext').upsert({
+    const upsertPayload = {
       user_id: user_id,
       email: email,
       username: username,
-      phone_number: phone_number || null,
+      phone_number: phone_number && phone_number.trim() ? phone_number : null,
       subscription_tier: 'free',
       email_verified: false,
       tools_count: 0,
       created_at: new Date().toISOString(),
-    }, {
+    };
+
+    const { error: profileError, data: profileData } = await sb.from('users_ext').upsert(upsertPayload, {
       onConflict: 'user_id',
-    });
+    }).select();
 
     if (profileError) {
       console.error('[SIGNUP-API] Profile upsert error:', profileError);
-      return ApiErrors.BAD_REQUEST(profileError.message);
+      console.error('[SIGNUP-API] Full error object:', JSON.stringify(profileError));
+      return ApiErrors.BAD_REQUEST(profileError.message || 'Failed to create profile');
     }
 
-    console.log('[SIGNUP-API] User profile created/updated successfully:', user_id);
+    console.log('[SIGNUP-API] User profile created/updated successfully');
+    console.log('[SIGNUP-API] Profile data returned:', profileData);
 
     // Supabase will automatically send verification email and keep email unverified
     // until user clicks the verification link
 
+    // Return success with detailed info for debugging
     return apiSuccess(
-      { id: user_id, email: email, username: username },
-      'User profile created successfully',
+      { id: user_id, email: email, username: username, phone_number: phone_number || null },
+      'User profile created successfully. Verification email will be sent separately.',
       201
     );
   } catch (error) {

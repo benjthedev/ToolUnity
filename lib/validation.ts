@@ -10,14 +10,17 @@ export const SignupSchema = z.object({
   user_id: z.string().optional(),
   email: z.string().email('Invalid email address'),
   username: z.string().min(3, 'Username must be at least 3 characters').max(20, 'Username must be less than 20 characters'),
-  phone_number: z.string().refine(
-    (phone) => {
-      // Remove spaces, dashes, and parentheses, then check if at least 10 digits remain
-      const digitsOnly = phone.replace(/[\s\-()]/g, '');
-      return /^\d{10,}$/.test(digitsOnly);
-    },
-    'Phone number must contain at least 10 digits'
-  ),
+  phone_number: z.string()
+    .refine(
+      (phone) => {
+        if (!phone || phone.trim() === '') return true; // Allow empty string
+        const digitsOnly = phone.replace(/[\s\-()]/g, '');
+        return /^\d{10,}$/.test(digitsOnly);
+      },
+      'Phone number must contain at least 10 digits'
+    )
+    .optional()
+    .default(''),
   password: z.string().min(8, 'Password must be at least 8 characters').optional(),
   subscription_tier: z.enum(['free', 'basic', 'standard', 'pro']).optional().default('free'),
 });

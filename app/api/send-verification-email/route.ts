@@ -93,14 +93,27 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       console.error('[SEND-VERIFICATION-EMAIL] Resend API error:', JSON.stringify(responseData));
-      throw new Error(`Resend error: ${JSON.stringify(responseData)}`);
+      console.error('[SEND-VERIFICATION-EMAIL] Status:', response.status, 'Email:', email);
+      
+      // Check if it's an authentication issue
+      if (response.status === 401) {
+        throw new Error('Resend API authentication failed - invalid API key');
+      }
+      
+      throw new Error(`Resend error: ${responseData?.message || JSON.stringify(responseData)}`);
     }
 
-    console.log('[SEND-VERIFICATION-EMAIL] Email sent successfully');
-    return NextResponse.json({ message: 'Verification email sent' }, { status: 200 });
+    console.log('[SEND-VERIFICATION-EMAIL] Email sent successfully to:', email);
+    return NextResponse.json({ message: 'Verification email sent successfully' }, { status: 200 });
   } catch (error) {
-    console.error('[SEND-VERIFICATION-EMAIL] Caught error:', error);
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+    console.error('[SEND-VERIFICATION-EMAIL] Caught error:', errorMsg);
+    console.error('[SEND-VERIFICATION-EMAIL] Error stack:', error);
     serverLog.error('Send verification email error:', error);
-    return NextResponse.json({ error: 'Failed to send email' }, { status: 500 });
+    
+    return NextResponse.json(
+      { error: 'Failed to send verification email: ' + errorMsg },
+      { status: 500 }
+    );
   }
 }
