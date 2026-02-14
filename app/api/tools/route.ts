@@ -12,15 +12,22 @@ import { serverLog } from '@/lib/logger';
  */
 export async function DELETE(request: NextRequest) {
   try {
+    console.log('[DELETE-TOOL] Starting tool deletion request');
+    
     // Verify CSRF token
     const csrfCheck = await verifyCsrfToken(request);
+    console.log('[DELETE-TOOL] CSRF check result:', csrfCheck);
+    
     if (!csrfCheck.valid) {
+      console.log('[DELETE-TOOL] CSRF validation failed');
       return NextResponse.json({ error: 'CSRF token validation failed' }, { status: 403 });
     }
 
     const session = await getServerSession(authOptions);
+    console.log('[DELETE-TOOL] Session user ID:', session?.user?.id);
 
     if (!session?.user?.id) {
+      console.log('[DELETE-TOOL] No session or user ID');
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -29,8 +36,10 @@ export async function DELETE(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const toolId = searchParams.get('id');
+    console.log('[DELETE-TOOL] Tool ID from params:', toolId);
 
     if (!toolId) {
+      console.log('[DELETE-TOOL] No tool ID provided');
       return NextResponse.json(
         { error: 'Tool ID is required' },
         { status: 400 }
@@ -45,7 +54,10 @@ export async function DELETE(request: NextRequest) {
       .is('deleted_at', null)
       .single();
 
+    console.log('[DELETE-TOOL] Tool fetch result:', { tool, fetchError });
+
     if (fetchError || !tool) {
+      console.log('[DELETE-TOOL] Tool not found or fetch error:', fetchError);
       return NextResponse.json(
         { error: 'Tool not found' },
         { status: 404 }
@@ -53,6 +65,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     if (tool.owner_id !== session.user.id) {
+      console.log('[DELETE-TOOL] Ownership check failed:', { toolOwner: tool.owner_id, sessionUser: session.user.id });
       return NextResponse.json(
         { error: 'Unauthorized: You do not own this tool' },
         { status: 403 }
@@ -65,10 +78,13 @@ export async function DELETE(request: NextRequest) {
       .update({ deleted_at: new Date().toISOString() })
       .eq('id', toolId);
 
+    console.log('[DELETE-TOOL] Delete result:', { deleteError });
+
     if (deleteError) {
       serverLog.error('Tool deletion error:', deleteError);
+      console.log('[DELETE-TOOL] Delete failed:', deleteError);
       return NextResponse.json(
-        { error: 'Failed to delete tool' },
+        { error: 'Failed to delete tool', details: deleteError.message },
         { status: 500 }
       );
     }

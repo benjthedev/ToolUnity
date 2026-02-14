@@ -272,6 +272,9 @@ export default function DashboardPage() {
     }
 
     try {
+      console.log('[DELETE-TOOL-CLIENT] Starting delete for tool:', toolId);
+      console.log('[DELETE-TOOL-CLIENT] CSRF token present:', !!csrfToken);
+      
       // First, delete any rental requests for this tool (only for tools owned by current user)
       // Use the API endpoint for deletion (handles soft delete and count updates)
       const response = await fetch(`/api/tools?id=${toolId}`, {
@@ -282,16 +285,22 @@ export default function DashboardPage() {
         },
       });
 
+      console.log('[DELETE-TOOL-CLIENT] Response status:', response.status);
+
       if (!response.ok) {
         const errorData = await response.json();
+        console.log('[DELETE-TOOL-CLIENT] Error response:', errorData);
         throw new Error(errorData.error || 'Failed to delete tool');
       }
 
+      const successData = await response.json();
+      console.log('[DELETE-TOOL-CLIENT] Success response:', successData);
+      
       showToast('Tool deleted successfully', 'success');
       fetchData();
     } catch (err) {
-      console.error('Error deleting tool:', err);
-      showToast('Failed to delete tool', 'error');
+      console.error('[DELETE-TOOL-CLIENT] Error deleting tool:', err);
+      showToast(err instanceof Error ? err.message : 'Failed to delete tool', 'error');
     }
   };
 
