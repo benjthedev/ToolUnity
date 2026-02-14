@@ -38,17 +38,23 @@ export default function UserToolRequests() {
 
   const fetchUserRequests = async () => {
     try {
-      const response = await fetch('/api/tool-requests?status=all');
+      console.log('[UserToolRequests] Fetching requests for user:', session?.user?.id);
+      const response = await fetch('/api/tool-requests?all=true');
       if (response.ok) {
         const data = await response.json();
+        console.log('[UserToolRequests] All requests received:', data.requests.length);
+        console.log('[UserToolRequests] Current session user_id:', session?.user?.id);
         // Filter to only show requests created by the current user
         const userRequests = data.requests.filter(
           (req: ToolRequest) => req.user_id === session?.user?.id
         );
+        console.log('[UserToolRequests] Filtered to user requests:', userRequests.length);
         setRequests(userRequests);
+      } else {
+        console.error('[UserToolRequests] Fetch failed with status:', response.status);
       }
     } catch (error) {
-      console.error('Error fetching requests:', error);
+      console.error('[UserToolRequests] Error fetching requests:', error);
     } finally {
       setLoading(false);
     }
