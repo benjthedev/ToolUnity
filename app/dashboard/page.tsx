@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useAuth } from '@/app/providers';
 import { supabase } from '@/lib/supabase';
 import { showToast } from '@/app/utils/toast';
+import { fetchWithCsrf } from '@/app/utils/csrf-client';
 import UserToolRequests from '@/app/components/UserToolRequests';
 
 interface Rental {
@@ -194,7 +195,8 @@ export default function DashboardPage() {
         setRentalRequests(requestsJson.requests || []);
       }
 
-      // Fetch CSRF token
+      // Note: CSRF tokens are handled automatically by fetchWithCsrf()
+      // For other endpoints that expect csrf_token in body, we still need to fetch it
       const csrfResponse = await fetch('/api/auth/csrf');
       if (csrfResponse.ok) {
         const csrfData = await csrfResponse.json();
@@ -266,23 +268,13 @@ export default function DashboardPage() {
   const handleDeleteTool = async (toolId: string) => {
     if (!confirm('Are you sure you want to delete this tool? Any rental requests will be cancelled.')) return;
 
-    if (!csrfToken) {
-      showToast('Security token missing. Please refresh the page.', 'error');
-      return;
-    }
-
     try {
       console.log('[DELETE-TOOL-CLIENT] Starting delete for tool:', toolId);
-      console.log('[DELETE-TOOL-CLIENT] CSRF token present:', !!csrfToken);
-      console.log('[DELETE-TOOL-CLIENT] CSRF token value (first 10 chars):', csrfToken.substring(0, 10) + '...');
       
-      // First, delete any rental requests for this tool (only for tools owned by current user)
-      // Use the API endpoint for deletion (handles soft delete and count updates)
-      const response = await fetch(`/api/tools?id=${toolId}`, {
+      const response = await fetchWithCsrf(`/api/tools?id=${toolId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'x-csrf-token': csrfToken,
         },
         credentials: 'include',
       });
