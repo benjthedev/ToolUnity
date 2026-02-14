@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
     const updatePayload = {
       email: email,
       username: username,
-      phone_number: phone_number && phone_number.trim() ? phone_number : null,
+      phone_number: phone_number,
       subscription_tier: 'free',
       email_verified: false,
       updated_at: new Date().toISOString(),
