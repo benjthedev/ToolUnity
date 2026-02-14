@@ -108,18 +108,41 @@ export default function ToolMap({ tools, toolRequests = [], initialCenter }: Too
       let defaultCenter = [initialCenter?.lng ?? 1.2977, initialCenter?.lat ?? 52.6286] as [number, number];
       let defaultZoom = initialCenter ? 12 : 10;
 
-      if (allPoints.length > 0 && !initialCenter) {
-        const avgLng = allPoints.reduce((sum, p) => sum + p.lng, 0) / allPoints.length;
-        const avgLat = allPoints.reduce((sum, p) => sum + p.lat, 0) / allPoints.length;
-        defaultCenter = [avgLng, avgLat];
-      }
-
+      // Create map
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/streets-v12',
         center: defaultCenter,
         zoom: defaultZoom,
       });
+
+      // If we have multiple points and no initial center, fit bounds to show all points
+      if (allPoints.length > 1 && !initialCenter) {
+        const bounds = allPoints.reduce(
+          (acc, point) => {
+            return {
+              minLng: Math.min(acc.minLng, point.lng),
+              maxLng: Math.max(acc.maxLng, point.lng),
+              minLat: Math.min(acc.minLat, point.lat),
+              maxLat: Math.max(acc.maxLat, point.lat),
+            };
+          },
+          {
+            minLng: allPoints[0].lng,
+            maxLng: allPoints[0].lng,
+            minLat: allPoints[0].lat,
+            maxLat: allPoints[0].lat,
+          }
+        );
+
+        map.current.fitBounds(
+          [
+            [bounds.minLng, bounds.minLat],
+            [bounds.maxLng, bounds.maxLat],
+          ],
+          { padding: 80 }
+        );
+      }
 
       // Group tools by location
       const toolsByLocation: Record<string, Tool[]> = {};
