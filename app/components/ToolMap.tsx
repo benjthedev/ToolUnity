@@ -315,7 +315,7 @@ export default function ToolMap({ tools, toolRequests = [], initialCenter }: Too
         const popup = new mapboxgl.Popup({ offset: 25, closeButton: true, closeOnClick: false }).setHTML(popupHtml);
 
         const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
-          .setLngLat([req.longitude!, req.latitude!])
+          .setLngLat([req.latitude!, req.longitude!])
           .setPopup(popup)
           .addTo(map.current!);
 
