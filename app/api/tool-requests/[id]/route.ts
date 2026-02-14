@@ -29,14 +29,27 @@ export async function PATCH(
     // Verify the request belongs to the user
     const { data: existingRequest, error: lookupError } = await supabase
       .from('tool_requests')
-      .select('user_id')
+      .select('*')
       .eq('id', id)
       .single();
 
-    console.log('[TOOL-REQUESTS-ID-PATCH] Existing request lookup:', { found: !!existingRequest, error: lookupError });
+    console.log('[TOOL-REQUESTS-ID-PATCH] Existing request lookup:', { found: !!existingRequest, error: lookupError, requestData: existingRequest });
+    console.log('[TOOL-REQUESTS-ID-PATCH] Comparison:', { 
+      existingUserID: existingRequest?.user_id,
+      sessionUserID: session.user.id,
+      match: existingRequest?.user_id === session.user.id,
+      existingUserIDType: typeof existingRequest?.user_id,
+      sessionUserIDType: typeof session.user.id
+    });
 
     if (!existingRequest || existingRequest.user_id !== session.user.id) {
       console.error('[TOOL-REQUESTS-ID-PATCH] Forbidden - user_id mismatch or not found');
+      console.error('[TOOL-REQUESTS-ID-PATCH] Details:', {
+        requestExists: !!existingRequest,
+        userIDMatch: existingRequest?.user_id === session.user.id,
+        existingUserID: existingRequest?.user_id,
+        sessionUserID: session.user.id
+      });
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -87,14 +100,27 @@ export async function DELETE(
     // Verify the request belongs to the user
     const { data: existingRequest, error: lookupError } = await supabase
       .from('tool_requests')
-      .select('user_id')
+      .select('*')
       .eq('id', id)
       .single();
 
-    console.log('[TOOL-REQUESTS-ID-DELETE] Existing request lookup:', { found: !!existingRequest, error: lookupError });
+    console.log('[TOOL-REQUESTS-ID-DELETE] Existing request lookup:', { found: !!existingRequest, error: lookupError, requestData: existingRequest });
+    console.log('[TOOL-REQUESTS-ID-DELETE] Comparison:', { 
+      existingUserID: existingRequest?.user_id,
+      sessionUserID: session.user.id,
+      match: existingRequest?.user_id === session.user.id,
+      existingUserIDType: typeof existingRequest?.user_id,
+      sessionUserIDType: typeof session.user.id
+    });
 
     if (!existingRequest || existingRequest.user_id !== session.user.id) {
       console.error('[TOOL-REQUESTS-ID-DELETE] Forbidden - user_id mismatch or not found');
+      console.error('[TOOL-REQUESTS-ID-DELETE] Details:', {
+        requestExists: !!existingRequest,
+        userIDMatch: existingRequest?.user_id === session.user.id,
+        existingUserID: existingRequest?.user_id,
+        sessionUserID: session.user.id
+      });
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
