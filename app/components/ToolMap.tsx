@@ -20,20 +20,37 @@ interface Tool {
   longitude?: number;
 }
 
+interface ToolRequest {
+  id: string;
+  tool_name: string;
+  category: string;
+  postcode: string;
+  description?: string;
+  upvote_count: number;
+  status: string;
+  created_at: string;
+  latitude?: number;
+  longitude?: number;
+}
+
 interface ToolMapProps {
   tools: Tool[];
+  toolRequests?: ToolRequest[];
   initialCenter?: { lat: number; lng: number };
 }
 
-export default function ToolMap({ tools, initialCenter }: ToolMapProps) {
+export default function ToolMap({ tools, toolRequests = [], initialCenter }: ToolMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [toolsWithCoords, setToolsWithCoords] = useState<Tool[]>([]);
+  const [requestsWithCoords, setRequestsWithCoords] = useState<ToolRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get all unique postcodes and geocode them
-    const uniquePostcodes = [...new Set(tools.map((t) => t.postcode))];
+    // Get all unique postcodes from tools AND requests and geocode them
+    const toolPostcodes = tools.map((t) => t.postcode);
+    const requestPostcodes = toolRequests.map((r) => r.postcode);
+    const uniquePostcodes = [...new Set([...toolPostcodes, ...requestPostcodes])];
     
     geocodePostcodes(uniquePostcodes).then((coords) => {
       const toolsWithCoordinates = tools.map((tool) => {
@@ -50,10 +67,24 @@ export default function ToolMap({ tools, initialCenter }: ToolMapProps) {
         }
         return tool;
       });
+
+      const requestsWithCoordinates = toolRequests.map((req) => {
+        const geocoded = coords[req.postcode.toUpperCase()];
+        if (geocoded) {
+          return {
+            ...req,
+            latitude: geocoded.lat,
+            longitude: geocoded.lon,
+          };
+        }
+        return req;
+      });
+
       setToolsWithCoords(toolsWithCoordinates);
+      setRequestsWithCoords(requestsWithCoordinates);
       setLoading(false);
     });
-  }, [tools]);
+  }, [tools, toolRequests]);
 
   useEffect(() => {
     if (!mapContainer.current || map.current || loading) return;
@@ -67,14 +98,19 @@ export default function ToolMap({ tools, initialCenter }: ToolMapProps) {
     }
 
     try {
-      // Calculate center point from all tools
+      // Calculate center point from all tools and requests
       const toolsWithCoordinatesFiltered = toolsWithCoords.filter(t => t.latitude && t.longitude);
+      const requestsWithCoordinatesFiltered = requestsWithCoords.filter(r => r.latitude && r.longitude);
+      const allPoints = [
+        ...toolsWithCoordinatesFiltered.map(t => ({ lat: t.latitude!, lng: t.longitude! })),
+        ...requestsWithCoordinatesFiltered.map(r => ({ lat: r.latitude!, lng: r.longitude! })),
+      ];
       let defaultCenter = [initialCenter?.lng ?? 1.2977, initialCenter?.lat ?? 52.6286] as [number, number];
       let defaultZoom = initialCenter ? 12 : 10;
 
-      if (toolsWithCoordinatesFiltered.length > 0 && !initialCenter) {
-        const avgLng = toolsWithCoordinatesFiltered.reduce((sum, t) => sum + (t.longitude || 0), 0) / toolsWithCoordinatesFiltered.length;
-        const avgLat = toolsWithCoordinatesFiltered.reduce((sum, t) => sum + (t.latitude || 0), 0) / toolsWithCoordinatesFiltered.length;
+      if (allPoints.length > 0 && !initialCenter) {
+        const avgLng = allPoints.reduce((sum, p) => sum + p.lng, 0) / allPoints.length;
+        const avgLat = allPoints.reduce((sum, p) => sum + p.lat, 0) / allPoints.length;
         defaultCenter = [avgLng, avgLat];
       }
 
@@ -193,6 +229,77 @@ export default function ToolMap({ tools, initialCenter }: ToolMapProps) {
           marker.togglePopup();
         });
       });
+
+      // Add request markers (orange)
+      requestsWithCoords.forEach((req) => {
+        if (!req.latitude || !req.longitude) return;
+
+        const el = document.createElement('div');
+        el.style.width = '40px';
+        el.style.height = '40px';
+        el.style.borderRadius = '50%';
+        el.style.display = 'flex';
+        el.style.alignItems = 'center';
+        el.style.justifyContent = 'center';
+        el.style.fontSize = '20px';
+        el.style.cursor = 'pointer';
+        el.style.backgroundColor = '#f97316';
+        el.style.border = '3px solid white';
+        el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
+        el.style.pointerEvents = 'auto';
+        el.style.position = 'relative';
+        el.textContent = '📢';
+
+        // Upvote badge if > 0
+        if (req.upvote_count > 0) {
+          const badge = document.createElement('div');
+          badge.style.position = 'absolute';
+          badge.style.top = '-8px';
+          badge.style.right = '-8px';
+          badge.style.width = '22px';
+          badge.style.height = '22px';
+          badge.style.borderRadius = '50%';
+          badge.style.backgroundColor = '#f97316';
+          badge.style.color = 'white';
+          badge.style.display = 'flex';
+          badge.style.alignItems = 'center';
+          badge.style.justifyContent = 'center';
+          badge.style.fontSize = '11px';
+          badge.style.fontWeight = 'bold';
+          badge.style.border = '2px solid white';
+          badge.textContent = `👍${req.upvote_count}`;
+          el.appendChild(badge);
+        }
+
+        const popupHtml = `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 12px; max-width: 260px;">
+          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+            <span style="font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 10px; background-color: #fff7ed; color: #c2410c; border: 1px solid #fed7aa;">📢 REQUESTED</span>
+          </div>
+          <h4 style="margin: 0 0 4px 0; font-weight: 700; font-size: 14px; color: #111;">${req.tool_name}</h4>
+          <p style="margin: 0 0 6px 0; font-size: 11px; color: #666;">${req.category}</p>
+          ${req.description ? `<p style="margin: 0 0 8px 0; font-size: 12px; color: #444; font-style: italic;">"${req.description}"</p>` : ''}
+          <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 11px; color: #666;">📍 ${req.postcode}</span>
+            <span style="font-size: 11px; color: #f97316; font-weight: 600;">👍 ${req.upvote_count} ${req.upvote_count === 1 ? 'vote' : 'votes'}</span>
+          </div>
+          <a href="/dashboard" style="display: block; text-align: center; font-size: 11px; color: #fff; text-decoration: none; font-weight: 600; background-color: #f97316; padding: 6px; border-radius: 3px; border: none; cursor: pointer;">
+            Got this tool? List it! →
+          </a>
+        </div>`;
+
+        const popup = new mapboxgl.Popup({ offset: 25, closeButton: true, closeOnClick: false }).setHTML(popupHtml);
+
+        const marker = new mapboxgl.Marker({ element: el })
+          .setLngLat([req.longitude!, req.latitude!])
+          .setPopup(popup)
+          .addTo(map.current!);
+
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          marker.togglePopup();
+        });
+      });
+
     } catch (err) {
       console.error('Error initializing map:', err);
     }
@@ -203,7 +310,7 @@ export default function ToolMap({ tools, initialCenter }: ToolMapProps) {
         map.current = null;
       }
     };
-  }, [toolsWithCoords, initialCenter, loading]);
+  }, [toolsWithCoords, requestsWithCoords, initialCenter, loading]);
 
   return (
     <div ref={mapContainer} className="w-full h-full" />

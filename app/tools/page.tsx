@@ -2,12 +2,26 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/app/providers';
 import { getSupabase } from '@/lib/supabase';
 import { ToolCardSkeleton } from '@/app/components/LoadingSkeletons';
 import ToolMap from '@/app/components/ToolMap';
+import ToolRequestForm from '@/app/components/ToolRequestForm';
+import ToolRequestList from '@/app/components/ToolRequestList';
+
+interface ToolRequest {
+  id: string;
+  user_id: string;
+  tool_name: string;
+  category: string;
+  postcode: string;
+  description?: string;
+  upvote_count: number;
+  status: string;
+  created_at: string;
+}
 
 interface Tool {
   id: string;
@@ -29,6 +43,8 @@ export default function ToolsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [toolRequests, setToolRequests] = useState<ToolRequest[]>([]);
+  const [userUpvotes, setUserUpvotes] = useState<string[]>([]);
   const pageSize = 20; // Items per page
   const [filters, setFilters] = useState({
     category: '',
@@ -39,9 +55,23 @@ export default function ToolsPage() {
   const categories = [...new Set(tools.map((t) => t.category))];
   const postcodes = [...new Set(tools.map((t) => t.postcode))];
 
+  const fetchToolRequests = useCallback(async () => {
+    try {
+      const response = await fetch('/api/tool-requests');
+      const data = await response.json();
+      if (response.ok) {
+        setToolRequests(data.requests || []);
+        setUserUpvotes(data.userUpvotes || []);
+      }
+    } catch (err) {
+      console.error('Error fetching tool requests:', err);
+    }
+  }, []);
+
   useEffect(() => {
     fetchTools();
-  }, [currentPage, filters]);
+    fetchToolRequests();
+  }, [currentPage, filters, fetchToolRequests]);
 
   const fetchTools = async () => {
     try {
@@ -201,7 +231,7 @@ export default function ToolsPage() {
         {viewMode === 'map' && !loading && (
           <div className="fixed inset-0 top-0 left-0 right-0 bottom-0 z-50 flex flex-col">
             <div className="flex-1 rounded-lg border border-gray-200 overflow-hidden shadow-lg">
-              <ToolMap tools={filteredTools} />
+              <ToolMap tools={filteredTools} toolRequests={toolRequests} />
             </div>
             <div className="absolute top-4 left-4 z-10 flex items-end gap-2 bg-white rounded-lg p-2 shadow-lg">
               <button
@@ -221,6 +251,16 @@ export default function ToolsPage() {
         )}
 
         {/* Tools Grid - Only show in list view */}
+        {/* Tool Request Form */}
+        <ToolRequestForm onRequestCreated={fetchToolRequests} />
+
+        {/* Tool Requests List */}
+        <ToolRequestList
+          requests={toolRequests}
+          userUpvotes={userUpvotes}
+          onUpvote={fetchToolRequests}
+        />
+
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
@@ -324,7 +364,7 @@ export default function ToolsPage() {
       {viewMode === 'map' && !loading && (
         <div className="fixed inset-0 top-0 left-0 right-0 bottom-0 z-50 flex flex-col">
           <div className="flex-1 overflow-hidden">
-            <ToolMap tools={filteredTools} />
+            <ToolMap tools={filteredTools} toolRequests={toolRequests} />
           </div>
           <div className="absolute top-4 left-4 z-10 flex items-end gap-2 bg-white rounded-lg p-2 shadow-lg">
             <button
