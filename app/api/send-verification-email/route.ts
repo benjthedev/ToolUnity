@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabase, getSupabaseAdmin } from '@/lib/supabase';
 import { verifyCsrfToken } from '@/lib/csrf';
 import { serverLog } from '@/lib/logger';
 import crypto from 'crypto';
@@ -11,6 +11,8 @@ function generateVerificationToken(email: string): string {
 }
 
 export async function POST(request: NextRequest) {
+  let userId: string | null = null;
+  
   try {
     console.log('[SEND-VERIFICATION-EMAIL] Request received');
     
@@ -23,7 +25,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { userId, email } = body;
+    userId = body.userId;
+    const { email } = body;
     console.log('[SEND-VERIFICATION-EMAIL] Attempting to send email to:', email, 'for userId:', userId);
     console.log('[SEND-VERIFICATION-EMAIL] Request headers:', {
       'content-type': request.headers.get('content-type'),
@@ -106,6 +109,16 @@ export async function POST(request: NextRequest) {
       console.error('[SEND-VERIFICATION-EMAIL] Status:', response.status, 'Email:', email);
       console.error('[SEND-VERIFICATION-EMAIL] Response headers:', JSON.stringify(Object.fromEntries(response.headers)));
       
+      // ROLLBACK: Delete the user since email failed to send
+      console.log('[SEND-VERIFICATION-EMAIL] Initiating rollback: deleting user', userId);
+      try {
+        const sbAdmin = getSupabaseAdmin();
+        await sbAdmin.auth.admin.deleteUser(userId);
+        console.log('[SEND-VERIFICATION-EMAIL] Rollback successful: user deleted');
+      } catch (deleteErr) {
+        console.error('[SEND-VERIFICATION-EMAIL] Rollback failed: could not delete user:', deleteErr);
+      }
+      
       // Check if it's an authentication issue
       if (response.status === 401) {
         throw new Error('Resend API authentication failed - invalid API key');
@@ -121,6 +134,18 @@ export async function POST(request: NextRequest) {
     console.error('[SEND-VERIFICATION-EMAIL] Caught error:', errorMsg);
     console.error('[SEND-VERIFICATION-EMAIL] Error stack:', error);
     serverLog.error('Send verification email error:', error);
+    
+    // ROLLBACK: Delete the user on any error during email sending
+    if (userId) {
+      console.log('[SEND-VERIFICATION-EMAIL] Initiating rollback due to exception: deleting user', userId);
+      try {
+        const sbAdmin = getSupabaseAdmin();
+        await sbAdmin.auth.admin.deleteUser(userId);
+        console.log('[SEND-VERIFICATION-EMAIL] Rollback successful: user deleted due to exception');
+      } catch (rollbackErr) {
+        console.error('[SEND-VERIFICATION-EMAIL] Rollback failed:', rollbackErr);
+      }
+    }
     
     return NextResponse.json(
       { error: 'Failed to send verification email: ' + errorMsg },

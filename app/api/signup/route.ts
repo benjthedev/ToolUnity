@@ -143,6 +143,20 @@ export async function POST(request: NextRequest) {
     if (profileError) {
       console.error('[SIGNUP-API] Profile upsert error:', profileError);
       console.error('[SIGNUP-API] Full error object:', JSON.stringify(profileError));
+      
+      // ROLLBACK: Delete the auth user that was just created
+      console.log('[SIGNUP-API] Attempting to rollback: deleting auth user', user_id);
+      const sbAdmin = getSupabaseAdmin();
+      if (sbAdmin) {
+        try {
+          await sbAdmin.auth.admin.deleteUser(user_id);
+          console.log('[SIGNUP-API] Rollback successful: auth user deleted');
+        } catch (deleteError) {
+          console.error('[SIGNUP-API] Rollback failed: could not delete auth user:', deleteError);
+          // Continue with error response despite rollback failure
+        }
+      }
+      
       return ApiErrors.BAD_REQUEST(profileError.message || 'Failed to create profile');
     }
 

@@ -133,7 +133,7 @@ export default function SignupPage() {
         if (!emailResponse.ok) {
           const emailError = await emailResponse.json();
           console.error('[SIGNUP-PAGE] Email endpoint failed:', emailError);
-          setError(emailError.error || 'Failed to send verification email');
+          setError(emailError.error || 'Failed to send verification email. Your account will be deleted.');
           setLoading(false);
           return;
         }
@@ -141,7 +141,7 @@ export default function SignupPage() {
         console.log('[SIGNUP-PAGE] Verification email sent successfully');
       } catch (emailErr) {
         console.error('[SIGNUP-PAGE] Email sending error:', emailErr);
-        setError('Failed to send verification email. Please try again.');
+        setError('Failed to send verification email. Your account will be deleted.');
         setLoading(false);
         return;
       }
