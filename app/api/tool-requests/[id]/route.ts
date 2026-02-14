@@ -9,8 +9,18 @@ export async function PATCH(
 ) {
   try {
     const supabase = getSupabaseAdmin();
-    console.log('[TOOL-REQUESTS-ID-PATCH] Request received for ID:', params.id);
-    console.log('[TOOL-REQUESTS-ID-PATCH] ID type:', typeof params.id, 'ID length:', params.id?.length);
+    
+    // Extract ID from params, but fallback to URL if params.id is undefined
+    let id = params?.id;
+    if (!id) {
+      // Fallback: extract from URL
+      const urlParts = request.url.split('/');
+      id = urlParts[urlParts.length - 1];
+      console.log('[TOOL-REQUESTS-ID-PATCH] ID extracted from URL (params was undefined):', id);
+    }
+    
+    console.log('[TOOL-REQUESTS-ID-PATCH] Request received for ID:', id);
+    console.log('[TOOL-REQUESTS-ID-PATCH] ID type:', typeof id, 'ID length:', id?.length);
     console.log('[TOOL-REQUESTS-ID-PATCH] Request URL:', request.url);
     console.log('[TOOL-REQUESTS-ID-PATCH] Request method:', request.method);
     
@@ -37,7 +47,6 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = params;
     const body = await request.json();
     console.log('[TOOL-REQUESTS-ID-PATCH] Update body:', body);
     console.log('[TOOL-REQUESTS-ID-PATCH] Looking up request with ID:', { id, idType: typeof id, idLength: id?.length });
@@ -111,7 +120,17 @@ export async function DELETE(
 ) {
   try {
     const supabase = getSupabaseAdmin();
-    console.log('[TOOL-REQUESTS-ID-DELETE] Request received for ID:', params.id);
+    
+    // Extract ID from params, but fallback to URL if params.id is undefined
+    let id = params?.id;
+    if (!id) {
+      // Fallback: extract from URL
+      const urlParts = request.url.split('/');
+      id = urlParts[urlParts.length - 1];
+      console.log('[TOOL-REQUESTS-ID-DELETE] ID extracted from URL (params was undefined):', id);
+    }
+    
+    console.log('[TOOL-REQUESTS-ID-DELETE] Request received for ID:', id);
     console.log('[TOOL-REQUESTS-ID-DELETE] Request URL:', request.url);
     console.log('[TOOL-REQUESTS-ID-DELETE] Request method:', request.method);
     
@@ -137,8 +156,6 @@ export async function DELETE(
       console.error('[TOOL-REQUESTS-ID-DELETE] Session object:', JSON.stringify(session));
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    const { id } = params;
 
     console.log('[TOOL-REQUESTS-ID-DELETE] Looking up request with ID:', { id, idType: typeof id, idLength: id?.length });
 
