@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { verifyCsrfToken } from '@/lib/csrf';
 import { serverLog } from '@/lib/logger';
 import crypto from 'crypto';
@@ -37,8 +37,7 @@ export async function POST(request: NextRequest) {
 
     // Verify that the userId actually owns this email in users_ext
     console.log('[SEND-VERIFICATION-EMAIL] Looking up user in users_ext...');
-    const sb = getSupabaseAdmin();
-    const { data: userRecord, error: lookupError } = await sb
+    const { data: userRecord, error: lookupError } = await supabase
       .from('users_ext')
       .select('user_id, email')
       .eq('user_id', userId)
