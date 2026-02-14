@@ -103,11 +103,10 @@ export async function POST(request: NextRequest) {
       return ApiErrors.RATE_LIMITED();
     }
 
-    // Upsert user profile directly (trigger may have already created a partial profile)
+    // Update user profile - the auth trigger already created a partial row in users_ext
     const sb = getSupabase();
-    console.log('[SIGNUP-API] Upserting profile for user_id:', user_id);
-    console.log('[SIGNUP-API] Data being upserted:', {
-      user_id,
+    console.log('[SIGNUP-API] Updating profile for user_id:', user_id);
+    console.log('[SIGNUP-API] Data being updated:', {
       email,
       username,
       phone_number: phone_number || null,
@@ -115,20 +114,21 @@ export async function POST(request: NextRequest) {
       email_verified: false,
     });
 
-    const upsertPayload = {
-      user_id: user_id,
+    const updatePayload = {
       email: email,
       username: username,
       phone_number: phone_number && phone_number.trim() ? phone_number : null,
       subscription_tier: 'free',
       email_verified: false,
-      tools_count: 0,
-      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
 
-    const { error: profileError, data: profileData } = await sb.from('users_ext').upsert(upsertPayload, {
-      onConflict: 'user_id',
-    }).select();
+    // Use UPDATE instead of UPSERT to avoid trigger conflicts with the auth-created row
+    const { error: profileError, data: profileData } = await sb
+      .from('users_ext')
+      .update(updatePayload)
+      .eq('user_id', user_id)
+      .select();
 
     if (profileError) {
       console.error('[SIGNUP-API] Profile upsert error:', profileError);
