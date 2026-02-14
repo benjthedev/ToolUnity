@@ -241,7 +241,7 @@ export default function ToolMap({ tools, toolRequests = [], initialCenter }: Too
 
         const popup = new mapboxgl.Popup({ offset: 25, closeButton: true, closeOnClick: false }).setHTML(popupHtml);
 
-        const marker = new mapboxgl.Marker({ element: el })
+        const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
           .setLngLat([mainTool.longitude!, mainTool.latitude!])
           .setPopup(popup)
           .addTo(map.current!);
@@ -312,7 +312,7 @@ export default function ToolMap({ tools, toolRequests = [], initialCenter }: Too
 
         const popup = new mapboxgl.Popup({ offset: 25, closeButton: true, closeOnClick: false }).setHTML(popupHtml);
 
-        const marker = new mapboxgl.Marker({ element: el })
+        const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
           .setLngLat([req.longitude!, req.latitude!])
           .setPopup(popup)
           .addTo(map.current!);
