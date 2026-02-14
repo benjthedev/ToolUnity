@@ -257,6 +257,8 @@ export default function ToolMap({ tools, toolRequests = [], initialCenter }: Too
       requestsWithCoords.forEach((req) => {
         if (!req.latitude || !req.longitude) return;
 
+        console.log(`[MAP] Request "${req.tool_name}" - Postcode: ${req.postcode}, Lat: ${req.latitude}, Lng: ${req.longitude}`);
+
         const el = document.createElement('div');
         el.style.width = '40px';
         el.style.height = '40px';
