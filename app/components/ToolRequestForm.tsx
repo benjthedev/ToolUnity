@@ -8,15 +8,10 @@ interface ToolRequestFormProps {
 }
 
 const CATEGORIES = [
-  'Power Tools',
   'Hand Tools',
-  'Garden',
+  'Power Tools',
   'Cleaning',
-  'Automotive',
-  'Plumbing',
-  'Electrical',
-  'Painting',
-  'Construction',
+  'Safety',
   'Other',
 ];
 

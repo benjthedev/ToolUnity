@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useAuth } from '@/app/providers';
 import { supabase } from '@/lib/supabase';
 import { showToast } from '@/app/utils/toast';
+import UserToolRequests from '@/app/components/UserToolRequests';
 
 interface Rental {
   id: string;
@@ -991,6 +992,12 @@ export default function DashboardPage() {
             </section>
           </>
         )}
+
+        {/* TOOL REQUESTS SECTION */}
+        <section>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Tool Requests</h2>
+          <UserToolRequests />
+        </section>
 
         {/* Empty State */}
         {!loadingData && activeRentals.length === 0 && tools.length === 0 && (
