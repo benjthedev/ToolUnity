@@ -20,7 +20,13 @@ export function validateCsrfToken(request: NextRequest): boolean {
   const tokenFromHeader = request.headers.get(CSRF_HEADER_NAME);
   const cookieHeader = request.headers.get('cookie');
   
+  console.log('[CSRF-DEBUG] validateCsrfToken called');
+  console.log('[CSRF-DEBUG] Header name looking for:', CSRF_HEADER_NAME);
+  console.log('[CSRF-DEBUG] Token from header:', tokenFromHeader?.substring(0, 10) + '...' ?? 'MISSING');
+  console.log('[CSRF-DEBUG] Cookie header:', cookieHeader?.substring(0, 50) ?? 'MISSING');
+  
   if (!tokenFromHeader) {
+    console.log('[CSRF-DEBUG] No token in header - returning false');
     return false;
   }
 
@@ -37,6 +43,9 @@ export function validateCsrfToken(request: NextRequest): boolean {
     }
   }
 
+  console.log('[CSRF-DEBUG] Token from cookie:', tokenFromCookie?.substring(0, 10) + '...' ?? 'MISSING');
+  console.log('[CSRF-DEBUG] Tokens match:', tokenFromHeader === tokenFromCookie);
+
   // Tokens must match
   return tokenFromHeader === tokenFromCookie;
 }
@@ -46,13 +55,19 @@ export function validateCsrfToken(request: NextRequest): boolean {
  * Used by API endpoints for form submissions
  */
 export async function verifyCsrfToken(request: NextRequest): Promise<{ valid: boolean; error?: string }> {
+  console.log('[CSRF-DEBUG] verifyCsrfToken called for method:', request.method);
+  
   // Skip GET requests (should be idempotent anyway)
   if (request.method === 'GET' || request.method === 'HEAD') {
+    console.log('[CSRF-DEBUG] Skipping CSRF check for', request.method);
     return { valid: true };
   }
 
   // For state-changing requests, require valid CSRF token
-  if (!validateCsrfToken(request)) {
+  const isValid = validateCsrfToken(request);
+  console.log('[CSRF-DEBUG] validateCsrfToken returned:', isValid);
+  
+  if (!isValid) {
     return {
       valid: false,
       error: 'CSRF token validation failed',

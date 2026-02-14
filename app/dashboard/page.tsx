@@ -274,6 +274,7 @@ export default function DashboardPage() {
     try {
       console.log('[DELETE-TOOL-CLIENT] Starting delete for tool:', toolId);
       console.log('[DELETE-TOOL-CLIENT] CSRF token present:', !!csrfToken);
+      console.log('[DELETE-TOOL-CLIENT] CSRF token value (first 10 chars):', csrfToken.substring(0, 10) + '...');
       
       // First, delete any rental requests for this tool (only for tools owned by current user)
       // Use the API endpoint for deletion (handles soft delete and count updates)
@@ -283,6 +284,7 @@ export default function DashboardPage() {
           'Content-Type': 'application/json',
           'x-csrf-token': csrfToken,
         },
+        credentials: 'include',
       });
 
       console.log('[DELETE-TOOL-CLIENT] Response status:', response.status);
