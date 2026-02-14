@@ -74,6 +74,7 @@ export default function UserToolRequests() {
     if (!editingId) return;
 
     try {
+      console.log('[UserToolRequests] Saving edit for request:', editingId);
       const response = await fetch(`/api/tool-requests/${editingId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -85,13 +86,21 @@ export default function UserToolRequests() {
         }),
       });
 
+      console.log('[UserToolRequests] Save response status:', response.status);
+
       if (response.ok) {
+        console.log('[UserToolRequests] Save successful, refreshing requests');
         setEditingId(null);
         setEditFormData({});
         fetchUserRequests();
+      } else {
+        const errorData = await response.json();
+        console.error('[UserToolRequests] Save failed:', errorData);
+        alert(`Error saving request: ${errorData.error || 'Unknown error'}`);
       }
     } catch (error) {
-      console.error('Error updating request:', error);
+      console.error('[UserToolRequests] Error updating request:', error);
+      alert('Error saving request: ' + (error instanceof Error ? error.message : 'Unknown error'));
     }
   };
 
@@ -99,15 +108,24 @@ export default function UserToolRequests() {
     if (!confirm('Are you sure you want to delete this request?')) return;
 
     try {
+      console.log('[UserToolRequests] Deleting request:', requestId);
       const response = await fetch(`/api/tool-requests/${requestId}`, {
         method: 'DELETE',
       });
 
+      console.log('[UserToolRequests] Delete response status:', response.status);
+
       if (response.ok) {
+        console.log('[UserToolRequests] Delete successful');
         setRequests(requests.filter(r => r.id !== requestId));
+      } else {
+        const errorData = await response.json();
+        console.error('[UserToolRequests] Delete failed:', errorData);
+        alert(`Error deleting request: ${errorData.error || 'Unknown error'}`);
       }
     } catch (error) {
-      console.error('Error deleting request:', error);
+      console.error('[UserToolRequests] Error deleting request:', error);
+      alert('Error deleting request: ' + (error instanceof Error ? error.message : 'Unknown error'));
     }
   };
 
