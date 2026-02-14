@@ -266,6 +266,11 @@ export default function DashboardPage() {
   const handleDeleteTool = async (toolId: string) => {
     if (!confirm('Are you sure you want to delete this tool? Any rental requests will be cancelled.')) return;
 
+    if (!csrfToken) {
+      showToast('Security token missing. Please refresh the page.', 'error');
+      return;
+    }
+
     try {
       // First, delete any rental requests for this tool (only for tools owned by current user)
       // Use the API endpoint for deletion (handles soft delete and count updates)
@@ -273,6 +278,7 @@ export default function DashboardPage() {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
+          'x-csrf-token': csrfToken,
         },
       });
 
