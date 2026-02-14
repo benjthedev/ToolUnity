@@ -43,12 +43,14 @@ export default function UserToolRequests() {
       if (response.ok) {
         const data = await response.json();
         console.log('[UserToolRequests] All requests received:', data.requests.length);
+        console.log('[UserToolRequests] Raw requests data:', data.requests);
         console.log('[UserToolRequests] Current session user_id:', session?.user?.id);
         // Filter to only show requests created by the current user
         const userRequests = data.requests.filter(
           (req: ToolRequest) => req.user_id === session?.user?.id
         );
         console.log('[UserToolRequests] Filtered to user requests:', userRequests.length);
+        console.log('[UserToolRequests] Filtered requests:', userRequests);
         setRequests(userRequests);
       } else {
         console.error('[UserToolRequests] Fetch failed with status:', response.status);
@@ -61,6 +63,7 @@ export default function UserToolRequests() {
   };
 
   const handleEdit = (request: ToolRequest) => {
+    console.log('[UserToolRequests] handleEdit called with request:', { id: request.id, tool_name: request.tool_name });
     setEditingId(request.id);
     setEditFormData({
       tool_name: request.tool_name,
@@ -68,10 +71,15 @@ export default function UserToolRequests() {
       postcode: request.postcode,
       description: request.description,
     });
+    console.log('[UserToolRequests] State updated - editingId set to:', request.id);
   };
 
   const handleSaveEdit = async () => {
-    if (!editingId) return;
+    console.log('[UserToolRequests] handleSaveEdit called, editingId:', editingId);
+    if (!editingId) {
+      console.error('[UserToolRequests] No editingId, returning');
+      return;
+    }
 
     try {
       console.log('[UserToolRequests] Saving edit for request:', editingId);
