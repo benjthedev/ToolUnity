@@ -25,6 +25,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { userId, email } = body;
     console.log('[SEND-VERIFICATION-EMAIL] Attempting to send email to:', email, 'for userId:', userId);
+    console.log('[SEND-VERIFICATION-EMAIL] Request headers:', {
+      'content-type': request.headers.get('content-type'),
+      'user-agent': request.headers.get('user-agent'),
+    });
 
     if (!email || !userId) {
       console.error('[SEND-VERIFICATION-EMAIL] Missing email or userId');
@@ -42,10 +46,15 @@ export async function POST(request: NextRequest) {
 
     if (lookupError) {
       console.error('[SEND-VERIFICATION-EMAIL] User lookup error:', lookupError);
+      console.error('[SEND-VERIFICATION-EMAIL] Error code:', lookupError.code);
+      console.error('[SEND-VERIFICATION-EMAIL] Error message:', lookupError.message);
+      console.error('[SEND-VERIFICATION-EMAIL] Error details:', JSON.stringify(lookupError));
     }
     
     if (!userRecord) {
       console.error('[SEND-VERIFICATION-EMAIL] User not found in users_ext');
+      console.error('[SEND-VERIFICATION-EMAIL] Looked for user_id:', userId, 'email:', email);
+      console.error('[SEND-VERIFICATION-EMAIL] This is likely an RLS policy blocking the query');
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
     
@@ -90,10 +99,12 @@ export async function POST(request: NextRequest) {
 
     const responseData = await response.json();
     console.log('[SEND-VERIFICATION-EMAIL] Resend API response status:', response.status);
+    console.log('[SEND-VERIFICATION-EMAIL] Resend API response body:', JSON.stringify(responseData));
 
     if (!response.ok) {
       console.error('[SEND-VERIFICATION-EMAIL] Resend API error:', JSON.stringify(responseData));
       console.error('[SEND-VERIFICATION-EMAIL] Status:', response.status, 'Email:', email);
+      console.error('[SEND-VERIFICATION-EMAIL] Response headers:', JSON.stringify(Object.fromEntries(response.headers)));
       
       // Check if it's an authentication issue
       if (response.status === 401) {
