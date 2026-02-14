@@ -257,7 +257,7 @@ export default function ToolMap({ tools, toolRequests = [], initialCenter }: Too
       requestsWithCoords.forEach((req) => {
         if (!req.latitude || !req.longitude) return;
 
-        console.log(`[MAP] Request "${req.tool_name}" - Postcode: ${req.postcode}, Lat: ${req.latitude}, Lng: ${req.longitude}`);
+        console.log(`[MAP] Request "${req.tool_name}" - Postcode: ${req.postcode}, setLngLat([${req.longitude}, ${req.latitude}])`);
 
         const el = document.createElement('div');
         el.style.width = '40px';
@@ -315,7 +315,7 @@ export default function ToolMap({ tools, toolRequests = [], initialCenter }: Too
         const popup = new mapboxgl.Popup({ offset: 25, closeButton: true, closeOnClick: false }).setHTML(popupHtml);
 
         const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
-          .setLngLat([req.latitude!, req.longitude!])
+          .setLngLat([req.longitude!, req.latitude!])
           .setPopup(popup)
           .addTo(map.current!);
 
