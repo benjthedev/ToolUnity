@@ -1,18 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/auth';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { getSupabaseAdmin } from '@/lib/supabase';
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const supabase = getSupabaseAdmin();
     console.log('[TOOL-REQUESTS-ID-PATCH] Request received for ID:', params.id);
     console.log('[TOOL-REQUESTS-ID-PATCH] ID type:', typeof params.id, 'ID length:', params.id?.length);
     const session = await getServerSession(authOptions);
@@ -96,6 +92,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const supabase = getSupabaseAdmin();
     console.log('[TOOL-REQUESTS-ID-DELETE] Request received for ID:', params.id);
     const session = await getServerSession(authOptions);
     console.log('[TOOL-REQUESTS-ID-DELETE] Session:', session?.user?.id);
