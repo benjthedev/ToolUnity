@@ -14,6 +14,7 @@ export async function PATCH(
 ) {
   try {
     console.log('[TOOL-REQUESTS-ID-PATCH] Request received for ID:', params.id);
+    console.log('[TOOL-REQUESTS-ID-PATCH] ID type:', typeof params.id, 'ID length:', params.id?.length);
     const session = await getServerSession(authOptions);
     console.log('[TOOL-REQUESTS-ID-PATCH] Session:', session?.user?.id);
     
@@ -25,6 +26,15 @@ export async function PATCH(
     const { id } = params;
     const body = await request.json();
     console.log('[TOOL-REQUESTS-ID-PATCH] Update body:', body);
+    console.log('[TOOL-REQUESTS-ID-PATCH] Looking up request with ID:', { id, idType: typeof id, idLength: id?.length });
+
+    // Debug: Check if any requests exist for this user
+    const { data: allUserRequests, error: debugError } = await supabase
+      .from('tool_requests')
+      .select('id, user_id')
+      .eq('user_id', session.user.id);
+    
+    console.log('[TOOL-REQUESTS-ID-PATCH] All requests for user:', { count: allUserRequests?.length, error: debugError?.message, requests: allUserRequests });
 
     // Verify the request belongs to the user
     const { data: existingRequest, error: lookupError } = await supabase
@@ -33,7 +43,7 @@ export async function PATCH(
       .eq('id', id)
       .single();
 
-    console.log('[TOOL-REQUESTS-ID-PATCH] Existing request lookup:', { found: !!existingRequest, error: lookupError, requestData: existingRequest });
+    console.log('[TOOL-REQUESTS-ID-PATCH] Query result:', { lookupError: lookupError?.message, requestData: existingRequest });
     console.log('[TOOL-REQUESTS-ID-PATCH] Comparison:', { 
       existingUserID: existingRequest?.user_id,
       sessionUserID: session.user.id,
@@ -97,6 +107,16 @@ export async function DELETE(
 
     const { id } = params;
 
+    console.log('[TOOL-REQUESTS-ID-DELETE] Looking up request with ID:', { id, idType: typeof id, idLength: id?.length });
+
+    // Debug: Check if any requests exist for this user
+    const { data: allUserRequests, error: debugError } = await supabase
+      .from('tool_requests')
+      .select('id, user_id')
+      .eq('user_id', session.user.id);
+    
+    console.log('[TOOL-REQUESTS-ID-DELETE] All requests for user:', { count: allUserRequests?.length, error: debugError?.message, requests: allUserRequests });
+
     // Verify the request belongs to the user
     const { data: existingRequest, error: lookupError } = await supabase
       .from('tool_requests')
@@ -104,7 +124,7 @@ export async function DELETE(
       .eq('id', id)
       .single();
 
-    console.log('[TOOL-REQUESTS-ID-DELETE] Existing request lookup:', { found: !!existingRequest, error: lookupError, requestData: existingRequest });
+    console.log('[TOOL-REQUESTS-ID-DELETE] Query result:', { lookupError: lookupError?.message, requestData: existingRequest });
     console.log('[TOOL-REQUESTS-ID-DELETE] Comparison:', { 
       existingUserID: existingRequest?.user_id,
       sessionUserID: session.user.id,
