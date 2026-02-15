@@ -12,11 +12,9 @@ export const SignupSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters').max(20, 'Username must be less than 20 characters'),
   phone_number: z.string()
     .min(1, 'Phone number is required')
+    .transform(val => val.replace(/\D/g, ''))
     .refine(
-      (phone) => {
-        const digitsOnly = phone.replace(/\D/g, '');
-        return /^\d{10,}$/.test(digitsOnly);
-      },
+      (digitsOnly) => digitsOnly.length >= 10,
       'Phone number must contain at least 10 digits'
     ),
   password: z.string().min(8, 'Password must be at least 8 characters').optional(),

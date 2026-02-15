@@ -127,11 +127,14 @@ export async function POST(request: NextRequest) {
     const updatePayload = {
       email: email,
       username: username,
-      phone_number: phone_number,
+      phone_number: phone_number || null,
       subscription_tier: 'free',
       email_verified: false,
       updated_at: new Date().toISOString(),
     };
+
+    console.log('[SIGNUP-API] About to update users_ext with payload:', JSON.stringify(updatePayload));
+    console.log('[SIGNUP-API] Phone number type:', typeof phone_number, 'value:', phone_number);
 
     // Use UPDATE instead of UPSERT to avoid trigger conflicts with the auth-created row
     const { error: profileError, data: profileData } = await sb
@@ -141,7 +144,7 @@ export async function POST(request: NextRequest) {
       .select();
 
     if (profileError) {
-      console.error('[SIGNUP-API] Profile upsert error:', profileError);
+      console.error('[SIGNUP-API] Profile update error:', profileError);
       console.error('[SIGNUP-API] Full error object:', JSON.stringify(profileError));
       
       // ROLLBACK: Delete the auth user that was just created

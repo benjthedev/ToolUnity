@@ -40,9 +40,11 @@ export async function POST(request: NextRequest) {
 
     // Verify that the userId actually owns this email in users_ext
     console.log('[SEND-VERIFICATION-EMAIL] Looking up user in users_ext...');
+    console.log('[SEND-VERIFICATION-EMAIL] Query params - user_id:', userId, 'email:', email);
+    
     const { data: userRecord, error: lookupError } = await supabase
       .from('users_ext')
-      .select('user_id, email')
+      .select('user_id, email, phone_number')
       .eq('user_id', userId)
       .eq('email', email)
       .single();
@@ -52,16 +54,29 @@ export async function POST(request: NextRequest) {
       console.error('[SEND-VERIFICATION-EMAIL] Error code:', lookupError.code);
       console.error('[SEND-VERIFICATION-EMAIL] Error message:', lookupError.message);
       console.error('[SEND-VERIFICATION-EMAIL] Error details:', JSON.stringify(lookupError));
+      console.error('[SEND-VERIFICATION-EMAIL] This usually means RLS policy is blocking the read');
     }
     
     if (!userRecord) {
-      console.error('[SEND-VERIFICATION-EMAIL] User not found in users_ext');
+      console.error('[SEND-VERIFICATION-EMAIL] User not found in users_ext or RLS blocked query');
       console.error('[SEND-VERIFICATION-EMAIL] Looked for user_id:', userId, 'email:', email);
-      console.error('[SEND-VERIFICATION-EMAIL] This is likely an RLS policy blocking the query');
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      console.error('[SEND-VERIFICATION-EMAIL] This is likely an RLS policy issue - using admin client to re-query');
+      
+      // Try again with admin client to see actual data
+      const adminSb = getSupabaseAdmin();
+      const { data: adminRecord, error: adminError } = await adminSb
+        .from('users_ext')
+        .select('user_id, email, phone_number')
+        .eq('user_id', userId)
+        .single();
+      
+      console.log('[SEND-VERIFICATION-EMAIL] Admin query result:', adminRecord);
+      console.log('[SEND-VERIFICATION-EMAIL] Admin query error:', adminError);
+      
+      return NextResponse.json({ error: 'User not found (RLS policy may be blocking access)' }, { status: 404 });
     }
     
-    console.log('[SEND-VERIFICATION-EMAIL] User found in users_ext');
+    console.log('[SEND-VERIFICATION-EMAIL] User found in users_ext:', { user_id: userRecord.user_id, email: userRecord.email, has_phone: !!userRecord.phone_number });
 
     // Send verification email via Resend
     if (!process.env.RESEND_API_KEY) {
