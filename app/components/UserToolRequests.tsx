@@ -86,6 +86,7 @@ export default function UserToolRequests() {
       const response = await fetch(`/api/tool-requests/${editingId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Include session cookie
         body: JSON.stringify({
           tool_name: editFormData.tool_name,
           category: editFormData.category,
@@ -119,6 +120,7 @@ export default function UserToolRequests() {
       console.log('[UserToolRequests] Deleting request:', requestId);
       const response = await fetch(`/api/tool-requests/${requestId}`, {
         method: 'DELETE',
+        credentials: 'include', // Include session cookie
       });
 
       console.log('[UserToolRequests] Delete response status:', response.status);
