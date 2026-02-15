@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
 import { fetchWithCsrf } from '@/app/utils/csrf-client';
 
 export default function SignupPage() {
@@ -21,27 +20,19 @@ export default function SignupPage() {
     setError('');
     setLoading(true);
 
-    // Validate username
-    if (!username.trim()) {
-      setError('Username is required');
-      setLoading(false);
-      return;
-    }
-
-    if (username.length < 3) {
+    // Client-side validation (quick feedback before server call)
+    if (!username.trim() || username.length < 3) {
       setError('Username must be at least 3 characters');
       setLoading(false);
       return;
     }
 
-    // Validate phone number
     if (!phoneNumber.trim()) {
       setError('Phone number is required');
       setLoading(false);
       return;
     }
 
-    // Basic phone number validation (at least 10 digits)
     const phoneDigitsOnly = phoneNumber.replace(/\D/g, '');
     if (phoneDigitsOnly.length < 10) {
       setError('Phone number must be at least 10 digits');
@@ -49,7 +40,6 @@ export default function SignupPage() {
       return;
     }
 
-    // Validate passwords match
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       setLoading(false);
@@ -63,98 +53,34 @@ export default function SignupPage() {
     }
 
     try {
-      // Normalize email to lowercase for consistency
-      const normalizedEmail = email.toLowerCase().trim();
-      
-      const { data: authData, error: signUpError } = await supabase.auth.signUp({
-        email: normalizedEmail,
-        password,
-      });
-
-      if (signUpError) {
-        setError(signUpError.message);
-        setLoading(false);
-        return;
-      }
-
-      if (!authData.user?.id) {
-        setError('Failed to create account');
-        setLoading(false);
-        return;
-      }
-
-      // Create user profile via API with CSRF protection
-      const profileData: any = {
-        user_id: authData.user.id,
-        email: normalizedEmail,
-        username: username,
-        phone_number: phoneNumber,
-        subscription_tier: 'free',
-      };
-
-      console.log('[SIGNUP-PAGE] Calling /api/signup with data:', profileData);
+      // SINGLE atomic API call — server creates auth user, profile, AND sends email
+      // If anything fails, the server rolls back everything. No orphaned accounts.
       const response = await fetchWithCsrf('/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(profileData),
+        body: JSON.stringify({
+          email: email.toLowerCase().trim(),
+          username: username.trim(),
+          phone_number: phoneNumber,
+          password: password,
+          subscription_tier: 'free',
+        }),
       });
 
       const data = await response.json();
 
-      if (!response.ok) {
-        console.error('[SIGNUP-PAGE] Profile endpoint failed:', data);
-        setError(data.error || data.message || 'Failed to create account');
+      if (!response.ok || !data.success) {
+        console.error('[SIGNUP-PAGE] Signup failed:', data);
+        setError(data.error || data.message || 'Failed to create account. Please try again.');
         setLoading(false);
         return;
       }
 
-      if (!data.success) {
-        console.error('[SIGNUP-PAGE] Profile endpoint returned success=false:', data);
-        setError(data.message || 'Failed to create account');
-        setLoading(false);
-        return;
-      }
-
-      console.log('[SIGNUP-PAGE] Profile created successfully, now sending verification email...');
-
-      // Send verification email using Resend (our email service)
-      try {
-        const emailPayload = {
-          userId: authData.user.id,
-          email: normalizedEmail,
-        };
-        console.log('[SIGNUP-PAGE] Sending email with payload:', emailPayload);
-        
-        const emailResponse = await fetchWithCsrf('/api/send-verification-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(emailPayload),
-        });
-
-        console.log('[SIGNUP-PAGE] Email endpoint response status:', emailResponse.status);
-        
-        if (!emailResponse.ok) {
-          const emailError = await emailResponse.json();
-          console.error('[SIGNUP-PAGE] Email endpoint failed:', emailError);
-          setError(emailError.error || 'Failed to send verification email. Your account will be deleted.');
-          setLoading(false);
-          return;
-        }
-        
-        console.log('[SIGNUP-PAGE] Verification email sent successfully');
-      } catch (emailErr) {
-        console.error('[SIGNUP-PAGE] Email sending error:', emailErr);
-        setError('Failed to send verification email. Your account will be deleted.');
-        setLoading(false);
-        return;
-      }
-
-      console.log('[SIGNUP-PAGE] Redirecting to signup-success page...');
-      // Redirect to success page showing email verification message
-      router.push(`/signup-success?email=${encodeURIComponent(normalizedEmail)}`);
+      console.log('[SIGNUP-PAGE] Signup succeeded, redirecting...');
+      router.push(`/signup-success?email=${encodeURIComponent(email.toLowerCase().trim())}`);
     } catch (err) {
-      console.error('[SIGNUP-PAGE] Caught error:', err);
-      setError('An unexpected error occurred');
+      console.error('[SIGNUP-PAGE] Network error:', err);
+      setError('Could not connect to server. Please check your internet and try again.');
     } finally {
       setLoading(false);
     }

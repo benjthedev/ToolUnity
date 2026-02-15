@@ -17,7 +17,7 @@ export const SignupSchema = z.object({
       (digitsOnly) => digitsOnly.length >= 10,
       'Phone number must contain at least 10 digits'
     ),
-  password: z.string().min(8, 'Password must be at least 8 characters').optional(),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
   subscription_tier: z.enum(['free', 'basic', 'standard', 'pro']).optional().default('free'),
 });
 
