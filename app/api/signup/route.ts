@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseAdmin } from '@/lib/supabase';
 import { checkRateLimitByEmail, RATE_LIMIT_CONFIGS } from '@/lib/rate-limit';
 import { verifyCsrfToken } from '@/lib/csrf';
 import { SignupSchema } from '@/lib/validation';
@@ -7,36 +7,11 @@ import { serverLog } from '@/lib/logger';
 import { ApiErrors, apiSuccess } from '@/lib/api-response';
 import { ZodError } from 'zod';
 
-let supabaseAdmin: any = null;
-
-function getSupabaseAdmin() {
-  if (supabaseAdmin) return supabaseAdmin;
-  
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  
-  if (!supabaseUrl || !serviceRoleKey) {
-    return null;
-  }
-  
-  supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
-  return supabaseAdmin;
-}
-
-let supabase: any = null;
-
-function getSupabase() {
-  if (supabase) return supabase;
-  
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return null;
-  }
-  
-  supabase = createClient(supabaseUrl, supabaseAnonKey);
-  return supabase;
+/**
+ * Helper: wait for ms milliseconds
+ */
+function delay(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export async function POST(request: NextRequest) {
@@ -51,13 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    console.log('[SIGNUP-API] Body received, attempting to parse:', body.email);
-    console.log('[SIGNUP-API] Raw body fields:', {
-      email: body.email,
-      username: body.username,
-      phone_number: body.phone_number ? `${body.phone_number.substring(0, 3)}...` : 'MISSING',
-      password: body.password ? '***' : 'MISSING',
-    });
+    console.log('[SIGNUP-API] Body received for:', body.email);
     
     // Validate input with Zod
     let validated;
@@ -69,14 +38,10 @@ export async function POST(request: NextRequest) {
         password: body.password,
         subscription_tier: body.subscription_tier || 'free',
       });
-      console.log('[SIGNUP-API] Validation passed for:', body.email);
+      console.log('[SIGNUP-API] Validation passed');
     } catch (error) {
       if (error instanceof ZodError) {
-        console.error('[SIGNUP-API] Zod validation errors:');
-        error.errors.forEach((err) => {
-          console.error(`  - ${err.path.join('.')}: ${err.code} - ${err.message}`);
-        });
-        console.error('[SIGNUP-API] Full validation error object:', JSON.stringify(error.errors, null, 2));
+        console.error('[SIGNUP-API] Zod validation errors:', JSON.stringify(error.errors));
         return ApiErrors.VALIDATION_ERROR(`Invalid signup data: ${error.errors.map(e => `${e.path}: ${e.message}`).join(', ')}`);
       }
       throw error;
@@ -85,16 +50,17 @@ export async function POST(request: NextRequest) {
     // Use validated data (not raw body) for all fields
     const { email, username, phone_number } = validated;
     const user_id = body.user_id;
+    // Normalize email to lowercase to avoid case sensitivity issues
+    const normalizedEmail = email.toLowerCase().trim();
 
-    console.log('[SIGNUP-API] Validated data - email:', email, 'username:', username, 'phone_number:', phone_number || 'EMPTY');
-    console.log('[SIGNUP-API] Processing signup for user_id:', user_id, 'email:', email, 'phone:', phone_number || 'EMPTY');
+    console.log('[SIGNUP-API] Validated - email:', normalizedEmail, 'username:', username, 'phone:', phone_number || 'EMPTY', 'user_id:', user_id);
 
     if (!user_id || typeof user_id !== 'string') {
       console.error('[SIGNUP-API] Missing or invalid user_id');
       return ApiErrors.BAD_REQUEST('Missing user_id');
     }
 
-    // Validate user_id is a valid UUID format (basic sanity check)
+    // Validate user_id is a valid UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(user_id)) {
       console.error('[SIGNUP-API] Invalid user_id format:', user_id);
@@ -103,80 +69,100 @@ export async function POST(request: NextRequest) {
 
     // Rate limit signup by email
     const rateLimitCheck = checkRateLimitByEmail(
-      email,
+      normalizedEmail,
       RATE_LIMIT_CONFIGS.auth.maxAttempts,
       RATE_LIMIT_CONFIGS.auth.windowMs
     );
 
     if (!rateLimitCheck.allowed) {
-      console.error('[SIGNUP-API] Rate limit exceeded for:', email);
+      console.error('[SIGNUP-API] Rate limit exceeded for:', normalizedEmail);
       return ApiErrors.RATE_LIMITED();
     }
 
-    // Update user profile - the auth trigger already created a partial row in users_ext
-    // IMPORTANT: Use admin client to bypass RLS - the anon client has no user session server-side
+    // Use admin client to bypass RLS (anon client has no server-side session)
     const sb = getSupabaseAdmin();
-    if (!sb) {
-      console.error('[SIGNUP-API] Admin client not available - missing SUPABASE_SERVICE_ROLE_KEY');
-      return ApiErrors.INTERNAL_ERROR();
-    }
-    console.log('[SIGNUP-API] Using admin client to update profile for user_id:', user_id);
-    console.log('[SIGNUP-API] Data being updated:', {
-      email,
-      username,
-      phone_number: phone_number || null,
-      subscription_tier: 'free',
-      email_verified: false,
-    });
 
-    const updatePayload = {
-      email: email,
+    // UPSERT payload - handles BOTH cases:
+    // 1. Trigger already created the row → UPSERT updates it
+    // 2. Trigger hasn't created the row yet (race condition) → UPSERT inserts it
+    const upsertPayload = {
+      user_id: user_id,
+      email: normalizedEmail,
       username: username,
       phone_number: phone_number || null,
       subscription_tier: 'free',
       email_verified: false,
+      tools_count: 0,
       updated_at: new Date().toISOString(),
     };
 
-    console.log('[SIGNUP-API] About to update users_ext with payload:', JSON.stringify(updatePayload));
-    console.log('[SIGNUP-API] Phone number type:', typeof phone_number, 'value:', phone_number);
+    console.log('[SIGNUP-API] Upserting profile with phone:', phone_number, 'type:', typeof phone_number);
 
-    // Use UPDATE instead of UPSERT to avoid trigger conflicts with the auth-created row
-    const { error: profileError, data: profileData } = await sb
-      .from('users_ext')
-      .update(updatePayload)
-      .eq('user_id', user_id)
-      .select();
+    // Retry logic - handles transient DB issues and trigger timing
+    let profileData: any[] | null = null;
+    let profileError: any = null;
+    const maxAttempts = 3;
 
-    if (profileError) {
-      console.error('[SIGNUP-API] Profile update error:', profileError);
-      console.error('[SIGNUP-API] Full error object:', JSON.stringify(profileError));
-      
-      // ROLLBACK: Delete the auth user that was just created
-      console.log('[SIGNUP-API] Attempting to rollback: deleting auth user', user_id);
-      const sbAdmin = getSupabaseAdmin();
-      if (sbAdmin) {
-        try {
-          await sbAdmin.auth.admin.deleteUser(user_id);
-          console.log('[SIGNUP-API] Rollback successful: auth user deleted');
-        } catch (deleteError) {
-          console.error('[SIGNUP-API] Rollback failed: could not delete auth user:', deleteError);
-          // Continue with error response despite rollback failure
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const result = await sb
+        .from('users_ext')
+        .upsert(upsertPayload, { onConflict: 'user_id' })
+        .select();
+
+      profileError = result.error;
+      profileData = result.data;
+
+      if (profileError) {
+        console.error(`[SIGNUP-API] Upsert attempt ${attempt}/${maxAttempts} error:`, profileError.message, profileError.code);
+        if (attempt < maxAttempts) {
+          await delay(500 * attempt); // 500ms, 1000ms backoff
+          continue;
         }
+        break;
       }
-      
-      return ApiErrors.BAD_REQUEST(profileError.message || 'Failed to create profile');
+
+      // Verify rows were actually affected
+      if (profileData && profileData.length > 0) {
+        console.log(`[SIGNUP-API] Upsert succeeded on attempt ${attempt}, rows:`, profileData.length);
+        
+        // CRITICAL: Verify phone was actually saved
+        const savedPhone = profileData[0]?.phone_number;
+        const savedEmail = profileData[0]?.email;
+        console.log('[SIGNUP-API] Verified saved data - phone:', savedPhone, 'email:', savedEmail, 'username:', profileData[0]?.username);
+        
+        if (phone_number && !savedPhone) {
+          console.error('[SIGNUP-API] CRITICAL: phone_number was NOT saved despite successful upsert! Expected:', phone_number, 'Got:', savedPhone);
+        }
+        break;
+      }
+
+      // 0 rows returned - this should not happen with UPSERT but handle it
+      console.warn(`[SIGNUP-API] Upsert attempt ${attempt}/${maxAttempts} returned 0 rows`);
+      if (attempt < maxAttempts) {
+        await delay(500 * attempt);
+      }
     }
 
-    console.log('[SIGNUP-API] User profile created/updated successfully');
-    console.log('[SIGNUP-API] Profile data returned:', profileData);
+    // Final check: did the profile get created?
+    if (profileError || !profileData || profileData.length === 0) {
+      console.error('[SIGNUP-API] Profile upsert FAILED after', maxAttempts, 'attempts. Error:', profileError?.message || 'no rows returned');
+      
+      // ROLLBACK: Delete the auth user since profile creation failed
+      console.log('[SIGNUP-API] Rolling back: deleting auth user', user_id);
+      try {
+        await sb.auth.admin.deleteUser(user_id);
+        console.log('[SIGNUP-API] Rollback successful: auth user deleted');
+      } catch (deleteError) {
+        console.error('[SIGNUP-API] Rollback failed:', deleteError);
+      }
+      
+      return ApiErrors.BAD_REQUEST(profileError?.message || 'Failed to create profile - please try again');
+    }
 
-    // Supabase will automatically send verification email and keep email unverified
-    // until user clicks the verification link
+    console.log('[SIGNUP-API] Profile created successfully for user_id:', user_id);
 
-    // Return success with detailed info for debugging
     return apiSuccess(
-      { id: user_id, email: email, username: username, phone_number: phone_number || null },
+      { id: user_id, email: normalizedEmail, username: username, phone_number: phone_number || null },
       'User profile created successfully. Verification email will be sent separately.',
       201
     );

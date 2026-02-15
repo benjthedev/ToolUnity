@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase, getSupabaseAdmin } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/supabase';
 import { verifyCsrfToken } from '@/lib/csrf';
 import { serverLog } from '@/lib/logger';
 import crypto from 'crypto';
@@ -8,6 +8,13 @@ import crypto from 'crypto';
 function generateVerificationToken(email: string): string {
   const secret = process.env.NEXTAUTH_SECRET || '';
   return crypto.createHmac('sha256', secret).update(email.toLowerCase().trim()).digest('hex');
+}
+
+/**
+ * Helper: wait for ms milliseconds
+ */
+function delay(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export async function POST(request: NextRequest) {
@@ -27,44 +34,50 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     userId = body.userId;
     const { email } = body;
-    console.log('[SEND-VERIFICATION-EMAIL] Attempting to send email to:', email, 'for userId:', userId);
-    console.log('[SEND-VERIFICATION-EMAIL] Request headers:', {
-      'content-type': request.headers.get('content-type'),
-      'user-agent': request.headers.get('user-agent'),
-    });
+    const normalizedEmail = email?.toLowerCase().trim();
+    console.log('[SEND-VERIFICATION-EMAIL] Attempting for userId:', userId, 'email:', normalizedEmail);
 
-    if (!email || !userId) {
+    if (!normalizedEmail || !userId) {
       console.error('[SEND-VERIFICATION-EMAIL] Missing email or userId');
       return NextResponse.json({ error: 'Email and userId required' }, { status: 400 });
     }
 
-    // Verify that the userId actually owns this email in users_ext
-    // IMPORTANT: Use admin client to bypass RLS - the anon client has no user session server-side
-    console.log('[SEND-VERIFICATION-EMAIL] Looking up user in users_ext using admin client...');
-    console.log('[SEND-VERIFICATION-EMAIL] Query params - user_id:', userId, 'email:', email);
+    // Look up user by user_id ONLY (not email) to avoid case-sensitivity mismatches
+    // The email from the trigger may differ in casing from what the client sent
     const adminSb = getSupabaseAdmin();
     
-    const { data: userRecord, error: lookupError } = await adminSb
-      .from('users_ext')
-      .select('user_id, email, phone_number')
-      .eq('user_id', userId)
-      .eq('email', email)
-      .single();
+    let userRecord: any = null;
+    let lookupError: any = null;
+    const maxLookupAttempts = 3;
 
-    if (lookupError) {
-      console.error('[SEND-VERIFICATION-EMAIL] User lookup error:', lookupError);
-      console.error('[SEND-VERIFICATION-EMAIL] Error code:', lookupError.code);
-      console.error('[SEND-VERIFICATION-EMAIL] Error message:', lookupError.message);
-      console.error('[SEND-VERIFICATION-EMAIL] Error details:', JSON.stringify(lookupError));
-      console.error('[SEND-VERIFICATION-EMAIL] Lookup error details:', lookupError);
+    for (let attempt = 1; attempt <= maxLookupAttempts; attempt++) {
+      console.log(`[SEND-VERIFICATION-EMAIL] Lookup attempt ${attempt}/${maxLookupAttempts} for user_id:`, userId);
+      
+      const result = await adminSb
+        .from('users_ext')
+        .select('user_id, email, phone_number')
+        .eq('user_id', userId)
+        .single();
+
+      lookupError = result.error;
+      userRecord = result.data;
+
+      if (userRecord) {
+        console.log('[SEND-VERIFICATION-EMAIL] User found on attempt', attempt, '- email:', userRecord.email, 'phone:', userRecord.phone_number ? 'YES' : 'NO');
+        break;
+      }
+
+      // User not found - might be trigger race condition, wait and retry
+      console.warn(`[SEND-VERIFICATION-EMAIL] User not found on attempt ${attempt}, error:`, lookupError?.message || 'no data');
+      if (attempt < maxLookupAttempts) {
+        await delay(800 * attempt); // 800ms, 1600ms backoff
+      }
     }
     
     if (!userRecord) {
-      console.error('[SEND-VERIFICATION-EMAIL] User not found - user_id:', userId, 'email:', email);
+      console.error('[SEND-VERIFICATION-EMAIL] User not found after', maxLookupAttempts, 'attempts - user_id:', userId);
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
-    
-    console.log('[SEND-VERIFICATION-EMAIL] User found in users_ext:', { user_id: userRecord.user_id, email: userRecord.email, has_phone: !!userRecord.phone_number });
 
     // Send verification email via Resend
     if (!process.env.RESEND_API_KEY) {
@@ -75,10 +88,11 @@ export async function POST(request: NextRequest) {
     console.log('[SEND-VERIFICATION-EMAIL] RESEND_API_KEY is configured');
 
     // Generate an HMAC-signed verification token (no DB storage needed)
-    const verificationToken = generateVerificationToken(email);
-    const verificationLink = `${process.env.NEXTAUTH_URL}/api/verify-email?email=${encodeURIComponent(email)}&token=${verificationToken}`;
+    // Always use normalized (lowercase) email for token generation and sending
+    const verificationToken = generateVerificationToken(normalizedEmail);
+    const verificationLink = `${process.env.NEXTAUTH_URL}/api/verify-email?email=${encodeURIComponent(normalizedEmail)}&token=${verificationToken}`;
     
-    console.log('[SEND-VERIFICATION-EMAIL] Sending email via Resend...');
+    console.log('[SEND-VERIFICATION-EMAIL] Sending email via Resend to:', normalizedEmail);
 
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -88,7 +102,7 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         from: process.env.RESEND_FROM_EMAIL || 'noreply@toolunity.app',
-        to: email,
+        to: normalizedEmail,
         subject: 'Verify your ToolUnity email address',
         html: `
           <h2>Welcome to ToolUnity!</h2>
@@ -109,7 +123,7 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       console.error('[SEND-VERIFICATION-EMAIL] Resend API error:', JSON.stringify(responseData));
-      console.error('[SEND-VERIFICATION-EMAIL] Status:', response.status, 'Email:', email);
+      console.error('[SEND-VERIFICATION-EMAIL] Status:', response.status, 'Email:', normalizedEmail);
       console.error('[SEND-VERIFICATION-EMAIL] Response headers:', JSON.stringify(Object.fromEntries(response.headers)));
       
       // ROLLBACK: Delete the user since email failed to send
@@ -130,7 +144,7 @@ export async function POST(request: NextRequest) {
       throw new Error(`Resend error: ${responseData?.message || JSON.stringify(responseData)}`);
     }
 
-    console.log('[SEND-VERIFICATION-EMAIL] Email sent successfully to:', email);
+    console.log('[SEND-VERIFICATION-EMAIL] Email sent successfully to:', normalizedEmail);
     return NextResponse.json({ message: 'Verification email sent successfully' }, { status: 200 });
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Unknown error';

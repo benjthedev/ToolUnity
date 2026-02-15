@@ -59,6 +59,11 @@ export async function fetchWithCsrf(
 ): Promise<Response> {
   const { csrfRequired = true, ...fetchOptions } = options;
 
+  // Always include credentials to ensure cookies are sent reliably
+  if (!fetchOptions.credentials) {
+    fetchOptions.credentials = 'include';
+  }
+
   // For state-changing requests, include CSRF token
   if (csrfRequired && ['POST', 'PUT', 'PATCH', 'DELETE'].includes((options.method || 'GET').toUpperCase())) {
     const token = ensureCsrfToken();

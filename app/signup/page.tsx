@@ -63,8 +63,11 @@ export default function SignupPage() {
     }
 
     try {
+      // Normalize email to lowercase for consistency
+      const normalizedEmail = email.toLowerCase().trim();
+      
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
-        email,
+        email: normalizedEmail,
         password,
       });
 
@@ -83,7 +86,7 @@ export default function SignupPage() {
       // Create user profile via API with CSRF protection
       const profileData: any = {
         user_id: authData.user.id,
-        email: email,
+        email: normalizedEmail,
         username: username,
         phone_number: phoneNumber,
         subscription_tier: 'free',
@@ -118,7 +121,7 @@ export default function SignupPage() {
       try {
         const emailPayload = {
           userId: authData.user.id,
-          email: email,
+          email: normalizedEmail,
         };
         console.log('[SIGNUP-PAGE] Sending email with payload:', emailPayload);
         
@@ -148,7 +151,7 @@ export default function SignupPage() {
 
       console.log('[SIGNUP-PAGE] Redirecting to signup-success page...');
       // Redirect to success page showing email verification message
-      router.push(`/signup-success?email=${encodeURIComponent(email)}`);
+      router.push(`/signup-success?email=${encodeURIComponent(normalizedEmail)}`);
     } catch (err) {
       console.error('[SIGNUP-PAGE] Caught error:', err);
       setError('An unexpected error occurred');
