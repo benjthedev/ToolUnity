@@ -114,8 +114,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Update user profile - the auth trigger already created a partial row in users_ext
-    const sb = getSupabase();
-    console.log('[SIGNUP-API] Updating profile for user_id:', user_id);
+    // IMPORTANT: Use admin client to bypass RLS - the anon client has no user session server-side
+    const sb = getSupabaseAdmin();
+    if (!sb) {
+      console.error('[SIGNUP-API] Admin client not available - missing SUPABASE_SERVICE_ROLE_KEY');
+      return ApiErrors.INTERNAL_ERROR();
+    }
+    console.log('[SIGNUP-API] Using admin client to update profile for user_id:', user_id);
     console.log('[SIGNUP-API] Data being updated:', {
       email,
       username,
