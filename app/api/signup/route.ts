@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     const { data: authData, error: authError } = await sb.auth.admin.createUser({
       email: normalizedEmail,
       password: password,
-      email_confirm: false, // We handle verification ourselves
+      email_confirm: true, // Allow login immediately - our own verification is separate (users_ext.email_verified)
     });
 
     if (authError) {
